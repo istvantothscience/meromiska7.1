@@ -1,0 +1,35 @@
+{
+  "lesson_id": "l1",
+  "title": "A híd próbája",
+  "scenes": [
+    {
+      "n": 1,
+      "title": "Miska szerencsét próbál",
+      "text": "Egyszer volt, hol nem volt, hetedhét országon is túl, élt egyszer egy szegény ember, s annak három fia. A legkisebb, Miska, egy reggel vállára vetette tarisznyáját, övére akasztotta apja régi mérőzsinórját, és elindult szerencsét próbálni. Ment, mendegélt, míg egy faluba nem ért, ahol akkora volt a lárma, hogy még a tyúkok is elfelejtettek kapirgálni. A falu népe az öreg híd körül vitatkozott: délután érkezik a király követe, de senki sem tudta biztosan, mekkora is a híd.",
+      "quote": "Hátha akad valami, amit nem nagy hanggal, hanem ésszel kell megoldani.",
+      "image": "01_miska_a_faluban.png"
+    },
+    {
+      "n": 2,
+      "title": "A híd, amely mindenkinek más hosszú",
+      "text": "„Harmincnyolc lépés!” — mondta a molnár. „Dehogy! Nekem harminchárom!” — kiáltotta a kovács. Egy asszony arasszal mérte, egy öregember seprűnyéllel, valaki pedig csak hunyorított egyet, és kijelentette: „Szemre éppen elég hosszú.” Miska elnevette magát. „No, nem a híd változtatja a hosszát. Ti mértek mindannyian másképpen!” Ekkor megértette: ha pontos eredményt akarunk, ugyanazt az egységet kell használnunk.",
+      "quote": "Nem a híd változtatja a hosszát. Ti mértek mindannyian másképpen!",
+      "image": "02_meresi_zurzavar.png",
+      "task": [
+        "l1_a_atvaltas"
+      ]
+    },
+    {
+      "n": 3,
+      "title": "A mérőzsinór próbája",
+      "text": "Miska elővette apja mérőzsinórját, amelyet szabványos mérőszalaghoz igazítottak. Egyszer végigmérte vele a hidat, aztán még egyszer, hogy biztos legyen a dolgában. „Minek méred kétszer? A híd nem nőtt meg!” — nevetett a molnár. „A híd nem, de én tévedhetek” — felelte Miska. Amikor megérkezett a király követe, már pontos adat várta. A szekér biztonságosan átkelt, Miska pedig folytatta útját. Az első próba mögötte volt, de a mérőzsinórra még sokszor szüksége lesz.",
+      "quote": "A híd nem, de én tévedhetek.",
+      "image": "03_miska_megmeri_a_hidat.png",
+      "task": [
+        "l1_b_meres_atlagolas",
+        "l1_c_indoklas",
+        "l1_d_google_earth"
+      ]
+    }
+  ]
+}

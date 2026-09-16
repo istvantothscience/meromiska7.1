@@ -1,0 +1,413 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --terracotta: #8B261D;
+    --gold: #C6923C;
+    --antique-gold: #9E742A;
+    --sand: #EFE7D2;
+    --darkbrown: #24140D;
+    --leather: #331A11;
+    --parchment: #FBF8EF;
+    --parchment-deep: #E7DDCA;
+  }
+
+  body {
+    background-color: #170E09;
+    background-image: 
+      radial-gradient(ellipse at 50% 30%, rgba(68, 38, 23, 0.4) 0%, rgba(18, 10, 6, 0.95) 100%),
+      repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.05) 0, rgba(0, 0, 0, 0.05) 1px, transparent 0, transparent 8px);
+    color: #24140D;
+    font-family: 'EB Garamond', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', 'Cinzel', Georgia, serif;
+  }
+
+  .font-title {
+    font-family: 'Cinzel', serif;
+  }
+
+  .font-ornate {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+  }
+
+  .font-serif-story {
+    font-family: 'EB Garamond', Georgia, serif;
+  }
+
+  .font-display {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+}
+
+/* 3D Book Container & Realistic Depth */
+.book-perspective-container {
+  perspective: 2400px;
+  transform-style: preserve-3d;
+}
+
+.book-perspective-tilt {
+  transform: perspective(2200px) rotateX(3.5deg);
+  transform-origin: center bottom;
+}
+
+/* Desk Cast Shadow matching the drawing's diagonal shadow */
+.book-desk-cast-shadow {
+  background: radial-gradient(
+    ellipse at 65% 60%,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.45) 50%,
+    transparent 78%
+  );
+  filter: blur(14px);
+}
+
+/* Leather hardcover shell */
+.book-leather-backcover {
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(85, 42, 24, 0.6) 0%, rgba(28, 13, 8, 0.98) 100%),
+    linear-gradient(135deg, #38190F 0%, #1A0B06 100%);
+  box-shadow: 
+    0 35px 80px -15px rgba(0, 0, 0, 0.9),
+    0 12px 30px -5px rgba(0, 0, 0, 0.7),
+    inset 0 2px 4px rgba(255, 255, 255, 0.12),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.9);
+}
+
+/* 3D Side Page Thickness Edges (Stacked leaves visible from side) */
+.book-side-page-edge-left {
+  background: 
+    repeating-linear-gradient(
+      180deg,
+      #E5D9BC 0px,
+      #F3EBCE 2px,
+      #BCAE8C 3px,
+      #EFE5CB 5px
+    );
+  box-shadow: 
+    inset -2px 0 4px rgba(40, 20, 10, 0.35),
+    inset 1px 0 2px rgba(255, 255, 255, 0.4);
+}
+
+.book-side-page-edge-right {
+  background: 
+    repeating-linear-gradient(
+      180deg,
+      #E5D9BC 0px,
+      #F3EBCE 2px,
+      #BCAE8C 3px,
+      #EFE5CB 5px
+    );
+  box-shadow: 
+    inset 2px 0 4px rgba(40, 20, 10, 0.35),
+    inset -1px 0 2px rgba(255, 255, 255, 0.4);
+}
+
+/* Curved open page gradients: arched cylindrical paper reflecting light */
+.page-surface-3d-left {
+  background: linear-gradient(
+    to right,
+    #D0C09E 0%,
+    #E4D7B9 4%,
+    #FFFDF5 38%,
+    #FCF7E8 52%,
+    #EADBBE 86%,
+    #C4B38D 97%,
+    #826E4B 100%
+  );
+  box-shadow: 
+    inset 2px 3px 6px rgba(255, 255, 255, 0.45),
+    inset -12px 0 20px rgba(35, 17, 10, 0.22);
+}
+
+.page-surface-3d-right {
+  background: linear-gradient(
+    to right,
+    #826E4B 0%,
+    #C4B38D 3%,
+    #EADBBE 14%,
+    #FCF7E8 48%,
+    #FFFDF5 62%,
+    #E4D7B9 96%,
+    #D0C09E 100%
+  );
+  box-shadow: 
+    inset -2px 3px 6px rgba(255, 255, 255, 0.45),
+    inset 12px 0 20px rgba(35, 17, 10, 0.22);
+}
+
+.page-surface-3d-mobile {
+  background: linear-gradient(
+    to bottom,
+    #FFFDF5 0%,
+    #FAF4E2 60%,
+    #EFE3C5 100%
+  );
+}
+
+/* Deep Center Spine Gutter Crease */
+.book-center-spine-gutter {
+  background: linear-gradient(
+    90deg,
+    rgba(20, 10, 5, 0.0) 0%,
+    rgba(20, 10, 5, 0.3) 38%,
+    rgba(10, 5, 2, 0.65) 50%,
+    rgba(20, 10, 5, 0.3) 62%,
+    rgba(20, 10, 5, 0.0) 100%
+  );
+}
+
+/* Drop Cap initial letter */
+.drop-cap {
+  float: left;
+  font-family: 'Cinzel Decorative', 'Cinzel', serif;
+  font-size: 3.4rem;
+  line-height: 0.82;
+  padding-right: 0.45rem;
+  padding-top: 0.25rem;
+  color: #8B261D;
+  text-shadow: 1px 1px 0px rgba(198, 146, 60, 0.3);
+}
+
+/* Antique Filigree divider */
+.ornament-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: #C6923C;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+}
+
+.ornament-divider::before,
+.ornament-divider::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(to right, transparent, rgba(198, 146, 60, 0.5), transparent);
+}
+
+/* Corner brass clasp styling */
+.corner-brass {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  pointer-events: none;
+  border-color: #E5B842;
+}
+
+@keyframes kenburns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.05) translate(-1%, -1%);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+}
+
+.animate-kenburns {
+  animation: kenburns 22s ease-in-out infinite alternate;
+}
+
+/* Floating Ember Particle Animation */
+@keyframes emberFloat {
+  0% {
+    transform: translateY(0px) translateX(0px) scale(0.8);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(-40px) translateX(15px) scale(1.2);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(-90px) translateX(-10px) scale(0.6);
+    opacity: 0;
+  }
+}
+
+.animate-ember-float {
+  animation: emberFloat linear infinite;
+}
+
+/* Magical Gem Glow Pulse (like in fantasy slot symbols) */
+@keyframes gemPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px rgba(220, 38, 38, 0.8)) drop-shadow(0 0 14px rgba(245, 158, 11, 0.6));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(239, 68, 68, 1)) drop-shadow(0 0 24px rgba(245, 158, 11, 0.9));
+    transform: scale(1.08);
+  }
+}
+
+.animate-gem-pulse {
+  animation: gemPulse 3s ease-in-out infinite;
+}
+
+/* Radiant Magical Aura behind the Fantasy Book */
+.fantasy-book-halo {
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    rgba(217, 119, 6, 0.35) 0%,
+    rgba(147, 51, 234, 0.18) 35%,
+    rgba(234, 88, 12, 0.08) 60%,
+    transparent 75%
+  );
+  filter: blur(28px);
+}
+
+/* Modern Floating Glassmorphism Pill Navbar */
+.modern-glass-navbar {
+  background: rgba(14, 8, 5, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(229, 184, 66, 0.22);
+  box-shadow: 
+    0 20px 50px -10px rgba(0, 0, 0, 0.85),
+    0 0 25px -5px rgba(217, 119, 6, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+/* Fantasy Gold Gilded Edges for book stack */
+.gilded-page-rim {
+  background: linear-gradient(
+    90deg,
+    #785317 0%,
+    #DDA843 20%,
+    #FFF2B2 45%,
+    #DDA843 65%,
+    #8A621E 85%,
+    #4A320C 100%
+  );
+}
+
+/* StPageFlip Engine Styles & Interactive Controls */
+.stf__parent {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  transform-style: preserve-3d;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  margin: 0 auto;
+}
+
+.stf__wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.stf__block {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.stf__item {
+  display: none;
+  position: absolute;
+  transform-style: preserve-3d;
+  box-sizing: border-box;
+}
+
+.stf__item.--active {
+  display: block;
+}
+
+/* Ensure inputs, buttons, links inside flip pages have full pointer and selection access */
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  pointer-events: auto !important;
+}
+
+.stf__block input,
+.stf__block textarea,
+.stf__block select {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 50 !important;
+  cursor: text !important;
+}
+
+.stf__block button,
+.stf__block a {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 40 !important;
+}
+
+/* Soft paper texture background with slight organic grain */
+.paper-texture-warm {
+  background-color: #FAF7EE;
+  background-image: 
+    radial-gradient(#E8DFCA 0.75px, transparent 0.75px),
+    radial-gradient(#EFE8D6 0.75px, #FAF7EE 0.75px);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+}
+
+/* Antique leather grain for book cover */
+.leather-grain-rich {
+  background: 
+    radial-gradient(ellipse at 40% 30%, rgba(139, 38, 29, 0.45) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(46, 27, 20, 0.8) 0%, #1A0D08 100%),
+    linear-gradient(145deg, #4A1E14 0%, #2E1B14 50%, #170B06 100%);
+}
+
+/* Authentic Watercolor Illustration Paper & Pigment Styling */
+.watercolor-mat {
+  background: #FDFBF7;
+  box-shadow: 
+    inset 0 0 25px rgba(184, 80, 66, 0.08),
+    inset 0 0 10px rgba(74, 46, 20, 0.12),
+    0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.watercolor-canvas {
+  filter: contrast(1.06) saturate(1.15) brightness(1.02);
+  mix-blend-mode: multiply;
+}
+
+/* Cold-press heavy cotton rag paper grain for watercolor */
+.watercolor-paper-grain {
+  background-image: 
+    radial-gradient(ellipse at 50% 50%, rgba(200, 160, 100, 0.15) 0%, transparent 70%),
+    repeating-radial-gradient(circle at 10% 15%, rgba(120, 80, 40, 0.08) 0px, transparent 1px, transparent 4px),
+    repeating-radial-gradient(circle at 85% 75%, rgba(60, 30, 10, 0.06) 0px, transparent 1px, transparent 3px);
+  pointer-events: none;
+}
+
+/* Soft deckled & feathered watercolor bleed edges */
+.watercolor-feathered-edge {
+  -webkit-mask-image: radial-gradient(ellipse 96% 96% at 50% 50%, black 78%, rgba(0, 0, 0, 0.85) 90%, transparent 100%);
+  mask-image: radial-gradient(ellipse 96% 96% at 50% 50%, black 78%, rgba(0, 0, 0, 0.85) 90%, transparent 100%);
+}
+
+/* Watercolor pigment pooling wash around borders */
+.watercolor-pigment-pooling {
+  box-shadow: 
+    inset 0 0 30px rgba(139, 38, 29, 0.18),
+    inset 0 0 12px rgba(90, 50, 20, 0.25);
+  pointer-events: none;
+}
+
