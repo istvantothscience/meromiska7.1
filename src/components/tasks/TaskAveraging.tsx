@@ -56,9 +56,8 @@ export const TaskAveraging: React.FC<Props> = ({ user, onPointsUpdated, onComple
 
     if (!isCorrect) {
       setStatus('error');
-      const roundedExpected = Math.round(calculatedAvg * 100) / 100;
       setMessage(
-        `A beírt átlag (${avg} ${unit}) nem egyezik a két szám számtani közepével. Számítás: (${x1} + ${x2}) ÷ 2 = ${roundedExpected} ${unit}. Számoljátok újra!`
+        `A beírt átlag (${avg} ${unit}) nem egyezik a két mért érték számtani közepével. Add össze a két mérést, oszd el kettővel, és próbáljátok újra!`
       );
       return;
     }
@@ -161,9 +160,6 @@ export const TaskAveraging: React.FC<Props> = ({ user, onPointsUpdated, onComple
             <div className="font-mono text-center py-1 text-xs bg-white rounded border border-[#DFCDB3]">
               Átlag = (1. mérés + 2. mérés) ÷ 2
             </div>
-            <p className="text-[11px] text-[#7A6150]">
-              Példa: (3,8 + 3,6) ÷ 2 = 7,4 ÷ 2 = <strong>3,7 m</strong>.
-            </p>
           </div>
         )}
 
@@ -190,7 +186,7 @@ export const TaskAveraging: React.FC<Props> = ({ user, onPointsUpdated, onComple
                   (e.currentTarget as HTMLInputElement).focus();
                 }}
                 disabled={isDone}
-                placeholder={unit === 'm' ? 'pl. 3,8' : 'pl. 380'}
+                placeholder=""
                 className="w-full px-2.5 py-1.5 text-sm bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-1 focus:ring-[#B85042] cursor-text relative z-40 select-text"
               />
             </div>
@@ -211,7 +207,7 @@ export const TaskAveraging: React.FC<Props> = ({ user, onPointsUpdated, onComple
                   (e.currentTarget as HTMLInputElement).focus();
                 }}
                 disabled={isDone}
-                placeholder={unit === 'm' ? 'pl. 3,6' : 'pl. 360'}
+                placeholder=""
                 className="w-full px-2.5 py-1.5 text-sm bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-1 focus:ring-[#B85042] cursor-text relative z-40 select-text"
               />
             </div>
@@ -233,7 +229,7 @@ export const TaskAveraging: React.FC<Props> = ({ user, onPointsUpdated, onComple
                 (e.currentTarget as HTMLInputElement).focus();
               }}
               disabled={isDone}
-              placeholder={unit === 'm' ? 'pl. 3,7' : 'pl. 370'}
+              placeholder=""
               className="w-full px-3 py-2 text-sm sm:text-base font-bold bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text relative z-40 select-text"
             />
           </div>

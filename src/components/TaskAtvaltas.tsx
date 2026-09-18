@@ -165,7 +165,7 @@ export const TaskAtvaltas: React.FC<TaskAtvaltasProps> = ({
                 inputMode="decimal"
                 value={val1}
                 onChange={(e) => setVal1(e.target.value)}
-                placeholder="pl. 3,5"
+                placeholder=""
                 disabled={isCompleted && !isProjectorMode}
                 className="w-full px-3 py-2 rounded-lg border border-[#2E1B14]/20 focus:outline-none focus:ring-2 focus:ring-[#B85042] text-[#2E1B14] font-medium"
                 required
@@ -175,7 +175,7 @@ export const TaskAtvaltas: React.FC<TaskAtvaltasProps> = ({
             {feedback?.details && (
               <p className={`text-xs mt-1.5 font-medium flex items-center gap-1 ${feedback.details.q1 ? 'text-emerald-700' : 'text-rose-700'}`}>
                 {feedback.details.q1 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
-                {feedback.details.q1 ? 'Helyes (3,5 m)' : 'Nem jó (Helyes: 3,5 m)'}
+                {feedback.details.q1 ? 'Helyes' : 'Nem jó, próbáld újra!'}
               </p>
             )}
           </div>
@@ -192,7 +192,7 @@ export const TaskAtvaltas: React.FC<TaskAtvaltasProps> = ({
                 inputMode="decimal"
                 value={val2}
                 onChange={(e) => setVal2(e.target.value)}
-                placeholder="pl. 1200"
+                placeholder=""
                 disabled={isCompleted && !isProjectorMode}
                 className="w-full px-3 py-2 rounded-lg border border-[#2E1B14]/20 focus:outline-none focus:ring-2 focus:ring-[#B85042] text-[#2E1B14] font-medium"
                 required
@@ -202,7 +202,7 @@ export const TaskAtvaltas: React.FC<TaskAtvaltasProps> = ({
             {feedback?.details && (
               <p className={`text-xs mt-1.5 font-medium flex items-center gap-1 ${feedback.details.q2 ? 'text-emerald-700' : 'text-rose-700'}`}>
                 {feedback.details.q2 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
-                {feedback.details.q2 ? 'Helyes (1200 m)' : 'Nem jó (Helyes: 1200 m)'}
+                {feedback.details.q2 ? 'Helyes' : 'Nem jó, próbáld újra!'}
               </p>
             )}
           </div>
@@ -219,7 +219,7 @@ export const TaskAtvaltas: React.FC<TaskAtvaltasProps> = ({
                 inputMode="decimal"
                 value={val3}
                 onChange={(e) => setVal3(e.target.value)}
-                placeholder="pl. 4,5"
+                placeholder=""
                 disabled={isCompleted && !isProjectorMode}
                 className="w-full px-3 py-2 rounded-lg border border-[#2E1B14]/20 focus:outline-none focus:ring-2 focus:ring-[#B85042] text-[#2E1B14] font-medium"
                 required
@@ -229,7 +229,7 @@ export const TaskAtvaltas: React.FC<TaskAtvaltasProps> = ({
             {feedback?.details && (
               <p className={`text-xs mt-1.5 font-medium flex items-center gap-1 ${feedback.details.q3 ? 'text-emerald-700' : 'text-rose-700'}`}>
                 {feedback.details.q3 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
-                {feedback.details.q3 ? 'Helyes (4,5 cm)' : 'Nem jó (Helyes: 4,5 cm)'}
+                {feedback.details.q3 ? 'Helyes' : 'Nem jó, próbáld újra!'}
               </p>
             )}
           </div>

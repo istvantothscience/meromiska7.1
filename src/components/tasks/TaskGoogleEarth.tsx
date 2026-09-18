@@ -139,7 +139,7 @@ export const TaskGoogleEarth: React.FC<Props> = ({ user, onPointsUpdated, onComp
                   (e.currentTarget as HTMLInputElement).focus();
                 }}
                 disabled={isDone}
-                placeholder="pl. Széchenyi Lánchíd"
+                placeholder="Híd vagy építmény neve..."
                 className="w-full px-2 py-1.5 text-xs sm:text-sm bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-1 focus:ring-[#B85042] cursor-text relative z-40 select-text"
               />
             </div>
@@ -160,7 +160,7 @@ export const TaskGoogleEarth: React.FC<Props> = ({ user, onPointsUpdated, onComp
                   (e.currentTarget as HTMLInputElement).focus();
                 }}
                 disabled={isDone}
-                placeholder="pl. 375"
+                placeholder=""
                 className="w-full px-2 py-1.5 text-xs sm:text-sm bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-1 focus:ring-[#B85042] cursor-text relative z-40 select-text"
               />
             </div>
@@ -181,7 +181,7 @@ export const TaskGoogleEarth: React.FC<Props> = ({ user, onPointsUpdated, onComp
                 (e.currentTarget as HTMLInputElement).focus();
               }}
               disabled={isDone}
-              placeholder="pl. A partok közötti fesztávolságot mértem meg a vonalzóval..."
+              placeholder="Tapasztalat, megfigyelés..."
               className="w-full px-2 py-1.5 text-xs sm:text-sm bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-1 focus:ring-[#B85042] cursor-text relative z-40 select-text"
             />
           </div>

@@ -138,7 +138,7 @@ export const TaskConversion: React.FC<Props> = ({ user, onPointsUpdated, onCompl
                   (e.currentTarget as HTMLInputElement).focus();
                 }}
                 disabled={isDone}
-                placeholder="pl. 3.5"
+                placeholder=""
                 className={`w-24 sm:w-28 px-3 py-1.5 text-center font-mono font-bold text-base rounded border transition-all cursor-text relative z-40 select-text ${
                   isDone && c1
                     ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
@@ -166,7 +166,7 @@ export const TaskConversion: React.FC<Props> = ({ user, onPointsUpdated, onCompl
                   (e.currentTarget as HTMLInputElement).focus();
                 }}
                 disabled={isDone}
-                placeholder="pl. 1200"
+                placeholder=""
                 className={`w-24 sm:w-28 px-3 py-1.5 text-center font-mono font-bold text-base rounded border transition-all cursor-text relative z-40 select-text ${
                   isDone && c2
                     ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
@@ -194,7 +194,7 @@ export const TaskConversion: React.FC<Props> = ({ user, onPointsUpdated, onCompl
                   (e.currentTarget as HTMLInputElement).focus();
                 }}
                 disabled={isDone}
-                placeholder="pl. 4.5"
+                placeholder=""
                 className={`w-24 sm:w-28 px-3 py-1.5 text-center font-mono font-bold text-base rounded border transition-all cursor-text relative z-40 select-text ${
                   isDone && c3
                     ? 'border-emerald-600 bg-emerald-50 text-emerald-900'

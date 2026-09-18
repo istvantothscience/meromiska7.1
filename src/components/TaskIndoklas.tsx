@@ -100,7 +100,7 @@ export const TaskIndoklas: React.FC<TaskIndoklasProps> = ({
     } else {
       setFeedback({
         passed: false,
-        message: 'Jó gondolat, de próbáljatok konkrétabban utalni arra, hogy miért nem egyforma mindenki lépése vagy arasza (pl. testméret, emberenként eltérő, nem egységes szabvány). Egészítsétek ki a mondatot!',
+        message: 'Jó gondolat, de próbáljatok konkrétabban utalni arra, hogy miért nem egyforma mindenki lépése vagy arasza. Egészítsétek ki a mondatot!',
       });
     }
   };

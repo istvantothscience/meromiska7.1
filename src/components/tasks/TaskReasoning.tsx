@@ -133,7 +133,7 @@ export const TaskReasoning: React.FC<Props> = ({ user, onPointsUpdated, onComple
                 (e.currentTarget as HTMLTextAreaElement).focus();
               }}
               disabled={isDone}
-              placeholder="pl. Azért nem megbízható, mert az emberi testméretek különböznek: a lépéshossz emberenként eltérő, így nem kaphatunk egységes mérési számot..."
+              placeholder="Írd le a saját indoklásodat..."
               className="w-full p-3 font-serif text-sm sm:text-base leading-relaxed bg-white border border-[#C8B89E] rounded-lg text-[#2E1B14] placeholder:text-[#9F8C7C] focus:outline-none focus:ring-2 focus:ring-[#B85042] resize-none cursor-text relative z-40 select-text"
             />
             <div className="flex items-center justify-between text-xs px-1 text-[#7A6150]">

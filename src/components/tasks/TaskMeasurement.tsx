@@ -108,7 +108,7 @@ export const TaskMeasurement: React.FC<Props> = ({ user, onPointsUpdated, onComp
               value={objectName}
               onChange={(e) => setObjectName(e.target.value)}
               disabled={isDone}
-              placeholder="pl. Tanterem hossza, pad szélessége"
+              placeholder="Mért tárgy vagy távolság neve..."
               className="w-full px-3 py-1.5 text-sm bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042]"
             />
           </div>
@@ -127,7 +127,7 @@ export const TaskMeasurement: React.FC<Props> = ({ user, onPointsUpdated, onComp
                 value={tapeMeasure}
                 onChange={(e) => setTapeMeasure(e.target.value)}
                 disabled={isDone}
-                placeholder="pl. 640"
+                placeholder=""
                 className="w-full px-3 py-1.5 font-mono font-bold text-base bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042]"
               />
               <span className="font-serif font-bold text-base text-[#5A4232]">cm</span>
@@ -148,7 +148,7 @@ export const TaskMeasurement: React.FC<Props> = ({ user, onPointsUpdated, onComp
                 value={stepEstimate}
                 onChange={(e) => setStepEstimate(e.target.value)}
                 disabled={isDone}
-                placeholder="pl. 580"
+                placeholder=""
                 className="w-full px-3 py-1.5 font-mono font-bold text-base bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042]"
               />
               <span className="font-serif font-bold text-base text-[#5A4232]">cm</span>

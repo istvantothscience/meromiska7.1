@@ -163,13 +163,6 @@ export const TaskMeres: React.FC<TaskMeresProps> = ({
           <div className="p-3 bg-white rounded-lg border border-amber-200 font-mono text-xs text-amber-900">
             Százalékos eltérés = (|mért érték - becsült érték| ÷ mért érték) × 100
           </div>
-          <p className="text-amber-800">
-            <strong>Példa:</strong> Ha a pad hossza mérőszalaggal <strong>120 cm</strong>, és lépéssel/arasszal <strong>108 cm</strong>-re becsültétek:
-            <br />
-            Különbség: |120 - 108| = 12 cm.
-            <br />
-            Százalék: (12 ÷ 120) × 100 = <strong>10%</strong>.
-          </p>
         </div>
       )}
 
@@ -203,7 +196,7 @@ export const TaskMeres: React.FC<TaskMeresProps> = ({
               1. Mérőszalaggal mért érték:
             </label>
             <p className="text-[11px] text-[#2E1B14]/60 mb-2">
-              (pl. tanterem, pad vagy folyosó)
+              (tanterem, pad vagy folyosó)
             </p>
             <div className="flex items-center gap-2">
               <input
@@ -212,7 +205,7 @@ export const TaskMeres: React.FC<TaskMeresProps> = ({
                 inputMode="decimal"
                 value={measuredVal}
                 onChange={(e) => setMeasuredVal(e.target.value)}
-                placeholder={unit === 'm' ? 'pl. 3,5' : 'pl. 350'}
+                placeholder=""
                 disabled={isCompleted && !isProjectorMode}
                 className="w-full px-3 py-2 rounded-lg border border-[#2E1B14]/20 focus:outline-none focus:ring-2 focus:ring-[#B85042] text-[#2E1B14] font-medium"
                 required
@@ -236,7 +229,7 @@ export const TaskMeres: React.FC<TaskMeresProps> = ({
                 inputMode="decimal"
                 value={estimatedVal}
                 onChange={(e) => setEstimatedVal(e.target.value)}
-                placeholder={unit === 'm' ? 'pl. 4,0' : 'pl. 400'}
+                placeholder=""
                 disabled={isCompleted && !isProjectorMode}
                 className="w-full px-3 py-2 rounded-lg border border-[#2E1B14]/20 focus:outline-none focus:ring-2 focus:ring-[#B85042] text-[#2E1B14] font-medium"
                 required
@@ -260,7 +253,7 @@ export const TaskMeres: React.FC<TaskMeresProps> = ({
                 inputMode="decimal"
                 value={percentVal}
                 onChange={(e) => setPercentVal(e.target.value)}
-                placeholder="pl. 14,3"
+                placeholder=""
                 disabled={isCompleted && !isProjectorMode}
                 className="w-full px-3 py-2 rounded-lg border border-[#B85042]/30 focus:outline-none focus:ring-2 focus:ring-[#B85042] text-[#2E1B14] font-bold"
                 required
