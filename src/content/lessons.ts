@@ -9,8 +9,9 @@ import img05 from '../assets/images/hero_hid_bridge_1789029472973.jpg';
 import img06 from '../assets/images/careful_measuring_1789029520169.jpg';
 import img07 from '../assets/images/hero_hid_bridge_1789029472973.jpg';
 import badgeHidvero from '../assets/images/badge_hidvero_1789029580372.jpg';
+import miskaCoverImg from '../assets/images/mero_miska_cover_1789723256782.jpg';
 
-export { badgeHidvero };
+export { badgeHidvero, miskaCoverImg };
 
 // Known image alias map for l1
 const KNOWN_IMAGES: Record<string, string> = {

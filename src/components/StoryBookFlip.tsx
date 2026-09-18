@@ -17,7 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import type { Lesson, UserProfile } from '../types';
-import { resolveSceneImage, badgeHidvero } from '../content/lessons';
+import { resolveSceneImage, badgeHidvero, miskaCoverImg } from '../content/lessons';
 import { WatercolorIllustration } from './illustrations/WatercolorIllustration';
 import { TaskConversion } from './tasks/TaskConversion';
 import { TaskAveraging } from './tasks/TaskAveraging';
@@ -282,18 +282,29 @@ export const StoryBookFlip: React.FC<Props> = ({
                 </h1>
               </div>
 
-              {/* Central Heraldic Medallion */}
-              <div className="relative my-4 flex flex-col items-center justify-center">
-                <div className="w-40 h-40 rounded-full border-2 border-[#E5B842] p-1.5 flex items-center justify-center bg-gradient-to-b from-[#4A1E14] to-[#1A0B06] shadow-2xl animate-gem-pulse">
-                  <div className="w-full h-full rounded-full border border-[#C6923C]/60 flex flex-col items-center justify-center p-3 text-center">
-                    <Sparkles className="w-10 h-10 text-[#E5B842] mb-1 drop-shadow-md" />
-                    <span className="font-serif text-xs font-bold text-[#E5B842] tracking-wider uppercase">
-                      1. Fejezet
-                    </span>
-                    <span className="font-serif text-sm font-bold text-[#FFF2B2]">
-                      A híd próbája
-                    </span>
+              {/* Central Watercolor Portrait of Mérő Miska */}
+              <div className="relative my-2 sm:my-4 flex flex-col items-center justify-center">
+                {/* Ornate Gilded Medallion Frame */}
+                <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full border-3 border-[#E5B842] p-1.5 flex items-center justify-center bg-gradient-to-b from-[#7A4515] via-[#4A1E14] to-[#1A0B06] shadow-2xl relative">
+                  <div className="w-full h-full rounded-full border border-[#E5B842]/70 overflow-hidden relative watercolor-mat shadow-[inset_0_0_20px_rgba(42,20,10,0.6)]">
+                    <img
+                      src={miskaCoverImg}
+                      alt="Mérő Miska kézzel festett akvarell rajza a mérőzsinórral"
+                      className="w-full h-full object-cover object-center watercolor-canvas transform transition-transform duration-700 hover:scale-105"
+                      referrerPolicy="no-referrer"
+                    />
+                    {/* Organic watercolor paper texture overlay */}
+                    <div className="absolute inset-0 pointer-events-none watercolor-paper-grain mix-blend-multiply opacity-40" />
+                    {/* Soft vignette edge pooling */}
+                    <div className="absolute inset-0 pointer-events-none rounded-full shadow-[inset_0_0_15px_rgba(30,12,6,0.6)]" />
                   </div>
+                </div>
+
+                {/* Subtitle banner under Miska's portrait */}
+                <div className="mt-2 px-3 py-0.5 rounded-full bg-[#1A0B06]/85 border border-[#E5B842]/60 shadow-md">
+                  <span className="font-serif text-[11px] sm:text-xs text-[#FFF2B2] font-semibold tracking-wide">
+                    Miska és a bűvös mérőzsinór
+                  </span>
                 </div>
               </div>
 
