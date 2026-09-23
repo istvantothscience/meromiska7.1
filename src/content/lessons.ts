@@ -11,9 +11,18 @@ import img07 from '../assets/images/hero_hid_bridge_1789029472973.jpg';
 import badgeHidvero from '../assets/images/badge_hidvero_1789029580372.jpg';
 import miskaCoverImg from '../assets/images/mero_miska_cover_1789723256782.jpg';
 
-export { badgeHidvero, miskaCoverImg };
+// Lesson 2 images
+import l2Img01 from '../assets/images/l2_01_folyohoz_erkezes_1790163587745.jpg';
+import l2Img02 from '../assets/images/l2_02_reves_probaja_1790163600220.jpg';
+import l2Img03 from '../assets/images/l2_03_tanakodas_1790163610951.jpg';
+import l2Img04 from '../assets/images/l2_04_a_megoldas_1790163625224.jpg';
+import l2Img05 from '../assets/images/l2_05_gyozelem_1790163638580.jpg';
+import l2Img06 from '../assets/images/l2_06_a_fordulat_1790163650674.jpg';
+import badgeReveszBaratja from '../assets/images/badge_revesz_baratja_1790163662114.jpg';
 
-// Known image alias map for l1
+export { badgeHidvero, badgeReveszBaratja, miskaCoverImg };
+
+// Known image alias map for l1 & l2
 const KNOWN_IMAGES: Record<string, string> = {
   '01_miska_a_faluban.png': img01,
   '02_meresi_zurzavar.png': img05,
@@ -26,6 +35,15 @@ const KNOWN_IMAGES: Record<string, string> = {
   '06_megoldas.png': img06,
   '07_gyozelem.png': img07,
   'badge_hidvero.png': badgeHidvero,
+
+  // Lesson 2: A révész hordói
+  '01_folyohoz_erkezes.png': l2Img01,
+  '02_reves_probaja.png': l2Img02,
+  '03_tanakodas.png': l2Img03,
+  '04_a_megoldas.png': l2Img04,
+  '05_gyozelem.png': l2Img05,
+  '06_a_fordulat.png': l2Img06,
+  'badge_revesz_baratja.png': badgeReveszBaratja,
 };
 
 // Dynamic image glob to auto-detect any future assets placed in assets/images/

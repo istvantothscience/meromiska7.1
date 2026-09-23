@@ -46,6 +46,9 @@ export const OpenBook: React.FC<OpenBookProps> = ({
     <div className="w-full flex flex-col items-center justify-center py-4 px-2 sm:px-4">
       <StoryBookFlip
         lesson={currentLesson}
+        lessons={lessons}
+        activeLessonIndex={activeLessonIndex}
+        onSelectLessonIndex={onSelectLessonIndex}
         user={userProfile}
         onUserChanged={(u) => {
           if (u) {

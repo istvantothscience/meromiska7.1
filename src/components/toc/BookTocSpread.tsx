@@ -25,9 +25,9 @@ const ALL_8_CHAPTERS: ChapterEntry[] = [
   {
     number: 2,
     id: 'l2',
-    title: 'A két hordó és az űrmérték',
-    subtitle: 'Térfogatmérés folyadékokkal és edényekkel',
-    topic: 'Térfogat',
+    title: 'A révész hordói',
+    subtitle: 'Térfogat, tömeg és a révész próbája',
+    topic: 'Mérés',
   },
   {
     number: 3,

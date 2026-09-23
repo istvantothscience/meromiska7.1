@@ -5,6 +5,9 @@ import { TaskMeres } from './TaskMeres';
 import { TaskIndoklas } from './TaskIndoklas';
 import { TaskAveraging } from './tasks/TaskAveraging';
 import { TaskGoogleEarth } from './tasks/TaskGoogleEarth';
+import { TaskKiszoritas } from './tasks/TaskKiszoritas';
+import { TaskHanyados } from './tasks/TaskHanyados';
+import { TaskReveszIndoklas } from './tasks/TaskReveszIndoklas';
 import { submitTaskScore } from '../lib/supabase';
 import { Sparkles, CheckCircle2, AlertCircle, Send } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -78,6 +81,58 @@ export const TaskDispatcher: React.FC<TaskDispatcherProps> = ({
     return (
       <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
         <TaskGoogleEarth
+          user={null}
+          onCompleted={() => {
+            onSubmitted({
+              isCompleted: true,
+              pointsAwarded: 1,
+              submittedAt: new Date().toISOString(),
+            });
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Built-in handlers for Lesson 2: A révész hordói
+  if (taskCode === 'l2_a_kiszoritas') {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskKiszoritas
+          user={null}
+          onCompleted={() => {
+            onSubmitted({
+              isCompleted: true,
+              pointsAwarded: 1,
+              submittedAt: new Date().toISOString(),
+            });
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (taskCode === 'l2_b_hanyados') {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskHanyados
+          user={null}
+          onCompleted={() => {
+            onSubmitted({
+              isCompleted: true,
+              pointsAwarded: 2,
+              submittedAt: new Date().toISOString(),
+            });
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (taskCode === 'l2_c_indoklas') {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskReveszIndoklas
           user={null}
           onCompleted={() => {
             onSubmitted({

@@ -1,0 +1,55 @@
+{
+  "lesson_id": "l2",
+  "title": "A révész hordói",
+  "subtitle": "Térfogat, tömeg és a révész próbája",
+  "topic": "Mérés",
+  "badgeName": "A Révész Barátja",
+  "badgeDescription": "Megfejtetted a révész próbáját a térfogat és tömeg pontos vizsgálatával!",
+  "scenes": [
+    {
+      "n": 1,
+      "title": "A folyóhoz érkezés",
+      "text": "A híd próbája után a fiú nem időzött sokáig – tudta, az útnak még nincs vége. A sötétedő ösvényen hamarosan zúgó folyóvízhez ért, ahol egy ütött-kopott komp várakozott a parton. Mellette egy zsémbes képű, szürke szakállú révész üldögélt, két nagy hordó társaságában.",
+      "quote": "„Na, te is át akarsz kelni? Sokan próbálkoztak már, s a legtöbben visszafordultak…”",
+      "image": "01_folyohoz_erkezes.png"
+    },
+    {
+      "n": 2,
+      "title": "A révész próbája",
+      "text": "– Ezt a két hordót bort viszem a városi vásárba – mondta a révész. – Az egyik pontosan tele van, annyi bor van benne, amennyi jár. A másikban valaki meglopott: kevesebb van benne a kelleténél, de úgy töltötték újra vízzel, hogy kívülről semmi különbség nem látszik. Ha átviszlek a csónakomon, cserébe meg kell mondanod, melyik hordó az igazi.",
+      "quote": "„Ha rosszul mondod, itt ragadsz a parton – a csónakomba csak azt engedem, aki bizonyítani is tudja az igazát, nem csak találgatni.”",
+      "image": "02_reves_probaja.png"
+    },
+    {
+      "n": 3,
+      "title": "A tanakodás",
+      "text": "A fiú körbejárta a két hordót. Azok egyformának látszottak: azonos magasak, azonos szélesek, egyik sem volt öntve színültig tele. Eszébe jutott, amit az apja mondott búcsúzóul: „Fiam, ne a gyorsaságodat, hanem a pontosságodat mutasd meg.” Csendben állt a két hordó előtt, és gondolkodott.",
+      "quote": "Kiöntés és kóstolás nélkül – vajon miből lehetne biztosan megállapítani, melyikben van pontosan annyi bor, amennyi jár?",
+      "image": "03_tanakodas.png",
+      "task": "l2_a_kiszoritas"
+    },
+    {
+      "n": 4,
+      "title": "A megoldás",
+      "text": "A fiú nem hagyta, hogy a szeme csapja be. Kiszámolta mindkét hordó térfogatát a magasságukból és az átmérőjükből, majd egy roskatag mérleget is talált a komp mellett, s lemérte a hordók tömegét is. Az egyik hordó – bár ugyanakkora volt, mint a másik – jóval könnyebbnek bizonyult a kiszámolt bortérfogathoz képest.",
+      "quote": "„Ez itt a hamis! Ha valóban tele lenne borral, ennyi térfogathoz ennyi tömegnek kellene tartoznia.”",
+      "image": "04_a_megoldas.png",
+      "task": "l2_b_hanyados"
+    },
+    {
+      "n": 5,
+      "title": "Győzelem",
+      "text": "A révész szeme elkerekedett, aztán elnevette magát, s először, amióta a fiú odaért, barátságosan a vállára csapott. – Igazad van, fiam. Ez volt a próba, amit minden utazóval elvégeztetek, mert errefelé sokan csalnak méréssel is, nemcsak szóval. Beszállhatsz a csónakba.",
+      "quote": "„Kevesen jönnek rá, hogy a tömeget is meg kell nézni, nem elég a térfogatra hagyatkozni.”",
+      "image": "05_gyozelem.png",
+      "task": "l2_c_indoklas"
+    },
+    {
+      "n": 6,
+      "title": "A fordulat",
+      "text": "Amint a túlpartra értek, a révész arca hirtelen elkomorult, s a fiú kezébe nyomott egy kis, gondosan lezárt korsót. – A lányom a városi vásárban gyógyítóként szolgál, ezzel a pontosan kimért itallal gyógyítja a betegeket – egy csepp híja is baj lehet. Holnap hajnalig el kell hozzá érnie, különben elapad a gyógyszere. Csakhogy a vásártéren csapnivaló kalmárok garázdálkodnak, akik hamis mértékkel mérnek – vidd el neki pontosan úgy, ahogy én adtam át.",
+      "quote": "A fiú a tarisznyájába rejtette a korsót a mérőzsinórja mellé, s már indult is tovább – most már egy beteg lány sorsa is a vállán nyugodott…",
+      "image": "06_a_fordulat.png"
+    }
+  ]
+}

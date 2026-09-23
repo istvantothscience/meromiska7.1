@@ -17,12 +17,20 @@ import {
   X,
 } from 'lucide-react';
 import type { Lesson, UserProfile } from '../types';
-import { resolveSceneImage, badgeHidvero, miskaCoverImg } from '../content/lessons';
+import {
+  resolveSceneImage,
+  badgeHidvero,
+  badgeReveszBaratja,
+  miskaCoverImg,
+} from '../content/lessons';
 import { WatercolorIllustration } from './illustrations/WatercolorIllustration';
 import { TaskConversion } from './tasks/TaskConversion';
 import { TaskAveraging } from './tasks/TaskAveraging';
 import { TaskReasoning } from './tasks/TaskReasoning';
 import { TaskGoogleEarth } from './tasks/TaskGoogleEarth';
+import { TaskKiszoritas } from './tasks/TaskKiszoritas';
+import { TaskHanyados } from './tasks/TaskHanyados';
+import { TaskReveszIndoklas } from './tasks/TaskReveszIndoklas';
 import { BookAuthSpread } from './auth/BookAuthSpread';
 import { BookTocLeft, BookTocRight } from './toc/BookTocSpread';
 import { soundFx } from '../lib/sound';
@@ -32,6 +40,9 @@ interface Props {
   user: UserProfile | null;
   onUserChanged: (u: UserProfile | null) => void;
   onPointsUpdated?: (pts: number) => void;
+  lessons?: Lesson[];
+  activeLessonIndex?: number | null;
+  onSelectLessonIndex?: (index: number | null) => void;
 }
 
 interface PageWrapperProps {
@@ -86,6 +97,9 @@ export const StoryBookFlip: React.FC<Props> = ({
   user,
   onUserChanged,
   onPointsUpdated,
+  lessons,
+  activeLessonIndex,
+  onSelectLessonIndex,
 }) => {
   const flipBookRef = useRef<any>(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -96,8 +110,14 @@ export const StoryBookFlip: React.FC<Props> = ({
     l1_b_meres_atlagolas: false,
     l1_c_indoklas: false,
     l1_d_google_earth: false,
+    l2_a_kiszoritas: false,
+    l2_b_hanyados: false,
+    l2_c_indoklas: false,
   });
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [bookStartPage, setBookStartPage] = useState(0);
+
+  const isL2 = lesson.lesson_id === 'l2';
 
   const toggleSound = () => {
     const nextMuted = soundFx.toggleMute();
@@ -117,6 +137,19 @@ export const StoryBookFlip: React.FC<Props> = ({
         console.warn('Page flip navigation error:', err);
       }
     }
+  };
+
+  const handleOpenLesson = (chId: string) => {
+    if (lessons && onSelectLessonIndex) {
+      const idx = lessons.findIndex((l) => l.lesson_id === chId);
+      if (idx !== -1) {
+        setBookStartPage(5);
+        onSelectLessonIndex(idx);
+      }
+    }
+    setTimeout(() => {
+      goToPage(5);
+    }, 120);
   };
 
   const next = () => {
@@ -148,6 +181,213 @@ export const StoryBookFlip: React.FC<Props> = ({
   const scene1 = scenes.find((s) => s.n === 1) || scenes[0];
   const scene2 = scenes.find((s) => s.n === 2) || scenes[1];
   const scene3 = scenes.find((s) => s.n === 3) || scenes[2];
+  const scene4 = scenes.find((s) => s.n === 4) || scenes[3];
+  const scene5 = scenes.find((s) => s.n === 5) || scenes[4];
+  const scene6 = scenes.find((s) => s.n === 6) || scenes[5];
+
+  const flipBookProps = {
+    width: 500,
+    height: 680,
+    size: 'stretch' as const,
+    minWidth: 320,
+    maxWidth: 560,
+    minHeight: 450,
+    maxHeight: 780,
+    maxShadowOpacity: 0.55,
+    showCover: true,
+    mobileScrollSupport: true,
+    usePortrait: true,
+    startPage: bookStartPage,
+    drawShadow: true,
+    flippingTime: 750,
+    useMouseEvents: true,
+    swipeDistance: 30,
+    showPageCorners: true,
+    clickEventForward: true,
+    disableFlipByClick: true,
+    className: 'mero-miska-flipbook rounded-lg shadow-2xl',
+    style: { margin: '0 auto' },
+    startZIndex: 0,
+    autoSize: true,
+    onFlip: handleFlip,
+    ref: flipBookRef,
+    renderOnlyPageLengthChange: true,
+  };
+
+  const renderCoverPage = () => (
+    <BookPage isHard isCover pageNumber={0}>
+      <div className="w-full h-full flex flex-col items-center justify-between p-6 sm:p-10 border-4 border-[#C6923C] rounded-lg relative">
+        <div className="absolute top-2 left-2 w-8 h-8 border-t-2 border-l-2 border-[#E5B842]" />
+        <div className="absolute top-2 right-2 w-8 h-8 border-t-2 border-r-2 border-[#E5B842]" />
+        <div className="absolute bottom-2 left-2 w-8 h-8 border-b-2 border-l-2 border-[#E5B842]" />
+        <div className="absolute bottom-2 right-2 w-8 h-8 border-b-2 border-r-2 border-[#E5B842]" />
+
+        <div className="text-center pt-6">
+          <span className="text-xs font-serif uppercase tracking-[0.3em] text-[#E5B842] block mb-2 font-bold">
+            Fizika 7. — Tananyag-mesekönyv
+          </span>
+          <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-[#E5B842] to-transparent mx-auto mb-4" />
+          <h1 className="font-title text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#FFF2B2] tracking-wide leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+            MÉRŐ MISKA
+            <br />
+            <span className="text-[#E5B842] text-2xl sm:text-3xl block mt-1">PRÓBÁI</span>
+          </h1>
+        </div>
+
+        <div className="relative my-2 sm:my-4 flex flex-col items-center justify-center">
+          <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full border-3 border-[#E5B842] p-1.5 flex items-center justify-center bg-gradient-to-b from-[#7A4515] via-[#4A1E14] to-[#1A0B06] shadow-2xl relative">
+            <div className="w-full h-full rounded-full border border-[#E5B842]/70 overflow-hidden relative watercolor-mat shadow-[inset_0_0_20px_rgba(42,20,10,0.6)]">
+              <img
+                src={miskaCoverImg}
+                alt="Mérő Miska kézzel festett akvarell rajza a mérőzsinórral"
+                className="w-full h-full object-cover object-center watercolor-canvas transform transition-transform duration-700 hover:scale-105"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 pointer-events-none watercolor-paper-grain mix-blend-multiply opacity-40" />
+              <div className="absolute inset-0 pointer-events-none rounded-full shadow-[inset_0_0_15px_rgba(30,12,6,0.6)]" />
+            </div>
+          </div>
+
+          <div className="mt-2 px-3 py-0.5 rounded-full bg-[#1A0B06]/85 border border-[#E5B842]/60 shadow-md">
+            <span className="font-serif text-[11px] sm:text-xs text-[#FFF2B2] font-semibold tracking-wide">
+              {isL2 ? '2. Óra: A révész hordói' : 'Miska és a bűvös mérőzsinór'}
+            </span>
+          </div>
+        </div>
+
+        <div className="w-full text-center pb-4">
+          <p className="font-serif text-xs italic text-[#E5D9C4] mb-4">
+            „Aki jól mér, az nem téved.”
+          </p>
+          <button
+            onClick={next}
+            className="px-6 py-2.5 bg-gradient-to-r from-[#B85042] via-[#8B261D] to-[#B85042] hover:brightness-110 text-white font-serif font-bold text-sm rounded-full border border-[#E5B842] shadow-xl flex items-center justify-center gap-2 mx-auto cursor-pointer transition-transform hover:scale-105"
+          >
+            <BookOpen className="w-4 h-4 text-[#E5B842]" />
+            <span>Kaland kezdése — Lapozz bele</span>
+          </button>
+          <span className="text-[10px] text-[#A89278] block mt-2">
+            (vagy húzd el az egeret a lap szélén)
+          </span>
+        </div>
+      </div>
+    </BookPage>
+  );
+
+  const renderPrefacePage = () => (
+    <BookPage pageNumber={1}>
+      <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14] select-none">
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-1 rounded">
+              Előszó
+            </span>
+            <span className="text-xs font-serif italic text-[#8C6D58]">
+              A hetedikes fizika kapuja
+            </span>
+          </div>
+
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#8B261D] mb-3">
+            Üdvözlünk a Pontkövetőben!
+          </h2>
+
+          <div className="space-y-3 text-xs sm:text-sm text-[#4A382D] leading-relaxed">
+            <p>
+              Ez a mesekönyv egy teljes tanévet kísér végig a 7. osztályos fizika órákon. Minden fejezet egy-egy fizikaórát dolgoz fel: a mese fonalát követve valós méréseket, átváltásokat és tudományos érveléseket végzel el.
+            </p>
+            <p className="p-3 bg-[#E7E8D1] border border-[#A7BEAE] rounded-lg">
+              <strong>Közös pontrendszer:</strong> A könyv összekapcsolódik az iskolai Fizika Pontkövetővel (<span className="font-mono text-[#8B261D]">fizika-pontkoveto.vercel.app</span>). A helyesen megoldott próbákért valódi pontok kerülnek a neved mellé!
+            </p>
+            <p>
+              Ha még nincs felhasználói fiókod, kérd a fizika tanárodat, vagy jelentkezz be a jobb oldali lapon a meglévő osztálykódoddal.
+            </p>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-[#DFCDB3] text-center">
+          <div className="text-xs text-[#8C6D58] font-serif italic mb-2">
+            Jelentkezz be a szemközti oldalon →
+          </div>
+        </div>
+      </div>
+    </BookPage>
+  );
+
+  const renderAuthPage = () => (
+    <BookPage pageNumber={2}>
+      <BookAuthSpread
+        user={user}
+        onUserChanged={onUserChanged}
+        onGoToToc={() => goToPage(3)}
+      />
+    </BookPage>
+  );
+
+  const renderTocLeftPage = () => (
+    <BookPage pageNumber={3}>
+      <BookTocLeft onOpenLesson={handleOpenLesson} />
+    </BookPage>
+  );
+
+  const renderTocRightPage = () => (
+    <BookPage pageNumber={4}>
+      <BookTocRight onOpenLesson={handleOpenLesson} />
+    </BookPage>
+  );
+
+  const renderBackCoverPage = () => (
+    <BookPage isHard isCover pageNumber={21}>
+      <div className="w-full h-full flex flex-col items-center justify-between p-6 sm:p-10 border-4 border-[#C6923C] rounded-lg relative">
+        <div className="absolute top-2 left-2 w-8 h-8 border-t-2 border-l-2 border-[#E5B842]" />
+        <div className="absolute top-2 right-2 w-8 h-8 border-t-2 border-r-2 border-[#E5B842]" />
+        <div className="absolute bottom-2 left-2 w-8 h-8 border-b-2 border-l-2 border-[#E5B842]" />
+        <div className="absolute bottom-2 right-2 w-8 h-8 border-b-2 border-r-2 border-[#E5B842]" />
+
+        <div className="text-center pt-8">
+          <span className="text-xs font-serif uppercase tracking-[0.25em] text-[#E5B842] block mb-2">
+            Mérő Miska próbái
+          </span>
+          <h2 className="font-title text-2xl sm:text-3xl font-bold text-[#FFF2B2]">
+            Fizika 7. Mesekönyv
+          </h2>
+        </div>
+
+        <div className="w-28 h-28 rounded-full border-2 border-[#E5B842] p-1 flex items-center justify-center bg-gradient-to-br from-[#785317] via-[#DDA843] to-[#4A320C] shadow-2xl">
+          <div className="w-full h-full rounded-full border border-[#FFF2B2]/60 flex flex-col items-center justify-center text-center p-2">
+            <Award className="w-8 h-8 text-[#FFF2B2] mb-1 drop-shadow" />
+            <span className="text-[10px] font-serif font-bold text-[#FFF2B2] tracking-wider uppercase">
+              Királyi Pecsét
+            </span>
+          </div>
+        </div>
+
+        <div className="w-full text-center pb-4 text-[#E5D9C4]">
+          <p className="font-serif text-xs italic mb-4">
+            Készült a 7. évfolyamos fizika tananyaghoz.
+            <br />
+            Központi pontrendszer:
+            <br />
+            <a
+              href="https://fizika-pontkoveto.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#E5B842] underline hover:text-[#FFF2B2] font-mono text-xs mt-1 inline-block"
+            >
+              fizika-pontkoveto.vercel.app
+            </a>
+          </p>
+
+          <button
+            onClick={() => goToPage(0)}
+            className="px-5 py-2 bg-[#B85042] hover:bg-[#A34335] text-white font-serif font-bold text-xs rounded-full border border-[#E5B842] shadow-lg flex items-center justify-center gap-1.5 mx-auto cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Könyv újranyitása (Elejére)</span>
+          </button>
+        </div>
+      </div>
+    </BookPage>
+  );
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -234,164 +474,424 @@ export const StoryBookFlip: React.FC<Props> = ({
         <div className="absolute inset-0 max-w-[980px] mx-auto h-[740px] fantasy-book-halo pointer-events-none" />
 
         {/* StPageFlip Component */}
-        <HTMLFlipBook
-          width={500}
-          height={680}
-          size="stretch"
-          minWidth={320}
-          maxWidth={560}
-          minHeight={450}
-          maxHeight={780}
-          maxShadowOpacity={0.55}
-          showCover={true}
-          mobileScrollSupport={true}
-          usePortrait={true}
-          startPage={0}
-          drawShadow={true}
-          flippingTime={750}
-          useMouseEvents={true}
-          swipeDistance={30}
-          showPageCorners={true}
-          clickEventForward={true}
-          disableFlipByClick={true}
-          className="mero-miska-flipbook rounded-lg shadow-2xl"
-          style={{ margin: '0 auto' }}
-          startZIndex={0}
-          autoSize={true}
-          onFlip={handleFlip}
-          ref={flipBookRef}
-        >
-          {/* ================= PAGE 0: FRONT COVER ================= */}
-          <BookPage isHard isCover pageNumber={0}>
-            <div className="w-full h-full flex flex-col items-center justify-between p-6 sm:p-10 border-4 border-[#C6923C] rounded-lg relative">
-              {/* Ornate corner embellishments */}
-              <div className="absolute top-2 left-2 w-8 h-8 border-t-2 border-l-2 border-[#E5B842]" />
-              <div className="absolute top-2 right-2 w-8 h-8 border-t-2 border-r-2 border-[#E5B842]" />
-              <div className="absolute bottom-2 left-2 w-8 h-8 border-b-2 border-l-2 border-[#E5B842]" />
-              <div className="absolute bottom-2 right-2 w-8 h-8 border-b-2 border-r-2 border-[#E5B842]" />
+        {isL2 ? (
+          <HTMLFlipBook key="flipbook-l2" {...flipBookProps}>
+            {renderCoverPage()}
+            {renderPrefacePage()}
+            {renderAuthPage()}
+            {renderTocLeftPage()}
+            {renderTocRightPage()}
+              {/* ================= PAGE 5: SCENE 1 ILLUSTRATION (LEFT) ================= */}
+              <BookPage pageNumber={5}>
+                <WatercolorIllustration
+                  src={resolveSceneImage(lesson.lesson_id, scene1?.image || '01_folyohoz_erkezes.png')}
+                  alt={scene1?.title || '1. Jelenet'}
+                  sceneNumber={1}
+                  sceneTitle={scene1?.title || 'A folyóhoz érkezés'}
+                />
+              </BookPage>
 
-              <div className="text-center pt-6">
-                <span className="text-xs font-serif uppercase tracking-[0.3em] text-[#E5B842] block mb-2 font-bold">
-                  Fizika 7. — Tananyag-mesekönyv
-                </span>
-                <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-[#E5B842] to-transparent mx-auto mb-4" />
-                <h1 className="font-title text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#FFF2B2] tracking-wide leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-                  MÉRŐ MISKA
-                  <br />
-                  <span className="text-[#E5B842] text-2xl sm:text-3xl block mt-1">PRÓBÁI</span>
-                </h1>
-              </div>
-
-              {/* Central Watercolor Portrait of Mérő Miska */}
-              <div className="relative my-2 sm:my-4 flex flex-col items-center justify-center">
-                {/* Ornate Gilded Medallion Frame */}
-                <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full border-3 border-[#E5B842] p-1.5 flex items-center justify-center bg-gradient-to-b from-[#7A4515] via-[#4A1E14] to-[#1A0B06] shadow-2xl relative">
-                  <div className="w-full h-full rounded-full border border-[#E5B842]/70 overflow-hidden relative watercolor-mat shadow-[inset_0_0_20px_rgba(42,20,10,0.6)]">
-                    <img
-                      src={miskaCoverImg}
-                      alt="Mérő Miska kézzel festett akvarell rajza a mérőzsinórral"
-                      className="w-full h-full object-cover object-center watercolor-canvas transform transition-transform duration-700 hover:scale-105"
-                      referrerPolicy="no-referrer"
-                    />
-                    {/* Organic watercolor paper texture overlay */}
-                    <div className="absolute inset-0 pointer-events-none watercolor-paper-grain mix-blend-multiply opacity-40" />
-                    {/* Soft vignette edge pooling */}
-                    <div className="absolute inset-0 pointer-events-none rounded-full shadow-[inset_0_0_15px_rgba(30,12,6,0.6)]" />
+              {/* ================= PAGE 6: SCENE 1 TEXT (RIGHT) ================= */}
+              <BookPage pageNumber={6}>
+                <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-1 rounded font-bold">
+                        2. Fejezet
+                      </span>
+                      <span className="text-xs font-mono text-[#8C6D58]">1 / 6 jelenet</span>
+                    </div>
+                    <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#8B261D] mb-4">
+                      {scene1?.title || 'A folyóhoz érkezés'}
+                    </h3>
+                    <p className="font-serif text-base sm:text-lg text-[#3E2E23] leading-relaxed mb-4 indent-4">
+                      {scene1?.text}
+                    </p>
+                    {scene1?.quote && (
+                      <blockquote className="my-4 p-3.5 bg-[#E7E8D1] border-l-4 border-[#B85042] rounded-r-lg font-serif italic text-base text-[#2E1B14] shadow-xs">
+                        „{scene1.quote}”
+                      </blockquote>
+                    )}
+                  </div>
+                  <div className="pt-2 text-right text-xs text-[#8C6D58] font-serif italic">
+                    Lapozz a révész próbájához →
                   </div>
                 </div>
+              </BookPage>
 
-                {/* Subtitle banner under Miska's portrait */}
-                <div className="mt-2 px-3 py-0.5 rounded-full bg-[#1A0B06]/85 border border-[#E5B842]/60 shadow-md">
-                  <span className="font-serif text-[11px] sm:text-xs text-[#FFF2B2] font-semibold tracking-wide">
-                    Miska és a bűvös mérőzsinór
-                  </span>
+              {/* ================= PAGE 7: SCENE 2 ILLUSTRATION (LEFT) ================= */}
+              <BookPage pageNumber={7}>
+                <WatercolorIllustration
+                  src={resolveSceneImage(lesson.lesson_id, scene2?.image || '02_reves_probaja.png')}
+                  alt={scene2?.title || '2. Jelenet'}
+                  sceneNumber={2}
+                  sceneTitle={scene2?.title || 'A révész próbája'}
+                />
+              </BookPage>
+
+              {/* ================= PAGE 8: SCENE 2 TEXT (RIGHT) ================= */}
+              <BookPage pageNumber={8}>
+                <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-1 rounded font-bold">
+                        2. Fejezet
+                      </span>
+                      <span className="text-xs font-mono text-[#8C6D58]">2 / 6 jelenet</span>
+                    </div>
+                    <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#8B261D] mb-4">
+                      {scene2?.title || 'A révész próbája'}
+                    </h3>
+                    <p className="font-serif text-base sm:text-lg text-[#3E2E23] leading-relaxed mb-4 indent-4">
+                      {scene2?.text}
+                    </p>
+                    {scene2?.quote && (
+                      <blockquote className="my-4 p-3.5 bg-[#E7E8D1] border-l-4 border-[#B85042] rounded-r-lg font-serif italic text-base text-[#2E1B14] shadow-xs">
+                        „{scene2.quote}”
+                      </blockquote>
+                    )}
+                  </div>
+                  <div className="pt-2 text-right text-xs text-[#8C6D58] font-serif italic">
+                    Lapozz a tanakodáshoz →
+                  </div>
                 </div>
-              </div>
+              </BookPage>
 
-              <div className="w-full text-center pb-4">
-                <p className="font-serif text-xs italic text-[#E5D9C4] mb-4">
-                  „Aki jól mér, az nem téved.”
-                </p>
-                <button
-                  onClick={next}
-                  className="px-6 py-2.5 bg-gradient-to-r from-[#B85042] via-[#8B261D] to-[#B85042] hover:brightness-110 text-white font-serif font-bold text-sm rounded-full border border-[#E5B842] shadow-xl flex items-center justify-center gap-2 mx-auto cursor-pointer transition-transform hover:scale-105"
-                >
-                  <BookOpen className="w-4 h-4 text-[#E5B842]" />
-                  <span>Kaland kezdése — Lapozz bele</span>
-                </button>
-                <span className="text-[10px] text-[#A89278] block mt-2">
-                  (vagy húzd el az egeret a lap szélén)
-                </span>
-              </div>
-            </div>
-          </BookPage>
+              {/* ================= PAGE 9: SCENE 3 ILLUSTRATION (LEFT) ================= */}
+              <BookPage pageNumber={9}>
+                <WatercolorIllustration
+                  src={resolveSceneImage(lesson.lesson_id, scene3?.image || '03_tanakodas.png')}
+                  alt={scene3?.title || '3. Jelenet'}
+                  sceneNumber={3}
+                  sceneTitle={scene3?.title || 'A tanakodás'}
+                />
+              </BookPage>
 
-          {/* ================= PAGE 1: AUTH INFO (LEFT) ================= */}
-          <BookPage pageNumber={1}>
-            <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14] select-none">
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-1 rounded">
-                    Előszó
-                  </span>
-                  <span className="text-xs font-serif italic text-[#8C6D58]">
-                    A hetedikes fizika kapuja
-                  </span>
+              {/* ================= PAGE 10: SCENE 3 TEXT (RIGHT) ================= */}
+              <BookPage pageNumber={10}>
+                <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-1 rounded font-bold">
+                        2. Fejezet
+                      </span>
+                      <span className="text-xs font-mono text-[#8C6D58]">3 / 6 jelenet</span>
+                      <span className="ml-auto text-[10px] bg-[#B85042] text-white px-2 py-0.5 rounded font-bold uppercase">
+                        Próbatétel vár
+                      </span>
+                    </div>
+                    <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#8B261D] mb-4">
+                      {scene3?.title || 'A tanakodás'}
+                    </h3>
+                    <p className="font-serif text-base sm:text-lg text-[#3E2E23] leading-relaxed mb-4 indent-4">
+                      {scene3?.text}
+                    </p>
+                    {scene3?.quote && (
+                      <blockquote className="my-4 p-3.5 bg-[#E7E8D1] border-l-4 border-[#B85042] rounded-r-lg font-serif italic text-base text-[#2E1B14] shadow-xs">
+                        „{scene3.quote}”
+                      </blockquote>
+                    )}
+                  </div>
+                  <div className="pt-2 flex items-center justify-between text-xs text-[#8C6D58] font-serif">
+                    <span className="text-[#B85042] font-bold">1. Próba: Kiszorításos térfogat</span>
+                    <span className="italic">Lapozz a méréshez →</span>
+                  </div>
                 </div>
+              </BookPage>
 
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#8B261D] mb-3">
-                  Üdvözlünk a Pontkövetőben!
-                </h2>
+              {/* ================= PAGE 11: TASK A CONTEXT (LEFT) ================= */}
+              <BookPage pageNumber={11}>
+                <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-1 rounded font-bold">
+                        1. Próba
+                      </span>
+                      <span className="text-xs font-mono text-[#8C6D58] bg-[#EAE2D0] px-2 py-0.5 rounded">
+                        l2_a_kiszoritas
+                      </span>
+                    </div>
+                    <h3 className="font-serif text-2xl font-bold text-[#8B261D] mb-3">
+                      A vízkiszorításos térfogatmérés
+                    </h3>
+                    <p className="font-serif text-sm text-[#4A382D] leading-relaxed mb-4">
+                      Hogyan mérhető meg egy szabálytalan test – vagy akár a korsó és hordó – pontos térfogata, ha vonalzóval nem tudunk egyszerű mértani képletet alkalmazni?
+                    </p>
 
-                <div className="space-y-3 text-xs sm:text-sm text-[#4A382D] leading-relaxed">
-                  <p>
-                    Ez a mesekönyv egy teljes tanévet kísér végig a 7. osztályos fizika órákon. Minden fejezet egy-egy fizikaórát dolgoz fel: a mese fonalát követve valós méréseket, átváltásokat és tudományos érveléseket végzel el.
-                  </p>
-                  <p className="p-3 bg-[#E7E8D1] border border-[#A7BEAE] rounded-lg">
-                    <strong>Közös pontrendszer:</strong> A könyv összekapcsolódik az iskolai Fizika Pontkövetővel (<span className="font-mono text-[#8B261D]">fizika-pontkoveto.vercel.app</span>). A helyesen megoldott próbákért valódi pontok kerülnek a neved mellé!
-                  </p>
-                  <p>
-                    Ha még nincs felhasználói fiókod, kérd a fizika tanárodat, vagy jelentkezz be a jobb oldali lapon a meglévő osztálykódoddal.
-                  </p>
+                    <div className="p-4 bg-white/80 rounded-xl border border-[#C8B89E] space-y-2 text-xs text-[#4A382D]">
+                      <div className="font-bold text-[#8B261D] text-sm">Arkhimédész törvénye:</div>
+                      <p>
+                        Amikor egy szilárd testet a folyadékba merítünk, a folyadék szintje megemelkedik. A szintváltozásból adódó többlettérfogat pontosan megegyezik a vízbe merülő test saját térfogatával.
+                      </p>
+                      <div className="p-2 bg-[#FFF9ED] rounded border border-[#DFCDB3] font-mono text-center font-bold text-[#8B261D]">
+                        V<sub>test</sub> = V<sub>végső</sub> − V<sub>kezdő</sub>
+                      </div>
+                      <p>
+                        Fontos összefüggés: 1 liter = 1 dm³ = 1000 cm³ = 1000 ml. Így 1 cm³ pontosan 1 ml-nek felel meg!
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-[#E7E8D1] border border-[#A7BEAE] rounded-lg text-xs text-[#2E1B14]">
+                    <strong>Szemközti feladat:</strong> Add meg a kezdő és a végső vízszintet a mérőhengerben, számítsd ki a test térfogatát, és szerezd meg a pontot!
+                  </div>
                 </div>
-              </div>
+              </BookPage>
 
-              <div className="pt-4 border-t border-[#DFCDB3] text-center">
-                <div className="text-xs text-[#8C6D58] font-serif italic mb-2">
-                  Jelentkezz be a szemközti oldalon →
+              {/* ================= PAGE 12: TASK A FORM (RIGHT) ================= */}
+              <BookPage pageNumber={12}>
+                <TaskKiszoritas
+                  user={user}
+                  onPointsUpdated={onPointsUpdated}
+                  onCompleted={() => markTaskDone('l2_a_kiszoritas')}
+                />
+              </BookPage>
+
+              {/* ================= PAGE 13: SCENE 4 ILLUSTRATION (LEFT) ================= */}
+              <BookPage pageNumber={13}>
+                <WatercolorIllustration
+                  src={resolveSceneImage(lesson.lesson_id, scene4?.image || '04_a_megoldas.png')}
+                  alt={scene4?.title || '4. Jelenet'}
+                  sceneNumber={4}
+                  sceneTitle={scene4?.title || 'A megoldás'}
+                />
+              </BookPage>
+
+              {/* ================= PAGE 14: SCENE 4 TEXT (RIGHT) ================= */}
+              <BookPage pageNumber={14}>
+                <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-1 rounded font-bold">
+                        2. Fejezet
+                      </span>
+                      <span className="text-xs font-mono text-[#8C6D58]">4 / 6 jelenet</span>
+                      <span className="ml-auto text-[10px] bg-[#B85042] text-white px-2 py-0.5 rounded font-bold uppercase">
+                        Próbatétel vár
+                      </span>
+                    </div>
+                    <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#8B261D] mb-4">
+                      {scene4?.title || 'A megoldás'}
+                    </h3>
+                    <p className="font-serif text-base sm:text-lg text-[#3E2E23] leading-relaxed mb-4 indent-4">
+                      {scene4?.text}
+                    </p>
+                    {scene4?.quote && (
+                      <blockquote className="my-4 p-3.5 bg-[#E7E8D1] border-l-4 border-[#B85042] rounded-r-lg font-serif italic text-base text-[#2E1B14] shadow-xs">
+                        „{scene4.quote}”
+                      </blockquote>
+                    )}
+                  </div>
+                  <div className="pt-2 flex items-center justify-between text-xs text-[#8C6D58] font-serif">
+                    <span className="text-[#B85042] font-bold">2. Próba: Tömeg és térfogat hányadosa</span>
+                    <span className="italic">Lapozz a feladathoz →</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </BookPage>
+              </BookPage>
 
-          {/* ================= PAGE 2: AUTH LOGIN FORM (RIGHT) ================= */}
-          <BookPage pageNumber={2}>
-            <BookAuthSpread
-              user={user}
-              onUserChanged={onUserChanged}
-              onGoToToc={() => goToPage(3)}
-            />
-          </BookPage>
+              {/* ================= PAGE 15: TASK B CONTEXT (LEFT) ================= */}
+              <BookPage pageNumber={15}>
+                <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-1 rounded font-bold">
+                        2. Próba
+                      </span>
+                      <span className="text-xs font-mono text-[#8C6D58] bg-[#EAE2D0] px-2 py-0.5 rounded">
+                        l2_b_hanyados
+                      </span>
+                      <span className="ml-auto text-xs font-bold text-[#8B261D] bg-[#FFF2B2] px-2 py-0.5 rounded border border-[#E5B842]">
+                        2 pont
+                      </span>
+                    </div>
+                    <h3 className="font-serif text-2xl font-bold text-[#8B261D] mb-3">
+                      Tömeg és térfogat hányadosa: A sűrűség
+                    </h3>
+                    <p className="font-serif text-sm text-[#4A382D] leading-relaxed mb-4">
+                      „Ha valóban tele lenne borral, ennyi térfogathoz ennyi tömegnek kellene tartoznia!” — Miska ezzel kimondta a sűrűség törvényét.
+                    </p>
 
-          {/* ================= PAGE 3: TOC LEFT (1-4) ================= */}
-          <BookPage pageNumber={3}>
-            <BookTocLeft onOpenLesson={() => goToPage(5)} />
-          </BookPage>
+                    <div className="p-4 bg-white/80 rounded-xl border border-[#C8B89E] space-y-2 text-xs text-[#4A382D]">
+                      <div className="font-bold text-[#8B261D] text-sm">Miért állandó a hányados?</div>
+                      <p>
+                        Ha veszünk egy darab vasat, fát vagy tiszta vizet, és megduplázzuk a térfogatát, a tömege is pontosan a kétszeresére nő.
+                      </p>
+                      <p>
+                        Vagyis a <strong>tömeg és a térfogat egyenesen arányos</strong> egymással! Ha elosztjuk a test tömegét a térfogatával (m ÷ V), mindig ugyanazt az állandó értéket kapjuk, amely az adott anyagra jellemző fizikai tulajdonság.
+                      </p>
+                    </div>
+                  </div>
 
-          {/* ================= PAGE 4: TOC RIGHT (5-8) ================= */}
-          <BookPage pageNumber={4}>
-            <BookTocRight onOpenLesson={() => goToPage(5)} />
-          </BookPage>
+                  <div className="p-3 bg-[#E7E8D1] border border-[#A7BEAE] rounded-lg text-xs text-[#2E1B14]">
+                    <strong>Szemközti feladat:</strong> Számítsd ki a 3 hasáb m/V hányadosát, és fogalmazd meg a szabályt az azonos anyagú testekről a 2 pontért!
+                  </div>
+                </div>
+              </BookPage>
 
-          {/* ================= PAGE 5: SCENE 1 ILLUSTRATION (LEFT) ================= */}
-          <BookPage pageNumber={5}>
-            <WatercolorIllustration
-              src={resolveSceneImage(lesson.lesson_id, scene1?.image || '01_miska_a_faluban.png')}
-              alt={scene1?.title || '1. Jelenet'}
-              sceneNumber={1}
-              sceneTitle={scene1?.title || 'Miska szerencsét próbál'}
-            />
-          </BookPage>
+              {/* ================= PAGE 16: TASK B FORM (RIGHT) ================= */}
+              <BookPage pageNumber={16}>
+                <TaskHanyados
+                  user={user}
+                  onPointsUpdated={onPointsUpdated}
+                  onCompleted={() => markTaskDone('l2_b_hanyados')}
+                />
+              </BookPage>
+
+              {/* ================= PAGE 17: SCENE 5 ILLUSTRATION & TEXT (LEFT) ================= */}
+              <BookPage pageNumber={17}>
+                <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
+                  <div>
+                    <div className="w-full h-44 sm:h-52 rounded-xl overflow-hidden border border-[#C6923C] mb-3 shadow-md">
+                      <img
+                        src={resolveSceneImage(lesson.lesson_id, scene5?.image || '05_gyozelem.png')}
+                        alt={scene5?.title || '5. Jelenet'}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-0.5 rounded font-bold">
+                        2. Fejezet
+                      </span>
+                      <span className="text-xs font-mono text-[#8C6D58]">5 / 6 jelenet</span>
+                    </div>
+                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#8B261D] mb-2">
+                      {scene5?.title || 'Győzelem'}
+                    </h3>
+                    <p className="font-serif text-xs sm:text-sm text-[#3E2E23] leading-relaxed mb-2">
+                      {scene5?.text}
+                    </p>
+                    {scene5?.quote && (
+                      <blockquote className="p-2.5 bg-[#E7E8D1] border-l-3 border-[#B85042] rounded-r-lg font-serif italic text-xs text-[#2E1B14]">
+                        „{scene5.quote}”
+                      </blockquote>
+                    )}
+                  </div>
+                  <div className="pt-2 text-right text-xs text-[#8C6D58] font-serif italic">
+                    Szemközt: 3. Próba (Indoklás és egységesítés) →
+                  </div>
+                </div>
+              </BookPage>
+
+              {/* ================= PAGE 18: TASK C FORM (RIGHT) ================= */}
+              <BookPage pageNumber={18}>
+                <TaskReveszIndoklas
+                  user={user}
+                  onPointsUpdated={onPointsUpdated}
+                  onCompleted={() => markTaskDone('l2_c_indoklas')}
+                />
+              </BookPage>
+
+              {/* ================= PAGE 19: SCENE 6 ILLUSTRATION & TEXT (LEFT) ================= */}
+              <BookPage pageNumber={19}>
+                <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
+                  <div>
+                    <div className="w-full h-44 sm:h-52 rounded-xl overflow-hidden border border-[#C6923C] mb-3 shadow-md">
+                      <img
+                        src={resolveSceneImage(lesson.lesson_id, scene6?.image || '06_a_fordulat.png')}
+                        alt={scene6?.title || '6. Jelenet'}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-0.5 rounded font-bold">
+                        2. Fejezet
+                      </span>
+                      <span className="text-xs font-mono text-[#8C6D58]">6 / 6 jelenet</span>
+                    </div>
+                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#8B261D] mb-2">
+                      {scene6?.title || 'A fordulat'}
+                    </h3>
+                    <p className="font-serif text-xs sm:text-sm text-[#3E2E23] leading-relaxed mb-2">
+                      {scene6?.text}
+                    </p>
+                    {scene6?.quote && (
+                      <blockquote className="p-2.5 bg-[#E7E8D1] border-l-3 border-[#B85042] rounded-r-lg font-serif italic text-xs text-[#2E1B14]">
+                        „{scene6.quote}”
+                      </blockquote>
+                    )}
+                  </div>
+                  <div className="pt-2 text-right text-xs text-[#8C6D58] font-serif italic">
+                    Lapozz a fejezet zárásához és jelvényéhez →
+                  </div>
+                </div>
+              </BookPage>
+
+              {/* ================= PAGE 20: EPILOGUE & BADGE (RIGHT) ================= */}
+              <BookPage pageNumber={20}>
+                <div className="w-full h-full flex flex-col items-center justify-between p-6 sm:p-8 text-[#2E1B14] text-center">
+                  <div>
+                    <div className="w-24 h-24 mx-auto mb-2 rounded-full border-2 border-[#C6923C] p-1 shadow-lg bg-gradient-to-br from-[#FAF4E5] to-[#EAE0CD] flex items-center justify-center">
+                      <img
+                        src={badgeReveszBaratja}
+                        alt="A Révész Barátja Jelvény"
+                        className="w-20 h-20 object-contain drop-shadow"
+                      />
+                    </div>
+
+                    <span className="text-xs font-serif uppercase tracking-widest text-[#8C6D58] block mb-1 font-bold">
+                      2. Óra Teljesítve
+                    </span>
+                    <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#8B261D] mb-1">
+                      A Révész Barátja
+                    </h3>
+                    <p className="font-serif italic text-xs text-[#5A4232] max-w-[280px] mx-auto mb-3">
+                      „Sikeresen leleplezted a hamis bort a tömeg és térfogat összefüggésével, és megmentetted a révész becsületét!”
+                    </p>
+                  </div>
+
+                  <div className="w-full max-w-[300px] bg-white/80 p-3 rounded-xl border border-[#C8B89E] text-xs space-y-1.5 text-left">
+                    <div className="font-bold text-[#8B261D] mb-1 text-center">Próbatételek állapota:</div>
+                    <div className="flex items-center justify-between">
+                      <span>1. Kiszorítás (l2_a):</span>
+                      <span className="font-bold text-emerald-700 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Pont mentve (1p)
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>2. Hányados (l2_b):</span>
+                      <span className="font-bold text-emerald-700 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Pont mentve (2p)
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>3. Indoklás (l2_c):</span>
+                      <span className="font-bold text-emerald-700 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Pont mentve (1p)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="w-full space-y-2">
+                    <button
+                      onClick={() => goToPage(3)}
+                      className="w-full py-2.5 px-4 bg-[#B85042] hover:bg-[#A34335] text-white font-serif font-bold rounded-lg shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer text-xs"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      Vissza a Tartalomjegyzékhez
+                    </button>
+                  </div>
+                </div>
+              </BookPage>
+
+            {renderBackCoverPage()}
+          </HTMLFlipBook>
+        ) : (
+          <HTMLFlipBook key="flipbook-l1" {...flipBookProps}>
+            {renderCoverPage()}
+            {renderPrefacePage()}
+            {renderAuthPage()}
+            {renderTocLeftPage()}
+            {renderTocRightPage()}
+
+            {/* ================= PAGE 5: SCENE 1 ILLUSTRATION (LEFT) ================= */}
+            <BookPage pageNumber={5}>
+              <WatercolorIllustration
+                src={resolveSceneImage(lesson.lesson_id, scene1?.image || '01_miska_a_faluban.png')}
+                alt={scene1?.title || '1. Jelenet'}
+                sceneNumber={1}
+                sceneTitle={scene1?.title || 'Miska szerencsét próbál'}
+              />
+              </BookPage>
 
           {/* ================= PAGE 6: SCENE 1 TEXT (RIGHT) ================= */}
           <BookPage pageNumber={6}>
@@ -788,61 +1288,9 @@ export const StoryBookFlip: React.FC<Props> = ({
             </div>
           </BookPage>
 
-          {/* ================= PAGE 21: BACK COVER ================= */}
-          <BookPage isHard isCover pageNumber={21}>
-            <div className="w-full h-full flex flex-col items-center justify-between p-6 sm:p-10 border-4 border-[#C6923C] rounded-lg relative">
-              {/* Corner brackets */}
-              <div className="absolute top-2 left-2 w-8 h-8 border-t-2 border-l-2 border-[#E5B842]" />
-              <div className="absolute top-2 right-2 w-8 h-8 border-t-2 border-r-2 border-[#E5B842]" />
-              <div className="absolute bottom-2 left-2 w-8 h-8 border-b-2 border-l-2 border-[#E5B842]" />
-              <div className="absolute bottom-2 right-2 w-8 h-8 border-b-2 border-r-2 border-[#E5B842]" />
-
-              <div className="text-center pt-8">
-                <span className="text-xs font-serif uppercase tracking-[0.25em] text-[#E5B842] block mb-2">
-                  Mérő Miska próbái
-                </span>
-                <h2 className="font-title text-2xl sm:text-3xl font-bold text-[#FFF2B2]">
-                  Fizika 7. Mesekönyv
-                </h2>
-              </div>
-
-              {/* Gold Seal */}
-              <div className="w-28 h-28 rounded-full border-2 border-[#E5B842] p-1 flex items-center justify-center bg-gradient-to-br from-[#785317] via-[#DDA843] to-[#4A320C] shadow-2xl">
-                <div className="w-full h-full rounded-full border border-[#FFF2B2]/60 flex flex-col items-center justify-center text-center p-2">
-                  <Award className="w-8 h-8 text-[#FFF2B2] mb-1 drop-shadow" />
-                  <span className="text-[10px] font-serif font-bold text-[#FFF2B2] tracking-wider uppercase">
-                    Királyi Pecsét
-                  </span>
-                </div>
-              </div>
-
-              <div className="w-full text-center pb-4 text-[#E5D9C4]">
-                <p className="font-serif text-xs italic mb-4">
-                  Készült a 7. évfolyamos fizika tananyaghoz.
-                  <br />
-                  Központi pontrendszer:
-                  <br />
-                  <a
-                    href="https://fizika-pontkoveto.vercel.app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#E5B842] underline hover:text-[#FFF2B2] font-mono text-xs mt-1 inline-block"
-                  >
-                    fizika-pontkoveto.vercel.app
-                  </a>
-                </p>
-
-                <button
-                  onClick={() => goToPage(0)}
-                  className="px-5 py-2 bg-[#B85042] hover:bg-[#A34335] text-white font-serif font-bold text-xs rounded-full border border-[#E5B842] shadow-lg flex items-center justify-center gap-1.5 mx-auto cursor-pointer"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Könyv újranyitása (Elejére)</span>
-                </button>
-              </div>
-            </div>
-          </BookPage>
-        </HTMLFlipBook>
+            {renderBackCoverPage()}
+          </HTMLFlipBook>
+        )}
       </div>
 
       {/* Bottom Floating Quick Navigation Bar */}
