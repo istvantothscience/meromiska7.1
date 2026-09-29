@@ -27,6 +27,7 @@ interface NavbarProps {
   lessons: Lesson[];
   activeLessonIndex: number | null;
   onSelectLessonIndex: (index: number | null) => void;
+  onOpenPrompts?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -44,6 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   lessons,
   activeLessonIndex,
   onSelectLessonIndex,
+  onOpenPrompts,
 }) => {
   const totalTasks = lessons.reduce(
     (sum, l) => sum + l.scenes.filter((s) => !!s.task).length,
@@ -170,6 +172,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             <BookOpen className="w-3.5 h-3.5 text-amber-400" />
             <span className="text-[11px]">Tartalom</span>
           </button>
+
+          {/* Quick Prompts & Illustrations Modal Button */}
+          {onOpenPrompts && (
+            <button
+              id="btn-navbar-prompts-pill"
+              type="button"
+              onClick={onOpenPrompts}
+              className="hidden md:flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-white/10 hover:border-amber-400/40 bg-white/5 hover:bg-white/10 text-stone-300 hover:text-amber-200 text-xs font-medium transition-all cursor-pointer"
+              title="Képgenerálási promptok és illusztrációk megtekintése"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-[11px]">Képpromptok</span>
+            </button>
+          )}
 
           {/* Points & Badge Pill (Modern Gamification Widget) */}
           <button

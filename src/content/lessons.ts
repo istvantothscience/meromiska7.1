@@ -20,10 +20,21 @@ import l2Img05 from '../assets/images/l2_05_gyozelem_1790163638580.jpg';
 import l2Img06 from '../assets/images/l2_06_a_fordulat_1790163650674.jpg';
 import badgeReveszBaratja from '../assets/images/badge_revesz_baratja_1790163662114.jpg';
 
-export { badgeHidvero, badgeReveszBaratja, miskaCoverImg };
+// Lesson 3 images
+import l3Img01 from '../assets/images/l3_01_a_vasarter_1790662371493.jpg';
+import l3Img02 from '../assets/images/l3_02_a_gyogyito_lany_1790662389888.jpg';
+import l3Img03 from '../assets/images/l3_03_a_harom_sator_1790662404677.jpg';
+import l3Img04 from '../assets/images/l3_04_a_leleplezes_1790662424617.jpg';
+import l3Img05 from '../assets/images/l3_05_gyozelem_1790662442362.jpg';
+import l3Img06 from '../assets/images/l3_06_a_fordulat_1790662471448.jpg';
+import badgeVasariElesSzem from '../assets/images/badge_vasari_eles_szem_1790662485796.jpg';
 
-// Known image alias map for l1 & l2
+export { badgeHidvero, badgeReveszBaratja, badgeVasariElesSzem, miskaCoverImg };
+
+// Known image alias map for l1, l2 & l3
 const KNOWN_IMAGES: Record<string, string> = {
+  // Lesson 1: A híd próbája
+  'l1:01_hirdetmeny.png': img01,
   '01_miska_a_faluban.png': img01,
   '02_meresi_zurzavar.png': img05,
   '03_miska_megmeri_a_hidat.png': img06,
@@ -37,13 +48,30 @@ const KNOWN_IMAGES: Record<string, string> = {
   'badge_hidvero.png': badgeHidvero,
 
   // Lesson 2: A révész hordói
+  'l2:01_folyohoz_erkezes.png': l2Img01,
+  'l2:02_reves_probaja.png': l2Img02,
+  'l2:03_tanakodas.png': l2Img03,
+  'l2:04_a_megoldas.png': l2Img04,
+  'l2:05_gyozelem.png': l2Img05,
+  'l2:06_a_fordulat.png': l2Img06,
   '01_folyohoz_erkezes.png': l2Img01,
   '02_reves_probaja.png': l2Img02,
   '03_tanakodas.png': l2Img03,
   '04_a_megoldas.png': l2Img04,
-  '05_gyozelem.png': l2Img05,
-  '06_a_fordulat.png': l2Img06,
   'badge_revesz_baratja.png': badgeReveszBaratja,
+
+  // Lesson 3: A vásár csalói
+  'l3:01_a_vasarter.png': l3Img01,
+  'l3:02_a_gyogyito_lany.png': l3Img02,
+  'l3:03_a_harom_sator.png': l3Img03,
+  'l3:04_a_leleplezes.png': l3Img04,
+  'l3:05_gyozelem.png': l3Img05,
+  'l3:06_a_fordulat.png': l3Img06,
+  '01_a_vasarter.png': l3Img01,
+  '02_a_gyogyito_lany.png': l3Img02,
+  '03_a_harom_sator.png': l3Img03,
+  '04_a_leleplezes.png': l3Img04,
+  'badge_vasari_eles_szem.png': badgeVasariElesSzem,
 };
 
 // Dynamic image glob to auto-detect any future assets placed in assets/images/
@@ -139,7 +167,10 @@ export function getLessonById(id: string): Lesson | undefined {
 export function resolveSceneImage(lessonId: string, imageName: string): string | null {
   if (!imageName) return null;
 
-  // 1. Direct match in known aliases
+  // 1. Direct match in namespaced aliases or global aliases
+  if (KNOWN_IMAGES[`${lessonId}:${imageName}`]) {
+    return KNOWN_IMAGES[`${lessonId}:${imageName}`];
+  }
   if (KNOWN_IMAGES[imageName]) {
     return KNOWN_IMAGES[imageName];
   }

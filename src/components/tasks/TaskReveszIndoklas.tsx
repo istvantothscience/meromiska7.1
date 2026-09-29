@@ -162,7 +162,13 @@ export const TaskReveszIndoklas: React.FC<Props> = ({ user, onPointsUpdated, onC
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-3"
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           {/* Part 1: Unit unification */}
           <div className="p-3 bg-white/70 rounded-xl border border-[#DFCDB3]">
             <label className="block text-xs font-serif font-bold text-[#2E1B14] mb-1">
@@ -174,6 +180,14 @@ export const TaskReveszIndoklas: React.FC<Props> = ({ user, onPointsUpdated, onC
                 inputMode="decimal"
                 value={conversionVal}
                 onChange={(e) => setConversionVal(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  (e.currentTarget as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
                 placeholder=""
                 className="w-full px-2.5 py-1.5 text-sm bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-1 focus:ring-[#B85042] cursor-text text-center font-mono font-bold"
@@ -192,6 +206,14 @@ export const TaskReveszIndoklas: React.FC<Props> = ({ user, onPointsUpdated, onC
               rows={3}
               value={reasoning}
               onChange={(e) => setReasoning(e.target.value)}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                (e.currentTarget as HTMLTextAreaElement).focus();
+              }}
+              onKeyDown={(e) => e.stopPropagation()}
               disabled={isDone}
               placeholder="Írd le a saját indoklásodat..."
               className="w-full p-2.5 text-xs sm:text-sm bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-1 focus:ring-[#B85042] cursor-text resize-none"

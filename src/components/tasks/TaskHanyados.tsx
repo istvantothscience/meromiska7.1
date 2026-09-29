@@ -1,17 +1,36 @@
-import React, { useState } from 'react';
-import { CheckCircle2, AlertCircle, Sparkles, Send, Info, Scale } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CheckCircle2, AlertCircle, Sparkles, Send, Info, Scale, Calculator, ArrowDownToLine } from 'lucide-react';
 import { submitTaskScore } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import confetti from 'canvas-confetti';
 import type { UserProfile } from '../../types';
 
+export interface TaskHanyadosData {
+  m1: number;
+  v1: number;
+  q1: number;
+  m2: number;
+  v2: number;
+  q2: number;
+  m3: number;
+  v3: number;
+  q3: number;
+  materialName?: string;
+}
+
 interface Props {
   user: UserProfile | null;
   onPointsUpdated?: (newPoints: number) => void;
   onCompleted?: () => void;
+  simulationData?: TaskHanyadosData | null;
 }
 
-export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onCompleted }) => {
+export const TaskHanyados: React.FC<Props> = ({
+  user,
+  onPointsUpdated,
+  onCompleted,
+  simulationData,
+}) => {
   // 3 sample bodies: mass m (g), volume V (cm3), quotient m/V (g/cm3)
   const [m1, setM1] = useState('');
   const [v1, setV1] = useState('');
@@ -31,10 +50,40 @@ export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onComplet
   const [pointsAwarded, setPointsAwarded] = useState<number | null>(null);
   const [showFormula, setShowFormula] = useState(false);
 
+  // Sync with simulation data if provided
+  useEffect(() => {
+    if (simulationData) {
+      setM1(String(simulationData.m1));
+      setV1(String(simulationData.v1));
+      setQ1(String(simulationData.q1));
+
+      setM2(String(simulationData.m2));
+      setV2(String(simulationData.v2));
+      setQ2(String(simulationData.q2));
+
+      setM3(String(simulationData.m3));
+      setV3(String(simulationData.v3));
+      setQ3(String(simulationData.q3));
+
+      soundFx.playWoodTap();
+    }
+  }, [simulationData]);
+
   const parseVal = (str: string): number | null => {
     const clean = str.trim().replace(',', '.');
     const num = parseFloat(clean);
     return isNaN(num) ? null : num;
+  };
+
+  // Helper to auto-calculate quotient for row 1
+  const calcRowQuotient = (mStr: string, vStr: string, setQ: (val: string) => void) => {
+    const mNum = parseVal(mStr);
+    const vNum = parseVal(vStr);
+    if (mNum !== null && vNum !== null && vNum > 0) {
+      const quotient = Math.round((mNum / vNum) * 100) / 100;
+      setQ(String(quotient));
+      soundFx.playWoodTap();
+    }
   };
 
   const checkQuotients = () => {
@@ -209,8 +258,82 @@ export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onComplet
           </div>
         )}
 
+        {/* Simulation Banner if transferred */}
+        {simulationData && (
+          <div className="mb-2 p-1.5 bg-[#FAF4E5] border border-[#E5B842] rounded-lg text-[11px] text-[#4A382D] flex items-center justify-between">
+            <span className="flex items-center gap-1 font-serif">
+              <Sparkles className="w-3.5 h-3.5 text-[#B85042]" />
+              <strong>{simulationData.materialName || 'Szimuláció'}</strong> adatai betöltve a hasábokhoz!
+            </span>
+            <span className="text-[10px] font-mono text-[#8B261D] font-bold">ρ = {simulationData.q1} g/cm³</span>
+          </div>
+        )}
+
+        {/* Quick Sample Presets & Auto-Calculate Helpers */}
+        <div className="flex flex-wrap items-center justify-between gap-1 mb-2 px-1">
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] text-[#6A5342] font-serif">Gyors teszt:</span>
+            <button
+              type="button"
+              onClick={() => {
+                setM1('78'); setV1('10'); setQ1('7.8');
+                setM2('156'); setV2('20'); setQ2('7.8');
+                setM3('234'); setV3('30'); setQ3('7.8');
+                soundFx.playWoodTap();
+              }}
+              className="text-[10px] px-1.5 py-0.5 bg-white border border-[#C8B89E] rounded text-[#8B261D] hover:bg-[#FAF4E5] cursor-pointer"
+            >
+              Vas
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setM1('27'); setV1('10'); setQ1('2.7');
+                setM2('54'); setV2('20'); setQ2('2.7');
+                setM3('81'); setV3('30'); setQ3('2.7');
+                soundFx.playWoodTap();
+              }}
+              className="text-[10px] px-1.5 py-0.5 bg-white border border-[#C8B89E] rounded text-[#8B261D] hover:bg-[#FAF4E5] cursor-pointer"
+            >
+              Alu
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setM1('14'); setV1('20'); setQ1('0.7');
+                setM2('28'); setV2('40'); setQ2('0.7');
+                setM3('42'); setV3('60'); setQ3('0.7');
+                soundFx.playWoodTap();
+              }}
+              className="text-[10px] px-1.5 py-0.5 bg-white border border-[#C8B89E] rounded text-[#8B261D] hover:bg-[#FAF4E5] cursor-pointer"
+            >
+              Fa
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              calcRowQuotient(m1, v1, setQ1);
+              calcRowQuotient(m2, v2, setQ2);
+              calcRowQuotient(m3, v3, setQ3);
+            }}
+            title="Kiszámolja a beírt tömegek és térfogatok hányadosát"
+            className="text-[10px] px-2 py-0.5 bg-[#FAF4E5] border border-[#B85042]/40 rounded text-[#8B261D] font-bold hover:bg-[#F3E7CB] cursor-pointer flex items-center gap-1"
+          >
+            <Calculator className="w-2.5 h-2.5" />
+            Hányadosok kiszámolása
+          </button>
+        </div>
+
         {/* Form with 3 bodies */}
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-3"
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           {/* Table Header */}
           <div className="grid grid-cols-12 gap-1.5 text-[11px] font-serif font-bold text-[#5A4232] px-1">
             <div className="col-span-3">Test</div>
@@ -230,6 +353,14 @@ export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onComplet
                 inputMode="decimal"
                 value={m1}
                 onChange={(e) => setM1(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  (e.currentTarget as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
                 placeholder=""
                 className="w-full px-2 py-1 text-xs bg-white border border-[#C8B89E] rounded text-center focus:ring-1 focus:ring-[#B85042] cursor-text"
@@ -241,6 +372,14 @@ export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onComplet
                 inputMode="decimal"
                 value={v1}
                 onChange={(e) => setV1(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  (e.currentTarget as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
                 placeholder=""
                 className="w-full px-2 py-1 text-xs bg-white border border-[#C8B89E] rounded text-center focus:ring-1 focus:ring-[#B85042] cursor-text"
@@ -252,6 +391,14 @@ export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onComplet
                 inputMode="decimal"
                 value={q1}
                 onChange={(e) => setQ1(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  (e.currentTarget as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
                 placeholder=""
                 className="w-full px-2 py-1 text-xs font-bold text-[#8B261D] bg-[#FFF9ED] border border-[#B85042]/40 rounded text-center focus:ring-1 focus:ring-[#B85042] cursor-text"
@@ -270,6 +417,14 @@ export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onComplet
                 inputMode="decimal"
                 value={m2}
                 onChange={(e) => setM2(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  (e.currentTarget as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
                 placeholder=""
                 className="w-full px-2 py-1 text-xs bg-white border border-[#C8B89E] rounded text-center focus:ring-1 focus:ring-[#B85042] cursor-text"
@@ -281,6 +436,14 @@ export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onComplet
                 inputMode="decimal"
                 value={v2}
                 onChange={(e) => setV2(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  (e.currentTarget as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
                 placeholder=""
                 className="w-full px-2 py-1 text-xs bg-white border border-[#C8B89E] rounded text-center focus:ring-1 focus:ring-[#B85042] cursor-text"
@@ -292,6 +455,14 @@ export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onComplet
                 inputMode="decimal"
                 value={q2}
                 onChange={(e) => setQ2(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  (e.currentTarget as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
                 placeholder=""
                 className="w-full px-2 py-1 text-xs font-bold text-[#8B261D] bg-[#FFF9ED] border border-[#B85042]/40 rounded text-center focus:ring-1 focus:ring-[#B85042] cursor-text"
@@ -310,6 +481,14 @@ export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onComplet
                 inputMode="decimal"
                 value={m3}
                 onChange={(e) => setM3(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  (e.currentTarget as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
                 placeholder=""
                 className="w-full px-2 py-1 text-xs bg-white border border-[#C8B89E] rounded text-center focus:ring-1 focus:ring-[#B85042] cursor-text"
@@ -321,6 +500,14 @@ export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onComplet
                 inputMode="decimal"
                 value={v3}
                 onChange={(e) => setV3(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  (e.currentTarget as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
                 placeholder=""
                 className="w-full px-2 py-1 text-xs bg-white border border-[#C8B89E] rounded text-center focus:ring-1 focus:ring-[#B85042] cursor-text"
@@ -332,6 +519,14 @@ export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onComplet
                 inputMode="decimal"
                 value={q3}
                 onChange={(e) => setQ3(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  (e.currentTarget as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
                 placeholder=""
                 className="w-full px-2 py-1 text-xs font-bold text-[#8B261D] bg-[#FFF9ED] border border-[#B85042]/40 rounded text-center focus:ring-1 focus:ring-[#B85042] cursor-text"
@@ -348,6 +543,14 @@ export const TaskHanyados: React.FC<Props> = ({ user, onPointsUpdated, onComplet
               rows={2}
               value={conclusion}
               onChange={(e) => setConclusion(e.target.value)}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                (e.currentTarget as HTMLTextAreaElement).focus();
+              }}
+              onKeyDown={(e) => e.stopPropagation()}
               disabled={isDone}
               placeholder="Fogalmazd meg a következtetésedet..."
               className="w-full p-2 text-xs bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-1 focus:ring-[#B85042] cursor-text resize-none"

@@ -8,6 +8,9 @@ import { TaskGoogleEarth } from './tasks/TaskGoogleEarth';
 import { TaskKiszoritas } from './tasks/TaskKiszoritas';
 import { TaskHanyados } from './tasks/TaskHanyados';
 import { TaskReveszIndoklas } from './tasks/TaskReveszIndoklas';
+import { TaskAtvaltasL3 } from './tasks/TaskAtvaltasL3';
+import { TaskItalmeroL3 } from './tasks/TaskItalmeroL3';
+import { TaskCsaladvanyL3 } from './tasks/TaskCsaladvanyL3';
 import { submitTaskScore } from '../lib/supabase';
 import { Sparkles, CheckCircle2, AlertCircle, Send } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -146,7 +149,59 @@ export const TaskDispatcher: React.FC<TaskDispatcherProps> = ({
     );
   }
 
-  // Generic data-driven task runner for any future lessons added in l2.json, l3.json, etc.
+  // Built-in handlers for Lesson 3: A vásár csalói
+  if (taskCode === 'l3_a_atvaltas') {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskAtvaltasL3
+          user={null}
+          onCompleted={() => {
+            onSubmitted({
+              isCompleted: true,
+              pointsAwarded: 1,
+              submittedAt: new Date().toISOString(),
+            });
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (taskCode === 'l3_b_ketlepes') {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskItalmeroL3
+          user={null}
+          onCompleted={() => {
+            onSubmitted({
+              isCompleted: true,
+              pointsAwarded: 1,
+              submittedAt: new Date().toISOString(),
+            });
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (taskCode === 'l3_c_feladvany') {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskCsaladvanyL3
+          user={null}
+          onCompleted={() => {
+            onSubmitted({
+              isCompleted: true,
+              pointsAwarded: 1,
+              submittedAt: new Date().toISOString(),
+            });
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Generic data-driven task runner for any future lessons
   return (
     <GenericTaskRunner
       taskCode={taskCode}

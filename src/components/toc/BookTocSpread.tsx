@@ -32,9 +32,9 @@ const ALL_8_CHAPTERS: ChapterEntry[] = [
   {
     number: 3,
     id: 'l3',
-    title: 'A mérleg egyensúlya',
-    subtitle: 'Tömeg, nehézkedés és egyensúly',
-    topic: 'Tömeg',
+    title: 'A vásár csalói',
+    subtitle: 'Régi mértékek és a vásári csalók leleplezése',
+    topic: 'Mérés',
   },
   {
     number: 4,

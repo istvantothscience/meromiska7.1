@@ -1,0 +1,62 @@
+{
+  "lesson_id": "l3",
+  "title": "A vásár csalói",
+  "subtitle": "Régi mértékek és a vásári csalók leleplezése",
+  "topic": "Mérés",
+  "order": 3,
+  "badgeName": "Vásári Éles Szem",
+  "badgeDescription": "Leleplezted a vásár csalóit a régi mértékek és a mérési pontosság vizsgálatával!",
+  "scenes": [
+    {
+      "n": 1,
+      "title": "A vásártér",
+      "text": "A fiú az éjszaka nagy részét gyalog töltötte, s mire a városi vásártér kapujához ért, a keleti égbolt már szürkülni kezdett. A téren zaj és füst fogadta: sátrak, kordék, kiabáló kalmárok, csörrenő serpenyők. Az egyik tábláján „három láb”, a másikén „fél font”, a harmadikén „fél icce” állt – s mindegyik úgy hirdette a maga mértékét, mintha csak az volna az egyetlen igaz. A fiú a tarisznyájára szorította a kezét, benne a lezárt korsóval, és azon törte a fejét, hogyan találja meg a gyógyítót ebben a zűrzavarban.",
+      "quote": "„Az egyik lábbal mér, a másik fonttal, a harmadik ki tudja, mivel – hát hogyan tudná itt bárki, hogy mit kap a pénzéért?”",
+      "image": "01_a_vasarter.png"
+    },
+    {
+      "n": 2,
+      "title": "A gyógyító lány",
+      "text": "A gyógyítót végül a tér túlsó végén találta meg, egy kis, zöld ponyvás sátor alatt, ahol betegek álltak sorban. A fiú átnyújtotta a korsót, a lány megvizsgálta a pecsétjét, és elmosolyodott. – Pontosan annyi, amennyi jár. Az apám jól választott. – Aztán elkomolyodott. – Csakhogy ma még három hozzávaló kell a gyógyszerhez: egy kis zsineg a kötésekhez, fél font szárított kamilla és fél icce gyógyital. A vásárbíró a reggel folyamán érkezik, de addig is minden kalmár csal, ahogy csak tud, nekem pedig nincs időm végigjárni őket. Ellenőrizd te a három sátrat! – S a fiú kezébe nyomott egy fatáblácskát: a vásárbíró mértékfáját, amelyről leolvasható, mennyi a láb, a font és az icce mai mértékben.",
+      "quote": "„Ne a szemednek higgy, és ne a kalmár szavának – csak annak, amit magad megmértél.”",
+      "image": "02_a_gyogyito_lany.png"
+    },
+    {
+      "n": 3,
+      "title": "A három sátor",
+      "text": "Az első sátorban egy kövér posztós vigyorgott. – Három láb jó erős zsineg, egy hajszállal sem kevesebb! – kiáltotta, és a zsineget a pultra csapta. A második sátornál egy horgas hátú gyógyfűárus rázogatta a zacskóját: – Fél font szárított kamilla, pontosan! – A harmadiknál egy csuklyás italmérő tartotta a fiú felé a kancsóját: – Fél icce gyógyital, gyerek, színültig! – A fiú végignézte mindhármat, aztán a tarisznyájából elővette az apjától kapott mérőzsinórt.",
+      "quote": "Ki csal közülük – és honnan lehetne ezt biztosan tudni, ha mindenki más mértékkel mér?",
+      "image": "03_a_harom_sator.png",
+      "task": "l3_a_atvaltas",
+      "taskTitle": "1. Próba: Négy egylépéses átváltás",
+      "taskPoints": 1
+    },
+    {
+      "n": 4,
+      "title": "A leleplezés",
+      "text": "A fiú nem sietett. Mindhárom portékát háromszor is megmérte, a kapott számokból átlagot vett, a kalmárok szavát pedig átváltotta a mértékfa szerint. A posztós zsinegje jó tenyérnyivel rövidebb volt annál, amit ígért – ennyi már akkor sem lehetett a mérés pontatlansága, ha a leolvasás nem tökéletes. A gyógyfűárus zacskója szinte grammra annyit ért, amennyit a kalmár mondott: neki nem volt mit szemére vetni. Az italmérő kancsójából viszont jó kortynyi hiányzott. – Ketten csaltak, egy pedig tisztességes volt – mondta a fiú. – És nem a szemem mondja, hanem a számok.",
+      "quote": "„Nem minden eltérés csalás – de ami a mérés pontosságán túl van, az már az.”",
+      "image": "04_a_leleplezes.png",
+      "task": "l3_b_ketlepes",
+      "taskTitle": "2. Próba: Az italmérő trükkje",
+      "taskPoints": 1
+    },
+    {
+      "n": 5,
+      "title": "Győzelem",
+      "text": "Ekkorra megérkezett a vásárbíró is, a király hetyke szakállú hivatalnoka, két pribék kíséretében. A fiú átnyújtotta neki a jegyzőkönyvét: az állításokat, a három-három mérést, az átlagokat és az átváltásokat. A vásárbíró végigolvasta, s bólintott. – Ritkán látni ilyet – mondta. – A legtöbben egyetlen mérést mutatnak fel, vagy még azt sem. Te háromszor mértél, átlagoltál és átváltottál – ezt még a leggörbébb kalmár sem tudja megcáfolni. A két csalónak pedig megparancsolta, hogy ezentúl a hivatalos mértékfa szerint mérjenek.",
+      "quote": "„Aki pontosan mér és számol, azt nem lehet becsapni.”",
+      "image": "05_gyozelem.png",
+      "task": "l3_c_feladvany",
+      "taskTitle": "3. Próba: Csalás-feladvány",
+      "taskPoints": 1
+    },
+    {
+      "n": 6,
+      "title": "A fordulat",
+      "text": "A gyógyító lány hálásan összegyűjtötte a hozzávalókat, és a fiút útravalóval látta el. A vásárbíró pedig még félrehívta: – Az út a palotához az erdőn át vezet – mondta. – Az erdő szélén különös népség lakik, fiam. Aki ott szól hozzád, az nem mindig azt mondja, amit gondol, s a súlyok sem mindig azok, aminek látszanak. Vigyázz a tarisznyádra! – A fiú megköszönte a figyelmeztetést, megigazította a vállán a szíjat, és belépett a sűrű fák közé.",
+      "quote": "„Az erdő nem a vásártér: ott nem a kalmárok szava csal, hanem a látszat maga.”",
+      "image": "06_a_fordulat.png"
+    }
+  ]
+}

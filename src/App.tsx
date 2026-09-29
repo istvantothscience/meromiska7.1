@@ -7,6 +7,7 @@ import { OpenBook } from './components/OpenBook';
 import { StoryViewer } from './components/StoryViewer';
 import { AuthModal } from './components/AuthModal';
 import { BadgeModal } from './components/BadgeModal';
+import { IllustrationPromptsModal } from './components/IllustrationPromptsModal';
 import { MagicalEmbers } from './components/MagicalEmbers';
 
 const LOCAL_STORAGE_SUBMISSIONS_KEY = 'mero_miska_task_submissions_v1';
@@ -22,6 +23,7 @@ export default function App() {
   const [taskSubmissions, setTaskSubmissions] = useState<Record<string, TaskSubmissionState>>({});
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isBadgeModalOpen, setIsBadgeModalOpen] = useState<boolean>(false);
+  const [isPromptsModalOpen, setIsPromptsModalOpen] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
 
@@ -178,6 +180,7 @@ export default function App() {
         userProfile={userProfile}
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onOpenBadge={() => setIsBadgeModalOpen(true)}
+        onOpenPrompts={() => setIsPromptsModalOpen(true)}
         onOpenTableOfContents={() => {
           setActiveLessonIndex(null);
           setViewMode('book');
@@ -244,7 +247,7 @@ export default function App() {
         onUpdatePartner={handlePartnerUpdate}
       />
 
-      {/* Badge Modal for Hídverő & Progress */}
+      {/* Badge Modal for Hídverő, Révész Barátja & Vásári Éles Szem */}
       <BadgeModal
         isOpen={isBadgeModalOpen}
         onClose={() => setIsBadgeModalOpen(false)}
@@ -252,6 +255,14 @@ export default function App() {
         totalPointsAvailable={3}
         completedTasksCount={completedTasksCount}
         studentName={userProfile?.name}
+        currentLessonId={currentLesson?.lesson_id}
+      />
+
+      {/* Prompts & Illustrations Modal */}
+      <IllustrationPromptsModal
+        isOpen={isPromptsModalOpen}
+        onClose={() => setIsPromptsModalOpen(false)}
+        activeLessonId={currentLesson?.lesson_id}
       />
     </div>
   );
