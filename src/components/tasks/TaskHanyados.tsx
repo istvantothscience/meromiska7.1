@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CheckCircle2, AlertCircle, Sparkles, Send, Info, Scale, Calculator, ArrowDownToLine } from 'lucide-react';
 import { submitTaskScore } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
@@ -31,10 +31,30 @@ export const TaskHanyados: React.FC<Props> = ({
   onCompleted,
   simulationData,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   // 3 sample bodies: mass m (g), volume V (cm3), quotient m/V (g/cm3)
   const [m1, setM1] = useState('');
   const [v1, setV1] = useState('');
   const [q1, setQ1] = useState('');
+
+  // Prevent flipbook from capturing clicks/touches on task inputs
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const stopCapturing = (e: Event) => {
+      e.stopPropagation();
+    };
+    el.addEventListener('pointerdown', stopCapturing, { capture: true });
+    el.addEventListener('mousedown', stopCapturing, { capture: true });
+    el.addEventListener('touchstart', stopCapturing, { capture: true });
+    el.addEventListener('click', stopCapturing, { capture: true });
+    return () => {
+      el.removeEventListener('pointerdown', stopCapturing, { capture: true });
+      el.removeEventListener('mousedown', stopCapturing, { capture: true });
+      el.removeEventListener('touchstart', stopCapturing, { capture: true });
+      el.removeEventListener('click', stopCapturing, { capture: true });
+    };
+  }, []);
 
   const [m2, setM2] = useState('');
   const [v2, setV2] = useState('');
@@ -210,7 +230,13 @@ export const TaskHanyados: React.FC<Props> = ({
   const isDone = status === 'success' && pointsAwarded === 2;
 
   return (
-    <div className="w-full h-full flex flex-col justify-between p-4 sm:p-6 text-[#2E1B14] select-text">
+    <div
+      ref={containerRef}
+      className="w-full h-full flex flex-col justify-between pt-16 sm:pt-20 px-3.5 sm:px-6 pb-6 text-[#2E1B14] select-text overflow-y-auto relative z-30"
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
       <div>
         {/* Header */}
         <div className="flex items-center justify-between gap-2 mb-2">

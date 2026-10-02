@@ -11,7 +11,7 @@ export const AncientScaleLab: React.FC = () => {
   const converted = Math.round(num * unitConfig.factor * 100) / 100;
 
   return (
-    <div className="w-full h-full flex flex-col justify-between p-4 sm:p-5 text-[#2E1B14] select-text overflow-y-auto">
+    <div className="w-full h-full flex flex-col justify-between pt-6 sm:pt-8 px-4 sm:px-6 pb-4 text-[#2E1B14] select-text overflow-y-auto">
       <div>
         <div className="flex items-center gap-2 mb-2">
           <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-0.5 rounded font-bold">

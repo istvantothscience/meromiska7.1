@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CheckCircle2, AlertCircle, Sparkles, Ruler, Footprints, Send } from 'lucide-react';
 import { submitTaskScore } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
@@ -11,12 +11,32 @@ interface Props {
 }
 
 export const TaskMeasurement: React.FC<Props> = ({ user, onPointsUpdated, onCompleted }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [tapeMeasure, setTapeMeasure] = useState('');
   const [stepEstimate, setStepEstimate] = useState('');
   const [objectName, setObjectName] = useState('A tanterem padlója');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [discrepancy, setDiscrepancy] = useState<number | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  // Prevent flipbook from capturing clicks/touches on task inputs
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const stopCapturing = (e: Event) => {
+      e.stopPropagation();
+    };
+    el.addEventListener('pointerdown', stopCapturing, { capture: true });
+    el.addEventListener('mousedown', stopCapturing, { capture: true });
+    el.addEventListener('touchstart', stopCapturing, { capture: true });
+    el.addEventListener('click', stopCapturing, { capture: true });
+    return () => {
+      el.removeEventListener('pointerdown', stopCapturing, { capture: true });
+      el.removeEventListener('mousedown', stopCapturing, { capture: true });
+      el.removeEventListener('touchstart', stopCapturing, { capture: true });
+      el.removeEventListener('click', stopCapturing, { capture: true });
+    };
+  }, []);
 
   const parseVal = (str: string): number | null => {
     const clean = str.trim().replace(',', '.');
@@ -71,7 +91,13 @@ export const TaskMeasurement: React.FC<Props> = ({ user, onPointsUpdated, onComp
   const isDone = status === 'success';
 
   return (
-    <div className="w-full flex flex-col justify-between h-full text-[#2E1B14] p-4 sm:p-6 select-text">
+    <div
+      ref={containerRef}
+      className="w-full flex flex-col justify-between h-full text-[#2E1B14] pt-16 sm:pt-20 px-4 sm:px-6 pb-6 select-text overflow-y-auto relative z-30"
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
       <div>
         <div className="flex items-center gap-2 mb-3">
           <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-1 rounded">
@@ -97,59 +123,144 @@ export const TaskMeasurement: React.FC<Props> = ({ user, onPointsUpdated, onComp
           A feladat célja a reflexió: <strong>mindkét érték beírásakor jár az 1 pont!</strong>
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form
+          onSubmit={handleSubmit}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="space-y-3"
+        >
           {/* Target Name */}
-          <div>
-            <label className="block text-xs font-bold text-[#5A4232] uppercase tracking-wider mb-1">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              const inp = (e.currentTarget as HTMLElement).querySelector('input');
+              inp?.focus();
+            }}
+          >
+            <label className="block text-xs font-bold text-[#5A4232] uppercase tracking-wider mb-1 cursor-pointer">
               Mért tárgy vagy távolság:
             </label>
             <input
               type="text"
               value={objectName}
               onChange={(e) => setObjectName(e.target.value)}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                (e.target as HTMLInputElement).focus();
+              }}
+              onTouchStart={(e) => {
+                e.stopPropagation();
+                (e.target as HTMLInputElement).focus();
+              }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                (e.target as HTMLInputElement).focus();
+              }}
+              onKeyDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                (e.target as HTMLInputElement).focus();
+              }}
               disabled={isDone}
               placeholder="Mért tárgy vagy távolság neve..."
-              className="w-full px-3 py-1.5 text-sm bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042]"
+              className="w-full px-3 py-2 text-sm bg-white border-2 border-[#8B261D]/40 rounded-lg text-[#2E1B14] focus:outline-none focus:border-[#8B261D] focus:ring-4 focus:ring-[#8B261D]/20 cursor-text select-text"
             />
           </div>
 
           {/* Tape Measure Input */}
-          <div className="bg-[#F4EEDF] border border-[#DFCDB3] rounded-lg p-3 shadow-sm">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              const inp = (e.currentTarget as HTMLElement).querySelector('input');
+              inp?.focus();
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="bg-[#F4EEDF] border border-[#DFCDB3] hover:border-[#8B261D]/50 rounded-lg p-3 shadow-sm cursor-text transition-colors"
+          >
             <div className="flex items-center gap-2 mb-1.5">
               <Ruler className="w-4 h-4 text-[#B85042]" />
-              <label className="font-serif text-sm sm:text-base font-bold text-[#2E1B14]">
+              <label className="font-serif text-sm sm:text-base font-bold text-[#2E1B14] cursor-pointer">
                 1) Szabvány mérőszalaggal mért érték:
               </label>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative z-50">
               <input
                 type="text"
+                inputMode="decimal"
                 value={tapeMeasure}
                 onChange={(e) => setTapeMeasure(e.target.value)}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
                 disabled={isDone}
-                placeholder=""
-                className="w-full px-3 py-1.5 font-mono font-bold text-base bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042]"
+                placeholder="pl. 420"
+                className="w-full px-3 py-2 font-mono font-bold text-base bg-white border-2 border-[#8B261D]/40 rounded-lg text-[#2E1B14] focus:outline-none focus:border-[#8B261D] focus:ring-4 focus:ring-[#8B261D]/20 cursor-text select-text"
               />
               <span className="font-serif font-bold text-base text-[#5A4232]">cm</span>
             </div>
           </div>
 
           {/* Step Estimate Input */}
-          <div className="bg-[#F4EEDF] border border-[#DFCDB3] rounded-lg p-3 shadow-sm">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              const inp = (e.currentTarget as HTMLElement).querySelector('input');
+              inp?.focus();
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="bg-[#F4EEDF] border border-[#DFCDB3] hover:border-[#8B261D]/50 rounded-lg p-3 shadow-sm cursor-text transition-colors"
+          >
             <div className="flex items-center gap-2 mb-1.5">
               <Footprints className="w-4 h-4 text-[#8C6D58]" />
-              <label className="font-serif text-sm sm:text-base font-bold text-[#2E1B14]">
+              <label className="font-serif text-sm sm:text-base font-bold text-[#2E1B14] cursor-pointer">
                 2) Lépéssel vagy arasszal becsült érték:
               </label>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative z-50">
               <input
                 type="text"
+                inputMode="decimal"
                 value={stepEstimate}
                 onChange={(e) => setStepEstimate(e.target.value)}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
                 disabled={isDone}
-                placeholder=""
-                className="w-full px-3 py-1.5 font-mono font-bold text-base bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042]"
+                placeholder="pl. 450"
+                className="w-full px-3 py-2 font-mono font-bold text-base bg-white border-2 border-[#8B261D]/40 rounded-lg text-[#2E1B14] focus:outline-none focus:border-[#8B261D] focus:ring-4 focus:ring-[#8B261D]/20 cursor-text select-text"
               />
               <span className="font-serif font-bold text-base text-[#5A4232]">cm</span>
             </div>

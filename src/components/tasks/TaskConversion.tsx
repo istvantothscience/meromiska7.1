@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CheckCircle2, AlertCircle, Sparkles, Send } from 'lucide-react';
 import { submitTaskScore } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
@@ -11,12 +11,32 @@ interface Props {
 }
 
 export const TaskConversion: React.FC<Props> = ({ user, onPointsUpdated, onCompleted }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [ans1, setAns1] = useState('');
   const [ans2, setAns2] = useState('');
   const [ans3, setAns3] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'partial' | 'error'>('idle');
   const [message, setMessage] = useState<string | null>(null);
   const [pointsAwarded, setPointsAwarded] = useState<number | null>(null);
+
+  // Prevent flipbook from capturing clicks/touches on task inputs
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const stopCapturing = (e: Event) => {
+      e.stopPropagation();
+    };
+    el.addEventListener('pointerdown', stopCapturing, { capture: true });
+    el.addEventListener('mousedown', stopCapturing, { capture: true });
+    el.addEventListener('touchstart', stopCapturing, { capture: true });
+    el.addEventListener('click', stopCapturing, { capture: true });
+    return () => {
+      el.removeEventListener('pointerdown', stopCapturing, { capture: true });
+      el.removeEventListener('mousedown', stopCapturing, { capture: true });
+      el.removeEventListener('touchstart', stopCapturing, { capture: true });
+      el.removeEventListener('click', stopCapturing, { capture: true });
+    };
+  }, []);
 
   // Helper to parse comma or period decimals
   const parseVal = (str: string): number | null => {
@@ -91,7 +111,13 @@ export const TaskConversion: React.FC<Props> = ({ user, onPointsUpdated, onCompl
   const isDone = status === 'success';
 
   return (
-    <div className="w-full flex flex-col justify-between h-full text-[#2E1B14] p-4 sm:p-6 select-text">
+    <div
+      ref={containerRef}
+      className="w-full flex flex-col justify-between h-full text-[#2E1B14] pt-16 sm:pt-20 px-4 sm:px-6 pb-6 select-text overflow-y-auto relative z-30"
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
       <div>
         <div className="flex items-center gap-2 mb-3">
           <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-1 rounded">
@@ -119,30 +145,53 @@ export const TaskConversion: React.FC<Props> = ({ user, onPointsUpdated, onCompl
           onSubmit={handleSubmit}
           onMouseDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
           className="space-y-3.5 relative z-30"
         >
           {/* Item 1 */}
-          <div className="bg-[#F4EEDF] border border-[#DFCDB3] rounded-lg p-3 flex items-center justify-between shadow-sm">
-            <label className="font-serif text-base sm:text-lg font-bold text-[#2E1B14]">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              const inp = (e.currentTarget as HTMLElement).querySelector('input');
+              inp?.focus();
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="bg-[#F4EEDF] border border-[#DFCDB3] hover:border-[#8B261D]/50 rounded-lg p-3 flex items-center justify-between shadow-sm cursor-text transition-colors"
+          >
+            <label className="font-serif text-base sm:text-lg font-bold text-[#2E1B14] cursor-pointer">
               1) 350 cm =
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative z-50">
               <input
                 type="text"
+                inputMode="decimal"
                 value={ans1}
                 onChange={(e) => setAns1(e.target.value)}
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
-                  (e.currentTarget as HTMLInputElement).focus();
+                  (e.target as HTMLInputElement).focus();
                 }}
                 disabled={isDone}
-                placeholder=""
-                className={`w-24 sm:w-28 px-3 py-1.5 text-center font-mono font-bold text-base rounded border transition-all cursor-text relative z-40 select-text ${
+                placeholder="írj ide..."
+                className={`w-28 sm:w-32 px-3 py-2 text-center font-mono font-bold text-base rounded-lg border-2 transition-all cursor-text relative z-50 select-text bg-white ${
                   isDone && c1
                     ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
-                    : 'border-[#C8B89E] bg-white text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042]'
+                    : 'border-[#8B261D]/40 text-[#2E1B14] focus:outline-none focus:border-[#8B261D] focus:ring-4 focus:ring-[#8B261D]/20 shadow-sm'
                 }`}
               />
               <span className="font-serif font-bold text-base text-[#5A4232]">m</span>
@@ -150,27 +199,49 @@ export const TaskConversion: React.FC<Props> = ({ user, onPointsUpdated, onCompl
           </div>
 
           {/* Item 2 */}
-          <div className="bg-[#F4EEDF] border border-[#DFCDB3] rounded-lg p-3 flex items-center justify-between shadow-sm">
-            <label className="font-serif text-base sm:text-lg font-bold text-[#2E1B14]">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              const inp = (e.currentTarget as HTMLElement).querySelector('input');
+              inp?.focus();
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="bg-[#F4EEDF] border border-[#DFCDB3] hover:border-[#8B261D]/50 rounded-lg p-3 flex items-center justify-between shadow-sm cursor-text transition-colors"
+          >
+            <label className="font-serif text-base sm:text-lg font-bold text-[#2E1B14] cursor-pointer">
               2) 1,2 km =
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative z-50">
               <input
                 type="text"
+                inputMode="decimal"
                 value={ans2}
                 onChange={(e) => setAns2(e.target.value)}
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
-                  (e.currentTarget as HTMLInputElement).focus();
+                  (e.target as HTMLInputElement).focus();
                 }}
                 disabled={isDone}
-                placeholder=""
-                className={`w-24 sm:w-28 px-3 py-1.5 text-center font-mono font-bold text-base rounded border transition-all cursor-text relative z-40 select-text ${
+                placeholder="írj ide..."
+                className={`w-28 sm:w-32 px-3 py-2 text-center font-mono font-bold text-base rounded-lg border-2 transition-all cursor-text relative z-50 select-text bg-white ${
                   isDone && c2
                     ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
-                    : 'border-[#C8B89E] bg-white text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042]'
+                    : 'border-[#8B261D]/40 text-[#2E1B14] focus:outline-none focus:border-[#8B261D] focus:ring-4 focus:ring-[#8B261D]/20 shadow-sm'
                 }`}
               />
               <span className="font-serif font-bold text-base text-[#5A4232]">m</span>
@@ -178,27 +249,49 @@ export const TaskConversion: React.FC<Props> = ({ user, onPointsUpdated, onCompl
           </div>
 
           {/* Item 3 */}
-          <div className="bg-[#F4EEDF] border border-[#DFCDB3] rounded-lg p-3 flex items-center justify-between shadow-sm">
-            <label className="font-serif text-base sm:text-lg font-bold text-[#2E1B14]">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              const inp = (e.currentTarget as HTMLElement).querySelector('input');
+              inp?.focus();
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="bg-[#F4EEDF] border border-[#DFCDB3] hover:border-[#8B261D]/50 rounded-lg p-3 flex items-center justify-between shadow-sm cursor-text transition-colors"
+          >
+            <label className="font-serif text-base sm:text-lg font-bold text-[#2E1B14] cursor-pointer">
               3) 45 mm =
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative z-50">
               <input
                 type="text"
+                inputMode="decimal"
                 value={ans3}
                 onChange={(e) => setAns3(e.target.value)}
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
-                  (e.currentTarget as HTMLInputElement).focus();
+                  (e.target as HTMLInputElement).focus();
                 }}
                 disabled={isDone}
-                placeholder=""
-                className={`w-24 sm:w-28 px-3 py-1.5 text-center font-mono font-bold text-base rounded border transition-all cursor-text relative z-40 select-text ${
+                placeholder="írj ide..."
+                className={`w-28 sm:w-32 px-3 py-2 text-center font-mono font-bold text-base rounded-lg border-2 transition-all cursor-text relative z-50 select-text bg-white ${
                   isDone && c3
                     ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
-                    : 'border-[#C8B89E] bg-white text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042]'
+                    : 'border-[#8B261D]/40 text-[#2E1B14] focus:outline-none focus:border-[#8B261D] focus:ring-4 focus:ring-[#8B261D]/20 shadow-sm'
                 }`}
               />
               <span className="font-serif font-bold text-base text-[#5A4232]">cm</span>

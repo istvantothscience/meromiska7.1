@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CheckCircle2, XCircle, AlertCircle, Sparkles, Send, HelpCircle, Lightbulb } from 'lucide-react';
 import { submitTaskScore } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
@@ -193,7 +193,7 @@ export const TaskCsaladvanyL3: React.FC<Props> = ({ user, onPointsUpdated, onCom
   const isDone = status === 'success';
 
   return (
-    <div className="w-full flex flex-col justify-between h-full text-[#2E1B14] p-3 sm:p-5 select-text overflow-y-auto">
+    <div className="w-full flex flex-col justify-between h-full text-[#2E1B14] pt-6 sm:pt-8 px-3.5 sm:px-6 pb-4 select-text overflow-y-auto">
       <div>
         <div className="flex items-center gap-2 mb-1.5">
           <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-0.5 rounded font-bold">
@@ -250,6 +250,7 @@ export const TaskCsaladvanyL3: React.FC<Props> = ({ user, onPointsUpdated, onCom
           onSubmit={handleSubmit}
           onMouseDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
           className="space-y-2 relative z-30 text-xs"
         >
           {/* Unit selection */}
@@ -274,71 +275,137 @@ export const TaskCsaladvanyL3: React.FC<Props> = ({ user, onPointsUpdated, onCom
           </div>
 
           {/* Grid of basic data: q, m, d */}
-          <div className="grid grid-cols-3 gap-1.5">
-            <div className="bg-[#F8F5EC] border border-[#DFCDB3] rounded p-1.5 text-center">
+          <div className="grid grid-cols-3 gap-2">
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                const inp = (e.currentTarget as HTMLElement).querySelector('input');
+                inp?.focus();
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="bg-[#F8F5EC] border border-[#DFCDB3] hover:border-[#8B261D]/50 rounded-lg p-2 text-center cursor-text transition-colors"
+            >
               <span className="block text-[10px] font-serif text-[#7A4E38] font-bold">
                 Állított mennyiség (q)
               </span>
-              <div className="flex items-center justify-center gap-1 mt-1">
+              <div className="flex items-center justify-center gap-1 mt-1 relative z-50">
                 <input
                   type="text"
+                  inputMode="decimal"
                   value={claimedQty}
                   onChange={(e) => setClaimedQty(e.target.value)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    (e.target as HTMLInputElement).focus();
+                  }}
+                  onTouchStart={(e) => {
+                    e.stopPropagation();
+                    (e.target as HTMLInputElement).focus();
+                  }}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    (e.target as HTMLInputElement).focus();
+                  }}
+                  onKeyDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.stopPropagation();
-                    (e.currentTarget as HTMLInputElement).focus();
+                    (e.target as HTMLInputElement).focus();
                   }}
                   disabled={isDone}
                   placeholder="pl. 3"
-                  className="w-14 px-1.5 py-0.5 text-center font-mono font-bold text-xs rounded border border-[#C8B89E] bg-white"
+                  className="w-16 px-2 py-1 text-center font-mono font-bold text-xs rounded border border-[#C8B89E] bg-white cursor-text select-text"
                 />
                 <span className="font-serif text-[10px]">{selectedUnit.name}</span>
               </div>
             </div>
 
-            <div className="bg-[#F8F5EC] border border-[#DFCDB3] rounded p-1.5 text-center">
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                const inp = (e.currentTarget as HTMLElement).querySelector('input');
+                inp?.focus();
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="bg-[#F8F5EC] border border-[#DFCDB3] hover:border-[#8B261D]/50 rounded-lg p-2 text-center cursor-text transition-colors"
+            >
               <span className="block text-[10px] font-serif text-[#7A4E38] font-bold">
                 Mért érték (m)
               </span>
-              <div className="flex items-center justify-center gap-1 mt-1">
+              <div className="flex items-center justify-center gap-1 mt-1 relative z-50">
                 <input
                   type="text"
+                  inputMode="decimal"
                   value={measuredQty}
                   onChange={(e) => setMeasuredQty(e.target.value)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    (e.target as HTMLInputElement).focus();
+                  }}
+                  onTouchStart={(e) => {
+                    e.stopPropagation();
+                    (e.target as HTMLInputElement).focus();
+                  }}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    (e.target as HTMLInputElement).focus();
+                  }}
+                  onKeyDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.stopPropagation();
-                    (e.currentTarget as HTMLInputElement).focus();
+                    (e.target as HTMLInputElement).focus();
                   }}
                   disabled={isDone}
                   placeholder="pl. 80"
-                  className="w-14 px-1.5 py-0.5 text-center font-mono font-bold text-xs rounded border border-[#C8B89E] bg-white"
+                  className="w-16 px-2 py-1 text-center font-mono font-bold text-xs rounded border border-[#C8B89E] bg-white cursor-text select-text"
                 />
                 <span className="font-serif text-[10px]">{selectedUnit.modernUnit}</span>
               </div>
             </div>
 
-            <div className="bg-[#F8F5EC] border border-[#DFCDB3] rounded p-1.5 text-center">
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                const inp = (e.currentTarget as HTMLElement).querySelector('input');
+                inp?.focus();
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="bg-[#F8F5EC] border border-[#DFCDB3] hover:border-[#8B261D]/50 rounded-lg p-2 text-center cursor-text transition-colors"
+            >
               <span className="block text-[10px] font-serif text-[#7A4E38] font-bold">
                 Legkisebb beosztás (d)
               </span>
-              <div className="flex items-center justify-center gap-1 mt-1">
+              <div className="flex items-center justify-center gap-1 mt-1 relative z-50">
                 <input
                   type="text"
+                  inputMode="decimal"
                   value={scaleResolution}
                   onChange={(e) => setScaleResolution(e.target.value)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    (e.target as HTMLInputElement).focus();
+                  }}
+                  onTouchStart={(e) => {
+                    e.stopPropagation();
+                    (e.target as HTMLInputElement).focus();
+                  }}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    (e.target as HTMLInputElement).focus();
+                  }}
+                  onKeyDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.stopPropagation();
-                    (e.currentTarget as HTMLInputElement).focus();
+                    (e.target as HTMLInputElement).focus();
                   }}
                   disabled={isDone}
                   placeholder="pl. 1"
-                  className="w-14 px-1.5 py-0.5 text-center font-mono font-bold text-xs rounded border border-[#C8B89E] bg-white"
+                  className="w-16 px-2 py-1 text-center font-mono font-bold text-xs rounded border border-[#C8B89E] bg-white cursor-text select-text"
                 />
                 <span className="font-serif text-[10px]">{selectedUnit.modernUnit}</span>
               </div>
@@ -346,7 +413,7 @@ export const TaskCsaladvanyL3: React.FC<Props> = ({ user, onPointsUpdated, onCom
           </div>
 
           {/* Student's solution key: x, e, and verdict */}
-          <div className="p-2 bg-[#F4EEDF] border border-[#DFCDB3] rounded-lg space-y-1.5">
+          <div className="p-2.5 bg-[#F4EEDF] border border-[#DFCDB3] rounded-lg space-y-2">
             <div className="font-serif font-bold text-[11px] text-[#8B261D] flex items-center justify-between">
               <span>A páros megoldókulcsa:</span>
               <span className="font-mono text-[10px] text-[#7A4E38]">
@@ -355,54 +422,98 @@ export const TaskCsaladvanyL3: React.FC<Props> = ({ user, onPointsUpdated, onCom
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <div className="flex items-center justify-between bg-white/90 p-1.5 rounded border border-[#E0D4BE]">
-                <label className="font-serif text-[11px] font-bold text-[#2E1B14]">
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const inp = (e.currentTarget as HTMLElement).querySelector('input');
+                  inp?.focus();
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                className="flex items-center justify-between bg-white/90 p-2 rounded-lg border border-[#E0D4BE] hover:border-[#8B261D]/50 cursor-text transition-colors"
+              >
+                <label className="font-serif text-[11px] font-bold text-[#2E1B14] cursor-pointer">
                   Átváltott (x):
                 </label>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 relative z-50">
                   <input
                     type="text"
+                    inputMode="decimal"
                     value={studentConverted}
                     onChange={(e) => setStudentConverted(e.target.value)}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      (e.target as HTMLInputElement).focus();
+                    }}
+                    onTouchStart={(e) => {
+                      e.stopPropagation();
+                      (e.target as HTMLInputElement).focus();
+                    }}
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      (e.target as HTMLInputElement).focus();
+                    }}
+                    onKeyDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
-                      (e.currentTarget as HTMLInputElement).focus();
+                      (e.target as HTMLInputElement).focus();
                     }}
                     disabled={isDone}
                     placeholder="q · átváltás"
-                    className="w-16 px-1.5 py-0.5 text-center font-mono font-bold text-xs rounded border border-[#C8B89E] bg-white"
+                    className="w-20 px-2 py-1 text-center font-mono font-bold text-xs rounded border border-[#C8B89E] bg-white cursor-text select-text"
                   />
                   <span className="text-[10px]">{selectedUnit.modernUnit}</span>
                   {hasAttempted && evalResult.validBasic && (
-                    evalResult.isXCorrect ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <XCircle className="w-3.5 h-3.5 text-rose-500" />
+                    evalResult.isXCorrect ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> : <XCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                   )}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between bg-white/90 p-1.5 rounded border border-[#E0D4BE]">
-                <label className="font-serif text-[11px] font-bold text-[#2E1B14]">
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const inp = (e.currentTarget as HTMLElement).querySelector('input');
+                  inp?.focus();
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                className="flex items-center justify-between bg-white/90 p-2 rounded-lg border border-[#E0D4BE] hover:border-[#8B261D]/50 cursor-text transition-colors"
+              >
+                <label className="font-serif text-[11px] font-bold text-[#2E1B14] cursor-pointer">
                   Eltérés (e):
                 </label>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 relative z-50">
                   <input
                     type="text"
+                    inputMode="decimal"
                     value={studentDiff}
                     onChange={(e) => setStudentDiff(e.target.value)}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      (e.target as HTMLInputElement).focus();
+                    }}
+                    onTouchStart={(e) => {
+                      e.stopPropagation();
+                      (e.target as HTMLInputElement).focus();
+                    }}
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      (e.target as HTMLInputElement).focus();
+                    }}
+                    onKeyDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
-                      (e.currentTarget as HTMLInputElement).focus();
+                      (e.target as HTMLInputElement).focus();
                     }}
                     disabled={isDone}
                     placeholder="|x - m|"
-                    className="w-16 px-1.5 py-0.5 text-center font-mono font-bold text-xs rounded border border-[#C8B89E] bg-white"
+                    className="w-20 px-2 py-1 text-center font-mono font-bold text-xs rounded border border-[#C8B89E] bg-white cursor-text select-text"
                   />
                   <span className="text-[10px]">{selectedUnit.modernUnit}</span>
                   {hasAttempted && evalResult.validBasic && (
-                    evalResult.isECorrect ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <XCircle className="w-3.5 h-3.5 text-rose-500" />
+                    evalResult.isECorrect ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> : <XCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                   )}
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CheckCircle2, AlertCircle, Sparkles, Send, Info, FileText } from 'lucide-react';
 import { submitTaskScore } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
@@ -12,6 +12,7 @@ interface Props {
 }
 
 export const TaskReveszIndoklas: React.FC<Props> = ({ user, onPointsUpdated, onCompleted }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   // 1) Unit unification: 750 ml in dl = 7.5 dl
   const [conversionVal, setConversionVal] = useState('');
   // 2) Scientific reasoning: why volume alone is not enough
@@ -21,6 +22,25 @@ export const TaskReveszIndoklas: React.FC<Props> = ({ user, onPointsUpdated, onC
   const [message, setMessage] = useState<string | null>(null);
   const [pointsAwarded, setPointsAwarded] = useState<number | null>(null);
   const [showFormula, setShowFormula] = useState(false);
+
+  // Prevent flipbook from capturing clicks/touches on task inputs
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const stopCapturing = (e: Event) => {
+      e.stopPropagation();
+    };
+    el.addEventListener('pointerdown', stopCapturing, { capture: true });
+    el.addEventListener('mousedown', stopCapturing, { capture: true });
+    el.addEventListener('touchstart', stopCapturing, { capture: true });
+    el.addEventListener('click', stopCapturing, { capture: true });
+    return () => {
+      el.removeEventListener('pointerdown', stopCapturing, { capture: true });
+      el.removeEventListener('mousedown', stopCapturing, { capture: true });
+      el.removeEventListener('touchstart', stopCapturing, { capture: true });
+      el.removeEventListener('click', stopCapturing, { capture: true });
+    };
+  }, []);
 
   const parseVal = (str: string): number | null => {
     const clean = str.trim().replace(',', '.');
@@ -113,7 +133,13 @@ export const TaskReveszIndoklas: React.FC<Props> = ({ user, onPointsUpdated, onC
   const isDone = status === 'success';
 
   return (
-    <div className="w-full h-full flex flex-col justify-between p-4 sm:p-6 text-[#2E1B14] select-text">
+    <div
+      ref={containerRef}
+      className="w-full h-full flex flex-col justify-between pt-16 sm:pt-20 px-3.5 sm:px-6 pb-6 text-[#2E1B14] select-text overflow-y-auto relative z-30"
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
       <div>
         {/* Header */}
         <div className="flex items-center justify-between gap-2 mb-2">
@@ -170,27 +196,43 @@ export const TaskReveszIndoklas: React.FC<Props> = ({ user, onPointsUpdated, onC
           onPointerDown={(e) => e.stopPropagation()}
         >
           {/* Part 1: Unit unification */}
-          <div className="p-3 bg-white/70 rounded-xl border border-[#DFCDB3]">
-            <label className="block text-xs font-serif font-bold text-[#2E1B14] mb-1">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              const inp = (e.currentTarget as HTMLElement).querySelector('input');
+              inp?.focus();
+            }}
+            className="p-3 bg-white/90 rounded-xl border border-[#DFCDB3] hover:border-[#8B261D]/50 shadow-xs cursor-text transition-colors"
+          >
+            <label className="block text-xs font-serif font-bold text-[#2E1B14] mb-1 cursor-pointer">
               1. A révész orvosságos korsójában <strong>750 ml</strong> gyógyital van. Hány deciliter (dl) ez?
             </label>
-            <div className="flex items-center gap-2 max-w-[200px]">
+            <div className="flex items-center gap-2 max-w-[200px] relative z-50">
               <input
                 type="text"
                 inputMode="decimal"
                 value={conversionVal}
                 onChange={(e) => setConversionVal(e.target.value)}
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  (e.currentTarget as HTMLInputElement).focus();
+                  (e.target as HTMLInputElement).focus();
                 }}
                 onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
-                placeholder=""
-                className="w-full px-2.5 py-1.5 text-sm bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-1 focus:ring-[#B85042] cursor-text text-center font-mono font-bold"
+                placeholder="pl. 7,5"
+                className="w-full px-3 py-2 text-base bg-white border-2 border-[#8B261D]/40 rounded-lg text-[#2E1B14] focus:outline-none focus:border-[#8B261D] focus:ring-4 focus:ring-[#8B261D]/20 cursor-text text-center font-mono font-bold"
               />
               <span className="font-serif font-bold text-sm text-[#5A4232]">dl</span>
             </div>

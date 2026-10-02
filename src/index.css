@@ -328,32 +328,23 @@
   display: block;
 }
 
-/* Ensure inputs, buttons, links inside flip pages have full pointer and selection access */
-input,
-textarea,
-select,
-[contenteditable="true"] {
+/* Ensure inputs, buttons, links inside flip pages have proper text selection and pointer access */
+.page-sheet input,
+.page-sheet textarea,
+.page-sheet select {
   -webkit-user-select: text !important;
   user-select: text !important;
   pointer-events: auto !important;
-}
-
-.stf__block input,
-.stf__block textarea,
-.stf__block select {
-  -webkit-user-select: text !important;
-  user-select: text !important;
-  pointer-events: auto !important;
-  position: relative;
-  z-index: 50 !important;
+  position: relative !important;
+  z-index: 30 !important;
   cursor: text !important;
 }
 
-.stf__block button,
-.stf__block a {
+.page-sheet button,
+.page-sheet a {
   pointer-events: auto !important;
-  position: relative;
-  z-index: 40 !important;
+  position: relative !important;
+  z-index: 25 !important;
 }
 
 /* Soft paper texture background with slight organic grain */

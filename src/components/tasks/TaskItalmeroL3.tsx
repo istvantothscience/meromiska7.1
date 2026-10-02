@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CheckCircle2, XCircle, AlertCircle, Sparkles, Send } from 'lucide-react';
 import { submitTaskScore } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
@@ -93,7 +93,7 @@ export const TaskItalmeroL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
   const isDone = status === 'success';
 
   return (
-    <div className="w-full flex flex-col justify-between h-full text-[#2E1B14] p-4 sm:p-5 select-text overflow-y-auto">
+    <div className="w-full flex flex-col justify-between h-full text-[#2E1B14] pt-6 sm:pt-8 px-4 sm:px-6 pb-4 select-text overflow-y-auto">
       <div>
         <div className="flex items-center gap-2 mb-2">
           <span className="bg-[#B85042] text-white text-xs font-serif uppercase tracking-widest px-2.5 py-0.5 rounded font-bold">
@@ -120,45 +120,66 @@ export const TaskItalmeroL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
           onSubmit={handleSubmit}
           onMouseDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
           className="space-y-3 relative z-30"
         >
           {/* Question a */}
           <div
-            className={`border rounded-lg p-2.5 flex flex-col gap-1.5 shadow-xs transition-colors ${
+            onClick={(e) => {
+              e.stopPropagation();
+              const inp = (e.currentTarget as HTMLElement).querySelector('input');
+              inp?.focus();
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className={`border rounded-lg p-3 flex flex-col gap-1.5 shadow-xs transition-colors cursor-text ${
               hasAttempted
                 ? cA
                   ? 'bg-emerald-50/80 border-emerald-300'
                   : 'bg-rose-50/80 border-rose-300'
-                : 'bg-[#F4EEDF] border-[#DFCDB3]'
+                : 'bg-[#F4EEDF] border-[#DFCDB3] hover:border-[#B85042]/50'
             }`}
           >
             <div className="flex items-center justify-between">
-              <label className="font-serif text-xs sm:text-sm font-bold text-[#2E1B14]">
+              <label className="font-serif text-xs sm:text-sm font-bold text-[#2E1B14] cursor-pointer">
                 a) Hány litert adott ki valójában?
               </label>
               {hasAttempted && (
                 cA ? <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> : <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative z-50">
               <input
                 type="text"
+                inputMode="decimal"
                 value={litersGiven}
                 onChange={(e) => setLitersGiven(e.target.value)}
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
-                  (e.currentTarget as HTMLInputElement).focus();
+                  (e.target as HTMLInputElement).focus();
                 }}
                 disabled={isDone}
                 placeholder="pl. 2,4"
-                className={`w-28 px-2.5 py-1 text-center font-mono font-bold text-sm rounded border transition-all cursor-text relative z-40 select-text ${
+                className={`w-32 px-3 py-2 text-center font-mono font-bold text-base rounded-lg border-2 transition-all cursor-text relative z-50 select-text bg-white ${
                   isDone || (hasAttempted && cA)
                     ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
                     : hasAttempted && !cA
                     ? 'border-rose-500 bg-rose-50 text-rose-900'
-                    : 'border-[#C8B89E] bg-white text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042]'
+                    : 'border-[#8B261D]/40 text-[#2E1B14] focus:outline-none focus:border-[#8B261D] focus:ring-4 focus:ring-[#8B261D]/20 shadow-sm'
                 }`}
               />
               <span className="font-serif font-bold text-sm text-[#5A4232]">liter (l)</span>
@@ -167,7 +188,7 @@ export const TaskItalmeroL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
 
           {/* Question b */}
           <div
-            className={`border rounded-lg p-2.5 flex flex-col gap-1.5 shadow-xs transition-colors ${
+            className={`border rounded-lg p-3 flex flex-col gap-1.5 shadow-xs transition-colors ${
               hasAttempted
                 ? cB
                   ? 'bg-emerald-50/80 border-emerald-300'
@@ -183,8 +204,8 @@ export const TaskItalmeroL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
                 cB ? <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> : <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
               )}
             </div>
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-1.5 font-serif text-sm cursor-pointer select-none">
+            <div className="flex items-center gap-4 pt-1">
+              <label className="flex items-center gap-2 font-serif text-sm cursor-pointer select-none bg-white px-3 py-1.5 rounded-lg border border-[#DFCDB3]">
                 <input
                   type="radio"
                   name="cheating"
@@ -198,7 +219,7 @@ export const TaskItalmeroL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
                 />
                 <span className="font-bold text-[#2E1B14]">Igen, csal</span>
               </label>
-              <label className="flex items-center gap-1.5 font-serif text-sm cursor-pointer select-none">
+              <label className="flex items-center gap-2 font-serif text-sm cursor-pointer select-none bg-white px-3 py-1.5 rounded-lg border border-[#DFCDB3]">
                 <input
                   type="radio"
                   name="cheating"
@@ -217,41 +238,61 @@ export const TaskItalmeroL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
 
           {/* Question c */}
           <div
-            className={`border rounded-lg p-2.5 flex flex-col gap-1.5 shadow-xs transition-colors ${
+            onClick={(e) => {
+              e.stopPropagation();
+              const inp = (e.currentTarget as HTMLElement).querySelector('input');
+              inp?.focus();
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className={`border rounded-lg p-3 flex flex-col gap-1.5 shadow-xs transition-colors cursor-text ${
               hasAttempted
                 ? cC
                   ? 'bg-emerald-50/80 border-emerald-300'
                   : 'bg-rose-50/80 border-rose-300'
-                : 'bg-[#F4EEDF] border-[#DFCDB3]'
+                : 'bg-[#F4EEDF] border-[#DFCDB3] hover:border-[#B85042]/50'
             }`}
           >
             <div className="flex items-center justify-between">
-              <label className="font-serif text-xs sm:text-sm font-bold text-[#2E1B14]">
+              <label className="font-serif text-xs sm:text-sm font-bold text-[#2E1B14] cursor-pointer">
                 c) Hány milliliter (ml) hiányzik az ígért mennyiséghez képest?
               </label>
               {hasAttempted && (
                 cC ? <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> : <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative z-50">
               <input
                 type="text"
+                inputMode="decimal"
                 value={missingMl}
                 onChange={(e) => setMissingMl(e.target.value)}
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
-                  (e.currentTarget as HTMLInputElement).focus();
+                  (e.target as HTMLInputElement).focus();
                 }}
                 disabled={isDone}
                 placeholder="pl. 600"
-                className={`w-28 px-2.5 py-1 text-center font-mono font-bold text-sm rounded border transition-all cursor-text relative z-40 select-text ${
+                className={`w-32 px-3 py-2 text-center font-mono font-bold text-base rounded-lg border-2 transition-all cursor-text relative z-50 select-text bg-white ${
                   isDone || (hasAttempted && cC)
                     ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
                     : hasAttempted && !cC
                     ? 'border-rose-500 bg-rose-50 text-rose-900'
-                    : 'border-[#C8B89E] bg-white text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042]'
+                    : 'border-[#8B261D]/40 text-[#2E1B14] focus:outline-none focus:border-[#8B261D] focus:ring-4 focus:ring-[#8B261D]/20 shadow-sm'
                 }`}
               />
               <span className="font-serif font-bold text-sm text-[#5A4232]">ml hiány</span>

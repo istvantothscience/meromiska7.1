@@ -33,11 +33,13 @@ import { TaskKiszoritas } from './tasks/TaskKiszoritas';
 import { TaskHanyados, TaskHanyadosData } from './tasks/TaskHanyados';
 import { TaskReveszIndoklas } from './tasks/TaskReveszIndoklas';
 import { TaskAtvaltasL3 } from './tasks/TaskAtvaltasL3';
+import { TaskHarderL3 } from './tasks/TaskHarderL3';
 import { TaskItalmeroL3 } from './tasks/TaskItalmeroL3';
 import { TaskCsaladvanyL3 } from './tasks/TaskCsaladvanyL3';
 import { DensitySimulation } from './simulation/DensitySimulation';
 import { DisplacementSimulation, DisplacementData } from './simulation/DisplacementSimulation';
 import { AncientScaleLab } from './simulation/AncientScaleLab';
+import { HarderLabL3 } from './simulation/HarderLabL3';
 import { WineMerchantLab } from './simulation/WineMerchantLab';
 import { BookAuthSpread } from './auth/BookAuthSpread';
 import { BookTocLeft, BookTocRight } from './toc/BookTocSpread';
@@ -111,7 +113,9 @@ export const StoryBookFlip: React.FC<Props> = ({
 }) => {
   const flipBookRef = useRef<any>(null);
   const [currentPage, setCurrentPage] = useState(0);
-  const totalPages = 22;
+  const isL2 = lesson.lesson_id === 'l2';
+  const isL3 = lesson.lesson_id === 'l3';
+  const totalPages = isL3 ? 24 : 22;
   const [isMuted, setIsMuted] = useState(soundFx.isSoundMuted());
   const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({
     l1_a_atvaltas: false,
@@ -122,6 +126,7 @@ export const StoryBookFlip: React.FC<Props> = ({
     l2_b_hanyados: false,
     l2_c_indoklas: false,
     l3_a_atvaltas: false,
+    l3_mester_atvaltas: false,
     l3_b_ketlepes: false,
     l3_c_feladvany: false,
   });
@@ -143,9 +148,6 @@ export const StoryBookFlip: React.FC<Props> = ({
     setIsDisplacementApplied(true);
     setTimeout(() => setIsDisplacementApplied(false), 4000);
   };
-
-  const isL2 = lesson.lesson_id === 'l2';
-  const isL3 = lesson.lesson_id === 'l3';
 
   const toggleSound = () => {
     const nextMuted = soundFx.toggleMute();
@@ -229,7 +231,6 @@ export const StoryBookFlip: React.FC<Props> = ({
     drawShadow: true,
     flippingTime: 750,
     useMouseEvents: true,
-    swipeDistance: 30,
     showPageCorners: true,
     clickEventForward: true,
     disableFlipByClick: true,
@@ -420,7 +421,7 @@ export const StoryBookFlip: React.FC<Props> = ({
   return (
     <div className="w-full flex flex-col items-center">
       {/* Top Floating Control Bar */}
-      <div className="w-full max-w-4xl flex items-center justify-between px-3 py-2 mb-3 bg-[#24140D]/80 backdrop-blur-md rounded-xl border border-[#C6923C]/30 shadow-lg text-[#EFE7D2]">
+      <div className="w-full max-w-4xl flex items-center justify-between px-3 py-2 mb-5 sm:mb-6 bg-[#24140D]/80 backdrop-blur-md rounded-xl border border-[#C6923C]/30 shadow-lg text-[#EFE7D2]">
         <div className="flex items-center gap-2">
           <button
             onClick={() => goToPage(3)}
@@ -639,11 +640,27 @@ export const StoryBookFlip: React.FC<Props> = ({
                 user={user}
                 onPointsUpdated={onPointsUpdated}
                 onCompleted={() => markTaskDone('l3_a_atvaltas')}
+                onNextPage={() => goToPage(13)}
               />
             </BookPage>
 
-            {/* ================= PAGE 13: SCENE 4 ILLUSTRATION (LEFT) ================= */}
+            {/* ================= PAGE 13: HARDER TASKS THEORY LAB (LEFT) ================= */}
             <BookPage pageNumber={13}>
+              <HarderLabL3 />
+            </BookPage>
+
+            {/* ================= PAGE 14: TASK HARDER FORM (RIGHT) ================= */}
+            <BookPage pageNumber={14}>
+              <TaskHarderL3
+                user={user}
+                onPointsUpdated={onPointsUpdated}
+                onCompleted={() => markTaskDone('l3_mester_atvaltas')}
+                onNextPage={() => goToPage(15)}
+              />
+            </BookPage>
+
+            {/* ================= PAGE 15: SCENE 4 ILLUSTRATION (LEFT) ================= */}
+            <BookPage pageNumber={15}>
               <WatercolorIllustration
                 src={resolveSceneImage(lesson.lesson_id, scene4?.image || '04_a_leleplezes.png')}
                 alt={scene4?.title || '4. Jelenet'}
@@ -652,8 +669,8 @@ export const StoryBookFlip: React.FC<Props> = ({
               />
             </BookPage>
 
-            {/* ================= PAGE 14: SCENE 4 TEXT (RIGHT) ================= */}
-            <BookPage pageNumber={14}>
+            {/* ================= PAGE 16: SCENE 4 TEXT (RIGHT) ================= */}
+            <BookPage pageNumber={16}>
               <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
@@ -684,13 +701,13 @@ export const StoryBookFlip: React.FC<Props> = ({
               </div>
             </BookPage>
 
-            {/* ================= PAGE 15: WINE MERCHANT LAB (LEFT) ================= */}
-            <BookPage pageNumber={15}>
+            {/* ================= PAGE 17: WINE MERCHANT LAB (LEFT) ================= */}
+            <BookPage pageNumber={17}>
               <WineMerchantLab />
             </BookPage>
 
-            {/* ================= PAGE 16: TASK B FORM (RIGHT) ================= */}
-            <BookPage pageNumber={16}>
+            {/* ================= PAGE 18: TASK B FORM (RIGHT) ================= */}
+            <BookPage pageNumber={18}>
               <TaskItalmeroL3
                 user={user}
                 onPointsUpdated={onPointsUpdated}
@@ -698,8 +715,8 @@ export const StoryBookFlip: React.FC<Props> = ({
               />
             </BookPage>
 
-            {/* ================= PAGE 17: SCENE 5 ILLUSTRATION & TEXT (LEFT) ================= */}
-            <BookPage pageNumber={17}>
+            {/* ================= PAGE 19: SCENE 5 ILLUSTRATION & TEXT (LEFT) ================= */}
+            <BookPage pageNumber={19}>
               <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
                 <div>
                   <div className="w-full h-44 sm:h-52 rounded-xl overflow-hidden border border-[#C6923C] mb-3 shadow-md">
@@ -733,8 +750,8 @@ export const StoryBookFlip: React.FC<Props> = ({
               </div>
             </BookPage>
 
-            {/* ================= PAGE 18: TASK C FORM (RIGHT) ================= */}
-            <BookPage pageNumber={18}>
+            {/* ================= PAGE 20: TASK C FORM (RIGHT) ================= */}
+            <BookPage pageNumber={20}>
               <TaskCsaladvanyL3
                 user={user}
                 onPointsUpdated={onPointsUpdated}
@@ -742,8 +759,8 @@ export const StoryBookFlip: React.FC<Props> = ({
               />
             </BookPage>
 
-            {/* ================= PAGE 19: SCENE 6 ILLUSTRATION & TEXT (LEFT) ================= */}
-            <BookPage pageNumber={19}>
+            {/* ================= PAGE 21: SCENE 6 ILLUSTRATION & TEXT (LEFT) ================= */}
+            <BookPage pageNumber={21}>
               <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
                 <div>
                   <div className="w-full h-44 sm:h-52 rounded-xl overflow-hidden border border-[#C6923C] mb-3 shadow-md">
@@ -777,8 +794,8 @@ export const StoryBookFlip: React.FC<Props> = ({
               </div>
             </BookPage>
 
-            {/* ================= PAGE 20: EPILOGUE & BADGE (RIGHT) ================= */}
-            <BookPage pageNumber={20}>
+            {/* ================= PAGE 22: EPILOGUE & BADGE (RIGHT) ================= */}
+            <BookPage pageNumber={22}>
               <div className="w-full h-full flex flex-col items-center justify-between p-6 sm:p-8 text-[#2E1B14] text-center">
                 <div>
                   <div className="w-24 h-24 mx-auto mb-2 rounded-full border-2 border-[#C6923C] p-1 shadow-lg bg-gradient-to-br from-[#FAF4E5] to-[#EAE0CD] flex items-center justify-center">
@@ -806,6 +823,18 @@ export const StoryBookFlip: React.FC<Props> = ({
                     <span>1. Átváltás (l3_a):</span>
                     <span className="font-bold text-emerald-700 flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" /> Pont mentve (1p)
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Mesterpróba (bónusz):</span>
+                    <span className={`font-bold flex items-center gap-1 ${completedTasks.l3_mester_atvaltas ? 'text-emerald-700' : 'text-[#8C6D58]'}`}>
+                      {completedTasks.l3_mester_atvaltas ? (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Bónusz mentve (1p)
+                        </>
+                      ) : (
+                        'Opcionális kihívás'
+                      )}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -1606,102 +1635,221 @@ export const StoryBookFlip: React.FC<Props> = ({
         </button>
 
         <div className="flex items-center gap-1.5 overflow-x-auto py-1 px-2 scrollbar-none">
-          <button
-            onClick={() => goToPage(0)}
-            className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-              currentPage === 0 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
-            }`}
-          >
-            Borító
-          </button>
-          <button
-            onClick={() => goToPage(1)}
-            className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-              currentPage >= 1 && currentPage <= 2 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
-            }`}
-          >
-            Belépés
-          </button>
-          <button
-            onClick={() => goToPage(3)}
-            className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-              currentPage >= 3 && currentPage <= 4 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
-            }`}
-          >
-            Tartalom
-          </button>
-          <button
-            onClick={() => goToPage(5)}
-            className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-              currentPage >= 5 && currentPage <= 6 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
-            }`}
-          >
-            1. Jelenet
-          </button>
-          <button
-            onClick={() => goToPage(7)}
-            className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-              currentPage >= 7 && currentPage <= 8 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
-            }`}
-          >
-            2. Jelenet
-          </button>
-          <button
-            onClick={() => goToPage(9)}
-            className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-              currentPage >= 9 && currentPage <= 10 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
-            }`}
-          >
-            1. Próba (A)
-          </button>
-          <button
-            onClick={() => goToPage(11)}
-            className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-              currentPage >= 11 && currentPage <= 12 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
-            }`}
-          >
-            3. Jelenet
-          </button>
-          <button
-            onClick={() => goToPage(13)}
-            className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-              currentPage >= 13 && currentPage <= 14 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
-            }`}
-          >
-            2. Próba (B)
-          </button>
-          <button
-            onClick={() => goToPage(15)}
-            className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-              currentPage >= 15 && currentPage <= 16 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
-            }`}
-          >
-            3. Próba (C)
-          </button>
-          <button
-            onClick={() => goToPage(17)}
-            className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-              currentPage >= 17 && currentPage <= 18 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
-            }`}
-          >
-            4. Próba (D)
-          </button>
-          <button
-            onClick={() => goToPage(19)}
-            className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-              currentPage >= 19 && currentPage <= 20 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
-            }`}
-          >
-            Jelvény
-          </button>
-          <button
-            onClick={() => goToPage(21)}
-            className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-              currentPage === 21 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
-            }`}
-          >
-            Hátsó borító
-          </button>
+          {isL3 ? (
+            <>
+              <button
+                onClick={() => goToPage(0)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage === 0 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                Borító
+              </button>
+              <button
+                onClick={() => goToPage(1)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 1 && currentPage <= 2 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                Belépés
+              </button>
+              <button
+                onClick={() => goToPage(3)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 3 && currentPage <= 4 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                Tartalom
+              </button>
+              <button
+                onClick={() => goToPage(5)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 5 && currentPage <= 6 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                1. Jelenet
+              </button>
+              <button
+                onClick={() => goToPage(7)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 7 && currentPage <= 8 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                2. Jelenet
+              </button>
+              <button
+                onClick={() => goToPage(9)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 9 && currentPage <= 10 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                3. Jelenet
+              </button>
+              <button
+                onClick={() => goToPage(11)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 11 && currentPage <= 12 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                1. Próba
+              </button>
+              <button
+                onClick={() => goToPage(13)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 13 && currentPage <= 14 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                Mesterpróba
+              </button>
+              <button
+                onClick={() => goToPage(15)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 15 && currentPage <= 16 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                4. Jelenet
+              </button>
+              <button
+                onClick={() => goToPage(17)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 17 && currentPage <= 18 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                2. Próba
+              </button>
+              <button
+                onClick={() => goToPage(19)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 19 && currentPage <= 20 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                3. Próba
+              </button>
+              <button
+                onClick={() => goToPage(21)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage === 21 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                6. Jelenet
+              </button>
+              <button
+                onClick={() => goToPage(22)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage === 22 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                Jelvény
+              </button>
+              <button
+                onClick={() => goToPage(23)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage === 23 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                Hátsó borító
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => goToPage(0)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage === 0 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                Borító
+              </button>
+              <button
+                onClick={() => goToPage(1)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 1 && currentPage <= 2 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                Belépés
+              </button>
+              <button
+                onClick={() => goToPage(3)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 3 && currentPage <= 4 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                Tartalom
+              </button>
+              <button
+                onClick={() => goToPage(5)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 5 && currentPage <= 6 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                1. Jelenet
+              </button>
+              <button
+                onClick={() => goToPage(7)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 7 && currentPage <= 8 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                2. Jelenet
+              </button>
+              <button
+                onClick={() => goToPage(9)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 9 && currentPage <= 10 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                1. Próba (A)
+              </button>
+              <button
+                onClick={() => goToPage(11)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 11 && currentPage <= 12 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                3. Jelenet
+              </button>
+              <button
+                onClick={() => goToPage(13)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 13 && currentPage <= 14 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                2. Próba (B)
+              </button>
+              <button
+                onClick={() => goToPage(15)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 15 && currentPage <= 16 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                3. Próba (C)
+              </button>
+              <button
+                onClick={() => goToPage(17)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 17 && currentPage <= 18 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                4. Próba (D)
+              </button>
+              <button
+                onClick={() => goToPage(19)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 19 && currentPage <= 20 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                Jelvény
+              </button>
+              <button
+                onClick={() => goToPage(21)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage === 21 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                Hátsó borító
+              </button>
+            </>
+          )}
         </div>
 
         <button

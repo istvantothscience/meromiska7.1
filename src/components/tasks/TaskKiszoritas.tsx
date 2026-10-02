@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   CheckCircle2,
   AlertCircle,
@@ -28,6 +28,7 @@ export const TaskKiszoritas: React.FC<Props> = ({
   onCompleted,
   simulationData,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [unit, setUnit] = useState<'ml' | 'cm3'>('ml');
   const [vInitial, setVInitial] = useState('');
   const [vFinal, setVFinal] = useState('');
@@ -36,6 +37,25 @@ export const TaskKiszoritas: React.FC<Props> = ({
   const [message, setMessage] = useState<string | null>(null);
   const [pointsAwarded, setPointsAwarded] = useState<number | null>(null);
   const [showFormula, setShowFormula] = useState(false);
+
+  // Prevent flipbook from capturing clicks/touches on task inputs
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const stopCapturing = (e: Event) => {
+      e.stopPropagation();
+    };
+    el.addEventListener('pointerdown', stopCapturing, { capture: true });
+    el.addEventListener('mousedown', stopCapturing, { capture: true });
+    el.addEventListener('touchstart', stopCapturing, { capture: true });
+    el.addEventListener('click', stopCapturing, { capture: true });
+    return () => {
+      el.removeEventListener('pointerdown', stopCapturing, { capture: true });
+      el.removeEventListener('mousedown', stopCapturing, { capture: true });
+      el.removeEventListener('touchstart', stopCapturing, { capture: true });
+      el.removeEventListener('click', stopCapturing, { capture: true });
+    };
+  }, []);
 
   // Sync simulation data when received from opposite page
   useEffect(() => {
@@ -150,7 +170,8 @@ export const TaskKiszoritas: React.FC<Props> = ({
 
   return (
     <div
-      className="w-full h-full flex flex-col justify-between p-3.5 sm:p-6 text-[#2E1B14] select-text relative z-30"
+      ref={containerRef}
+      className="w-full h-full flex flex-col justify-between pt-16 sm:pt-20 px-3.5 sm:px-6 pb-6 text-[#2E1B14] select-text relative z-30 overflow-y-auto"
       onMouseDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
@@ -257,56 +278,94 @@ export const TaskKiszoritas: React.FC<Props> = ({
           onPointerDown={(e) => e.stopPropagation()}
         >
           {/* V1 input */}
-          <div className="p-2.5 bg-white/80 rounded-xl border border-[#DFCDB3] shadow-xs">
-            <label className="block text-xs font-serif font-bold text-[#2E1B14] mb-1 flex items-center gap-1.5">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              const inp = (e.currentTarget as HTMLElement).querySelector('input');
+              inp?.focus();
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="p-3 bg-white/90 rounded-xl border border-[#DFCDB3] hover:border-[#8B261D]/50 shadow-xs cursor-text transition-colors"
+          >
+            <label className="block text-xs font-serif font-bold text-[#2E1B14] mb-1 flex items-center gap-1.5 cursor-pointer">
               <Droplets className="w-3.5 h-3.5 text-sky-600" />
               <span>1. Kezdő vízszint a mérőhengerben (V<sub>1</sub>):</span>
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative z-50">
               <input
                 type="text"
                 inputMode="decimal"
                 value={vInitial}
                 onChange={(e) => setVInitial(e.target.value)}
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  (e.currentTarget as HTMLInputElement).focus();
+                  (e.target as HTMLInputElement).focus();
                 }}
                 onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
                 placeholder="pl. 50"
-                className="w-full px-2.5 py-1.5 text-sm font-mono font-bold bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text relative z-40 select-text"
+                className="w-full px-3 py-2 text-sm font-mono font-bold bg-white border-2 border-[#8B261D]/40 rounded-lg text-[#2E1B14] focus:outline-none focus:border-[#8B261D] focus:ring-4 focus:ring-[#8B261D]/20 cursor-text relative z-40 select-text"
               />
               <span className="font-serif font-bold text-sm text-[#5A4232] min-w-[30px]">{unit}</span>
             </div>
           </div>
 
           {/* V2 input */}
-          <div className="p-2.5 bg-white/80 rounded-xl border border-[#DFCDB3] shadow-xs">
-            <label className="block text-xs font-serif font-bold text-[#2E1B14] mb-1 flex items-center gap-1.5">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              const inp = (e.currentTarget as HTMLElement).querySelector('input');
+              inp?.focus();
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="p-3 bg-white/90 rounded-xl border border-[#DFCDB3] hover:border-[#8B261D]/50 shadow-xs cursor-text transition-colors"
+          >
+            <label className="block text-xs font-serif font-bold text-[#2E1B14] mb-1 flex items-center gap-1.5 cursor-pointer">
               <Droplets className="w-3.5 h-3.5 text-blue-700" />
               <span>2. Végső vízszint a test behelyezése után (V<sub>2</sub>):</span>
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative z-50">
               <input
                 type="text"
                 inputMode="decimal"
                 value={vFinal}
                 onChange={(e) => setVFinal(e.target.value)}
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  (e.target as HTMLInputElement).focus();
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  (e.currentTarget as HTMLInputElement).focus();
+                  (e.target as HTMLInputElement).focus();
                 }}
                 onKeyDown={(e) => e.stopPropagation()}
                 disabled={isDone}
                 placeholder="pl. 74"
-                className="w-full px-2.5 py-1.5 text-sm font-mono font-bold bg-white border border-[#C8B89E] rounded text-[#2E1B14] focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text relative z-40 select-text"
+                className="w-full px-3 py-2 text-sm font-mono font-bold bg-white border-2 border-[#8B261D]/40 rounded-lg text-[#2E1B14] focus:outline-none focus:border-[#8B261D] focus:ring-4 focus:ring-[#8B261D]/20 cursor-text relative z-40 select-text"
               />
               <span className="font-serif font-bold text-sm text-[#5A4232] min-w-[30px]">{unit}</span>
             </div>
