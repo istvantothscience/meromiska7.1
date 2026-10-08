@@ -34,6 +34,7 @@ import { TaskHanyados, TaskHanyadosData } from './tasks/TaskHanyados';
 import { TaskReveszIndoklas } from './tasks/TaskReveszIndoklas';
 import { TaskAtvaltasL3 } from './tasks/TaskAtvaltasL3';
 import { TaskHarderL3 } from './tasks/TaskHarderL3';
+import { TaskPdfPracticeL3 } from './tasks/TaskPdfPracticeL3';
 import { TaskItalmeroL3 } from './tasks/TaskItalmeroL3';
 import { TaskCsaladvanyL3 } from './tasks/TaskCsaladvanyL3';
 import { DensitySimulation } from './simulation/DensitySimulation';
@@ -115,7 +116,7 @@ export const StoryBookFlip: React.FC<Props> = ({
   const [currentPage, setCurrentPage] = useState(0);
   const isL2 = lesson.lesson_id === 'l2';
   const isL3 = lesson.lesson_id === 'l3';
-  const totalPages = isL3 ? 24 : 22;
+  const totalPages = isL3 ? 28 : 22;
   const [isMuted, setIsMuted] = useState(soundFx.isSoundMuted());
   const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({
     l1_a_atvaltas: false,
@@ -127,6 +128,10 @@ export const StoryBookFlip: React.FC<Props> = ({
     l2_c_indoklas: false,
     l3_a_atvaltas: false,
     l3_mester_atvaltas: false,
+    l3_gyak_hosszusag: false,
+    l3_gyak_tomeg: false,
+    l3_gyak_terulet: false,
+    l3_gyak_terfogat: false,
     l3_b_ketlepes: false,
     l3_c_feladvany: false,
   });
@@ -659,8 +664,52 @@ export const StoryBookFlip: React.FC<Props> = ({
               />
             </BookPage>
 
-            {/* ================= PAGE 15: SCENE 4 ILLUSTRATION (LEFT) ================= */}
+            {/* ================= PAGE 15: PDF PRACTICE 1 - LENGTH (LEFT) ================= */}
             <BookPage pageNumber={15}>
+              <TaskPdfPracticeL3
+                category="length"
+                user={user}
+                onPointsUpdated={onPointsUpdated}
+                onCompleted={() => markTaskDone('l3_gyak_hosszusag')}
+              />
+            </BookPage>
+
+            {/* ================= PAGE 16: PDF PRACTICE 2 - MASS (RIGHT) ================= */}
+            <BookPage pageNumber={16}>
+              <TaskPdfPracticeL3
+                category="mass"
+                user={user}
+                onPointsUpdated={onPointsUpdated}
+                onCompleted={() => markTaskDone('l3_gyak_tomeg')}
+                onNextPage={() => goToPage(17)}
+                nextPageLabel="Terület & Térfogat gyakorló"
+              />
+            </BookPage>
+
+            {/* ================= PAGE 17: PDF PRACTICE 3 - AREA (LEFT) ================= */}
+            <BookPage pageNumber={17}>
+              <TaskPdfPracticeL3
+                category="area"
+                user={user}
+                onPointsUpdated={onPointsUpdated}
+                onCompleted={() => markTaskDone('l3_gyak_terulet')}
+              />
+            </BookPage>
+
+            {/* ================= PAGE 18: PDF PRACTICE 4 - VOLUME (RIGHT) ================= */}
+            <BookPage pageNumber={18}>
+              <TaskPdfPracticeL3
+                category="volume"
+                user={user}
+                onPointsUpdated={onPointsUpdated}
+                onCompleted={() => markTaskDone('l3_gyak_terfogat')}
+                onNextPage={() => goToPage(19)}
+                nextPageLabel="Lapozz a 4. jelenethez"
+              />
+            </BookPage>
+
+            {/* ================= PAGE 19: SCENE 4 ILLUSTRATION (LEFT) ================= */}
+            <BookPage pageNumber={19}>
               <WatercolorIllustration
                 src={resolveSceneImage(lesson.lesson_id, scene4?.image || '04_a_leleplezes.png')}
                 alt={scene4?.title || '4. Jelenet'}
@@ -669,8 +718,8 @@ export const StoryBookFlip: React.FC<Props> = ({
               />
             </BookPage>
 
-            {/* ================= PAGE 16: SCENE 4 TEXT (RIGHT) ================= */}
-            <BookPage pageNumber={16}>
+            {/* ================= PAGE 20: SCENE 4 TEXT (RIGHT) ================= */}
+            <BookPage pageNumber={20}>
               <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
@@ -701,13 +750,13 @@ export const StoryBookFlip: React.FC<Props> = ({
               </div>
             </BookPage>
 
-            {/* ================= PAGE 17: WINE MERCHANT LAB (LEFT) ================= */}
-            <BookPage pageNumber={17}>
+            {/* ================= PAGE 21: WINE MERCHANT LAB (LEFT) ================= */}
+            <BookPage pageNumber={21}>
               <WineMerchantLab />
             </BookPage>
 
-            {/* ================= PAGE 18: TASK B FORM (RIGHT) ================= */}
-            <BookPage pageNumber={18}>
+            {/* ================= PAGE 22: TASK B FORM (RIGHT) ================= */}
+            <BookPage pageNumber={22}>
               <TaskItalmeroL3
                 user={user}
                 onPointsUpdated={onPointsUpdated}
@@ -715,8 +764,8 @@ export const StoryBookFlip: React.FC<Props> = ({
               />
             </BookPage>
 
-            {/* ================= PAGE 19: SCENE 5 ILLUSTRATION & TEXT (LEFT) ================= */}
-            <BookPage pageNumber={19}>
+            {/* ================= PAGE 23: SCENE 5 ILLUSTRATION & TEXT (LEFT) ================= */}
+            <BookPage pageNumber={23}>
               <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
                 <div>
                   <div className="w-full h-44 sm:h-52 rounded-xl overflow-hidden border border-[#C6923C] mb-3 shadow-md">
@@ -750,8 +799,8 @@ export const StoryBookFlip: React.FC<Props> = ({
               </div>
             </BookPage>
 
-            {/* ================= PAGE 20: TASK C FORM (RIGHT) ================= */}
-            <BookPage pageNumber={20}>
+            {/* ================= PAGE 24: TASK C FORM (RIGHT) ================= */}
+            <BookPage pageNumber={24}>
               <TaskCsaladvanyL3
                 user={user}
                 onPointsUpdated={onPointsUpdated}
@@ -759,8 +808,8 @@ export const StoryBookFlip: React.FC<Props> = ({
               />
             </BookPage>
 
-            {/* ================= PAGE 21: SCENE 6 ILLUSTRATION & TEXT (LEFT) ================= */}
-            <BookPage pageNumber={21}>
+            {/* ================= PAGE 25: SCENE 6 ILLUSTRATION & TEXT (LEFT) ================= */}
+            <BookPage pageNumber={25}>
               <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 text-[#2E1B14]">
                 <div>
                   <div className="w-full h-44 sm:h-52 rounded-xl overflow-hidden border border-[#C6923C] mb-3 shadow-md">
@@ -782,9 +831,9 @@ export const StoryBookFlip: React.FC<Props> = ({
                   <p className="font-serif text-xs sm:text-sm text-[#3E2E23] leading-relaxed mb-2">
                     {scene6?.text}
                   </p>
-                  {scene6?.quote && (
+                  {scene5?.quote && (
                     <blockquote className="p-2.5 bg-[#E7E8D1] border-l-3 border-[#B85042] rounded-r-lg font-serif italic text-xs text-[#2E1B14]">
-                      „{scene6.quote}”
+                      „{scene6?.quote}”
                     </blockquote>
                   )}
                 </div>
@@ -794,8 +843,8 @@ export const StoryBookFlip: React.FC<Props> = ({
               </div>
             </BookPage>
 
-            {/* ================= PAGE 22: EPILOGUE & BADGE (RIGHT) ================= */}
-            <BookPage pageNumber={22}>
+            {/* ================= PAGE 26: EPILOGUE & BADGE (RIGHT) ================= */}
+            <BookPage pageNumber={26}>
               <div className="w-full h-full flex flex-col items-center justify-between p-6 sm:p-8 text-[#2E1B14] text-center">
                 <div>
                   <div className="w-24 h-24 mx-auto mb-2 rounded-full border-2 border-[#C6923C] p-1 shadow-lg bg-gradient-to-br from-[#FAF4E5] to-[#EAE0CD] flex items-center justify-center">
@@ -812,13 +861,13 @@ export const StoryBookFlip: React.FC<Props> = ({
                   <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#8B261D] mb-1">
                     Vásári Éles Szem
                   </h3>
-                  <p className="font-serif italic text-xs text-[#5A4232] max-w-[280px] mx-auto mb-3">
+                  <p className="font-serif italic text-xs text-[#5A4232] max-w-[280px] mx-auto mb-2">
                     „Sikeresen leleplezted a vásár csalóit a régi mértékek és a mérési pontosság vizsgálatával!”
                   </p>
                 </div>
 
-                <div className="w-full max-w-[300px] bg-white/80 p-3 rounded-xl border border-[#C8B89E] text-xs space-y-1.5 text-left">
-                  <div className="font-bold text-[#8B261D] mb-1 text-center">Próbatételek állapota:</div>
+                <div className="w-full max-w-[310px] bg-white/80 p-3 rounded-xl border border-[#C8B89E] text-xs space-y-1 text-left">
+                  <div className="font-bold text-[#8B261D] mb-1 text-center">Próbatételek és Gyakorlók állapota:</div>
                   <div className="flex items-center justify-between">
                     <span>1. Átváltás (l3_a):</span>
                     <span className="font-bold text-emerald-700 flex items-center gap-1">
@@ -835,6 +884,18 @@ export const StoryBookFlip: React.FC<Props> = ({
                       ) : (
                         'Opcionális kihívás'
                       )}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Gyakorló Füzet (4 témakör):</span>
+                    <span className="font-bold text-amber-800 flex items-center gap-1">
+                      {[
+                        completedTasks.l3_gyak_hosszusag,
+                        completedTasks.l3_gyak_tomeg,
+                        completedTasks.l3_gyak_terulet,
+                        completedTasks.l3_gyak_terfogat,
+                      ].filter(Boolean).length}{' '}
+                      / 4 gyakorló kész
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -1707,7 +1768,7 @@ export const StoryBookFlip: React.FC<Props> = ({
                   currentPage >= 15 && currentPage <= 16 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
                 }`}
               >
-                4. Jelenet
+                Gyakorló I. (Hossz/Tömeg)
               </button>
               <button
                 onClick={() => goToPage(17)}
@@ -1715,7 +1776,7 @@ export const StoryBookFlip: React.FC<Props> = ({
                   currentPage >= 17 && currentPage <= 18 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
                 }`}
               >
-                2. Próba
+                Gyakorló II. (Terület/Térfogat)
               </button>
               <button
                 onClick={() => goToPage(19)}
@@ -1723,28 +1784,44 @@ export const StoryBookFlip: React.FC<Props> = ({
                   currentPage >= 19 && currentPage <= 20 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
                 }`}
               >
-                3. Próba
+                4. Jelenet
               </button>
               <button
                 onClick={() => goToPage(21)}
                 className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-                  currentPage === 21 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                  currentPage >= 21 && currentPage <= 22 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                2. Próba
+              </button>
+              <button
+                onClick={() => goToPage(23)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage >= 23 && currentPage <= 24 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                }`}
+              >
+                3. Próba
+              </button>
+              <button
+                onClick={() => goToPage(25)}
+                className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
+                  currentPage === 25 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
                 }`}
               >
                 6. Jelenet
               </button>
               <button
-                onClick={() => goToPage(22)}
+                onClick={() => goToPage(26)}
                 className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-                  currentPage === 22 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                  currentPage === 26 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
                 }`}
               >
                 Jelvény
               </button>
               <button
-                onClick={() => goToPage(23)}
+                onClick={() => goToPage(27)}
                 className={`px-2 py-0.5 rounded text-[11px] font-serif cursor-pointer transition-colors ${
-                  currentPage === 23 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
+                  currentPage === 27 ? 'bg-[#B85042] text-white font-bold' : 'hover:bg-[#3A2218] text-[#C8B89E]'
                 }`}
               >
                 Hátsó borító

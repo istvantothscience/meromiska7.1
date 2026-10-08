@@ -27,9 +27,16 @@
       "text": "Az első sátorban egy kövér posztós vigyorgott. – Három láb jó erős zsineg, egy hajszállal sem kevesebb! – kiáltotta, és a zsineget a pultra csapta. A második sátornál egy horgas hátú gyógyfűárus rázogatta a zacskóját: – Fél font szárított kamilla, pontosan! – A harmadiknál egy csuklyás italmérő tartotta a fiú felé a kancsóját: – Fél icce gyógyital, gyerek, színültig! – A fiú végignézte mindhármat, aztán a tarisznyájából elővette az apjától kapott mérőzsinórt.",
       "quote": "Ki csal közülük – és honnan lehetne ezt biztosan tudni, ha mindenki más mértékkel mér?",
       "image": "03_a_harom_sator.png",
-      "task": "l3_a_atvaltas",
-      "taskTitle": "1. Próba: Négy egylépéses átváltás",
-      "taskPoints": 1
+      "task": [
+        "l3_a_atvaltas",
+        "l3_gyak_hosszusag",
+        "l3_gyak_tomeg",
+        "l3_gyak_terulet",
+        "l3_gyak_terfogat",
+        "l3_mester_atvaltas"
+      ],
+      "taskTitle": "1. Próba és Mértékváltó Gyakorlóterem (Hosszúság, Tömeg, Terület, Térfogat)",
+      "taskPoints": 6
     },
     {
       "n": 4,

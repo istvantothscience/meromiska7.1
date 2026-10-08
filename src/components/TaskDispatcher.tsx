@@ -9,6 +9,8 @@ import { TaskKiszoritas } from './tasks/TaskKiszoritas';
 import { TaskHanyados } from './tasks/TaskHanyados';
 import { TaskReveszIndoklas } from './tasks/TaskReveszIndoklas';
 import { TaskAtvaltasL3 } from './tasks/TaskAtvaltasL3';
+import { TaskHarderL3 } from './tasks/TaskHarderL3';
+import { TaskPdfPracticeL3 } from './tasks/TaskPdfPracticeL3';
 import { TaskItalmeroL3 } from './tasks/TaskItalmeroL3';
 import { TaskCsaladvanyL3 } from './tasks/TaskCsaladvanyL3';
 import { submitTaskScore } from '../lib/supabase';
@@ -154,6 +156,95 @@ export const TaskDispatcher: React.FC<TaskDispatcherProps> = ({
     return (
       <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
         <TaskAtvaltasL3
+          user={null}
+          onCompleted={() => {
+            onSubmitted({
+              isCompleted: true,
+              pointsAwarded: 1,
+              submittedAt: new Date().toISOString(),
+            });
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (taskCode === 'l3_gyak_hosszusag') {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskPdfPracticeL3
+          category="length"
+          user={null}
+          onCompleted={() => {
+            onSubmitted({
+              isCompleted: true,
+              pointsAwarded: 1,
+              submittedAt: new Date().toISOString(),
+            });
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (taskCode === 'l3_gyak_tomeg') {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskPdfPracticeL3
+          category="mass"
+          user={null}
+          onCompleted={() => {
+            onSubmitted({
+              isCompleted: true,
+              pointsAwarded: 1,
+              submittedAt: new Date().toISOString(),
+            });
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (taskCode === 'l3_gyak_terulet') {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskPdfPracticeL3
+          category="area"
+          user={null}
+          onCompleted={() => {
+            onSubmitted({
+              isCompleted: true,
+              pointsAwarded: 1,
+              submittedAt: new Date().toISOString(),
+            });
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (taskCode === 'l3_gyak_terfogat') {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskPdfPracticeL3
+          category="volume"
+          user={null}
+          onCompleted={() => {
+            onSubmitted({
+              isCompleted: true,
+              pointsAwarded: 1,
+              submittedAt: new Date().toISOString(),
+            });
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (taskCode === 'l3_mester_atvaltas') {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskHarderL3
           user={null}
           onCompleted={() => {
             onSubmitted({

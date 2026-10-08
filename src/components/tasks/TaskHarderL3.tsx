@@ -360,14 +360,14 @@ export const TaskHarderL3: React.FC<Props> = ({ user, onPointsUpdated, onComplet
 
       {/* Bottom pagination link */}
       <div className="pt-2 flex items-center justify-between text-xs text-[#8C6D58] font-serif">
-        <span className="italic">Készen állsz a leleplezésre?</span>
+        <span className="italic">Még több gyakorlás (Hossz, Tömeg, Terület, Térfogat):</span>
         {onNextPage && (
           <button
             type="button"
             onClick={onNextPage}
             className="text-[#8B261D] hover:underline font-bold inline-flex items-center gap-1 cursor-pointer"
           >
-            <span>Lapozz a 4. jelenethez</span>
+            <span>Lapozz a Gyakorló Füzethez</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         )}

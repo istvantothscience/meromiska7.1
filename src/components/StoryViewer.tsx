@@ -319,6 +319,15 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
               <div className="flex flex-wrap gap-2 mb-4 pb-3 border-b border-[#B85042]/20">
                 {currentTaskCodes.map((code, idx) => {
                   const isDone = taskSubmissions[code]?.isCompleted;
+                  const friendlyNames: Record<string, string> = {
+                    l3_a_atvaltas: '1. Próba: Alap átváltás',
+                    l3_gyak_hosszusag: 'Hosszúság gyakorló (24 db)',
+                    l3_gyak_tomeg: 'Tömeg gyakorló (24 db)',
+                    l3_gyak_terulet: 'Terület gyakorló (24 db)',
+                    l3_gyak_terfogat: 'Térfogat gyakorló (24 db)',
+                    l3_mester_atvaltas: 'Vásári Mesterpróba',
+                  };
+                  const label = friendlyNames[code] || `${idx + 1}. Próba (${code})`;
                   return (
                     <button
                       key={code}
@@ -330,7 +339,7 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
                           : 'bg-[#EAE2D0] text-[#5A4232] hover:bg-[#DFCDB3]'
                       }`}
                     >
-                      <span>{idx + 1}. Próba ({code})</span>
+                      <span>{label}</span>
                       {isDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />}
                     </button>
                   );
