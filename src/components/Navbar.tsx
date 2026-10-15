@@ -93,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Sleek Chapter Switcher Dropdown */}
           {lessons.length > 0 && (
-            <div className="relative hidden lg:flex items-center">
+            <div className="relative hidden sm:flex items-center">
               <div className="flex items-center gap-1 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-500/40 rounded-full px-2.5 py-1 text-xs text-amber-100/90 transition-all">
                 <ListOrdered className="w-3.5 h-3.5 text-[#E5B842]" />
                 <select

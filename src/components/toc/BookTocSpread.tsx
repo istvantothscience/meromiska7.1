@@ -14,7 +14,7 @@ interface ChapterEntry {
   topic: string;
 }
 
-const ALL_8_CHAPTERS: ChapterEntry[] = [
+const ALL_6_CHAPTERS: ChapterEntry[] = [
   {
     number: 1,
     id: 'l1',
@@ -39,35 +39,21 @@ const ALL_8_CHAPTERS: ChapterEntry[] = [
   {
     number: 4,
     id: 'l4',
-    title: 'Az idő homokszemei',
-    subtitle: 'Időmérés, periódus és pontosság',
-    topic: 'Idő',
+    title: 'A toronyóra-készítő',
+    subtitle: 'Az idő mérése és az inga próbája',
+    topic: 'Mérés',
   },
   {
     number: 5,
     id: 'l5',
-    title: 'A sűrűség próbája',
-    subtitle: 'Arany vagy hamisítvány? Anyagok sűrűsége',
-    topic: 'Sűrűség',
+    title: 'Tűz és jég között',
+    subtitle: 'A hőmérséklet mérése: °C, K és °F',
+    topic: 'Hőmérséklet',
   },
   {
     number: 6,
     id: 'l6',
-    title: 'A testek mozgása',
-    subtitle: 'Pálya, út és elmozdulás',
-    topic: 'Mozgástan',
-  },
-  {
-    number: 7,
-    id: 'l7',
-    title: 'A sebesség versenye',
-    subtitle: 'Átlagsebesség és egyenletes haladás',
-    topic: 'Sebesség',
-  },
-  {
-    number: 8,
-    id: 'l8',
-    title: 'A királyi udvar végső próbája',
+    title: 'A királyi megmérettetés',
     subtitle: 'Összefoglaló próbatétel fél királyságért',
     topic: 'Összefoglalás',
   },
@@ -77,7 +63,7 @@ export const BookTocLeft: React.FC<Props> = ({ onOpenLesson }) => {
   const existingLessons = getAllLessons();
   const availableIds = new Set(existingLessons.map((l) => l.lesson_id));
 
-  const chaptersPart1 = ALL_8_CHAPTERS.slice(0, 4);
+  const chaptersPart1 = ALL_6_CHAPTERS.slice(0, 4);
 
   return (
     <div className="w-full h-full flex flex-col justify-between p-4 sm:p-6 text-[#2E1B14] select-none">
@@ -166,16 +152,16 @@ export const BookTocRight: React.FC<Props> = ({ onOpenLesson }) => {
   const existingLessons = getAllLessons();
   const availableIds = new Set(existingLessons.map((l) => l.lesson_id));
 
-  const chaptersPart2 = ALL_8_CHAPTERS.slice(4, 8);
+  const chaptersPart2 = ALL_6_CHAPTERS.slice(4, 6);
 
   return (
     <div className="w-full h-full flex flex-col justify-between p-4 sm:p-6 text-[#2E1B14] select-none">
       <div>
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-serif italic text-[#8C6D58]">
-            II. Kötet: Mozgások és anyagok (5–8. fejezet)
+            II. Kötet: Hőtan és a végső próbatétel (5–6. fejezet)
           </span>
-          <span className="text-xs font-mono text-[#8C6D58]">8 óra</span>
+          <span className="text-xs font-mono text-[#8C6D58]">6 óra</span>
         </div>
 
         <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#8B261D] mb-4">

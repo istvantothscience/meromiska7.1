@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Compass, Sparkles, Palette } from 'lucide-react';
+import { Compass, Sparkles, Palette, Image as ImageIcon } from 'lucide-react';
 
 interface Props {
   src: string | null;
   alt: string;
   sceneNumber: number;
   sceneTitle: string;
+  imageName?: string;
 }
 
 export const WatercolorIllustration: React.FC<Props> = ({
@@ -13,6 +14,7 @@ export const WatercolorIllustration: React.FC<Props> = ({
   alt,
   sceneNumber,
   sceneTitle,
+  imageName,
 }) => {
   const [imgFailed, setImgFailed] = useState(false);
   const showFallback = !src || imgFailed;
@@ -23,21 +25,21 @@ export const WatercolorIllustration: React.FC<Props> = ({
       <div className="w-full flex items-center justify-between text-xs text-[#8C6D58] font-serif border-b border-[#DFCDB3]/80 pb-2 mb-2">
         <span className="uppercase tracking-widest text-[#B85042] font-bold flex items-center gap-1.5">
           <Palette className="w-3.5 h-3.5 text-[#C6923C]" />
-          <span>{sceneNumber}. Jelenet — Vízfestmény</span>
+          <span>{sceneNumber}. Jelenet — Illusztráció</span>
         </span>
         <span className="italic text-[#7A6150]">{sceneTitle}</span>
       </div>
 
       {/* Main Illustration Frame: Heavy Rag Watercolor Mat */}
-      <div className="relative w-full flex-1 max-h-[74%] rounded-xl overflow-hidden shadow-md border-2 border-[#C6923C]/60 watercolor-mat flex items-center justify-center p-2">
+      <div className="relative w-full flex-1 max-h-[76%] rounded-xl overflow-hidden shadow-md border-2 border-[#C6923C]/60 watercolor-mat flex items-center justify-center p-2.5">
         {!showFallback ? (
           <div className="w-full h-full relative rounded-lg overflow-hidden watercolor-feathered-edge bg-[#FAF5E8]">
-            {/* The Painted Image with authentic watercolor pigment blend */}
+            {/* The Painted Image with subtle CSS Ken Burns effect */}
             <img
               src={src}
               alt={alt}
               onError={() => setImgFailed(true)}
-              className="w-full h-full object-cover object-center watercolor-canvas"
+              className="w-full h-full object-cover object-center watercolor-canvas animate-kenburns"
               loading="eager"
             />
 
@@ -57,26 +59,33 @@ export const WatercolorIllustration: React.FC<Props> = ({
             </div>
           </div>
         ) : (
-          /* Graceful Watercolor Placeholder */
-          <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#FAF5E8] via-[#EAE1CB] to-[#DDD2B8] relative rounded-lg">
-            {/* Decorative concentric rings */}
-            <div className="w-32 h-32 rounded-full border border-[#C6923C]/30 flex items-center justify-center mb-3 relative animate-pulse">
-              <div className="w-24 h-24 rounded-full border border-[#B85042]/25 flex items-center justify-center">
-                <Compass className="w-12 h-12 text-[#B85042]/70 stroke-[1.2]" />
+          /* Dashed-border Storybook Placeholder ("Illusztráció hamarosan") */
+          <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#E7E8D1] via-[#FAF5E8] to-[#EAE1CB] relative rounded-lg border-2 border-dashed border-[#B85042]/65">
+            {/* Decorative concentric timepiece/compass rings */}
+            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-dashed border-[#B85042]/35 flex items-center justify-center mb-3 relative bg-[#FAF7EE]/60 shadow-inner">
+              <div className="w-20 h-20 rounded-full border border-[#A7BEAE] flex items-center justify-center bg-[#E7E8D1]/50">
+                <Compass className="w-10 h-10 text-[#B85042] stroke-[1.4]" />
               </div>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FAF7EE]/90 border border-[#C6923C]/50 rounded-full shadow-sm text-xs font-serif text-[#8B261D] font-bold mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-[#C6923C]" />
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-[#B85042] text-white rounded-full shadow-sm text-xs font-serif font-bold mb-2 tracking-wide">
+              <Sparkles className="w-3.5 h-3.5 text-[#E7E8D1]" />
               Illusztráció hamarosan
             </div>
 
-            <p className="font-serif text-sm font-bold text-[#4A382D] max-w-[200px]">
+            <p className="font-serif text-base font-bold text-[#2E1B14] max-w-[240px]">
               {sceneTitle}
             </p>
-            <p className="text-xs text-[#8C6D58] font-serif italic mt-1 max-w-[220px]">
-              Vízfesték mesekönyv festmény készülőben
+            <p className="text-xs text-[#5A4232] font-sans mt-1 max-w-[230px]">
+              A jelenet illusztrációja előkészületben van.
             </p>
+
+            {imageName && (
+              <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#FAF7EE]/90 border border-[#A7BEAE] text-[11px] font-mono text-[#2E1B14] shadow-2xs">
+                <ImageIcon className="w-3 h-3 text-[#B85042]" />
+                <span>{imageName}</span>
+              </div>
+            )}
           </div>
         )}
 
@@ -90,7 +99,7 @@ export const WatercolorIllustration: React.FC<Props> = ({
       {/* Caption at the bottom */}
       <div className="w-full mt-2.5 text-center">
         <p className="font-serif text-xs italic text-[#7A6150]">
-          „{sceneTitle}” — kézzel festett akvarell jelenet
+          „{sceneTitle}” {imageName && showFallback ? `(${imageName})` : '— mesekönyv-jelenet'}
         </p>
       </div>
     </div>

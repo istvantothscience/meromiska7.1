@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CheckCircle2, AlertCircle, Sparkles, Send, Info, Scale, Calculator, ArrowDownToLine } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import confetti from 'canvas-confetti';
 import type { UserProfile } from '../../types';
@@ -70,9 +70,33 @@ export const TaskHanyados: React.FC<Props> = ({
   const [pointsAwarded, setPointsAwarded] = useState<number | null>(null);
   const [showFormula, setShowFormula] = useState(false);
 
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l2_b_hanyados');
+      if (saved?.completed) {
+        if (saved.answers?.m1 !== undefined) setM1(String(saved.answers.m1));
+        if (saved.answers?.v1 !== undefined) setV1(String(saved.answers.v1));
+        if (saved.answers?.q1 !== undefined) setQ1(String(saved.answers.q1));
+        if (saved.answers?.m2 !== undefined) setM2(String(saved.answers.m2));
+        if (saved.answers?.v2 !== undefined) setV2(String(saved.answers.v2));
+        if (saved.answers?.q2 !== undefined) setQ2(String(saved.answers.q2));
+        if (saved.answers?.m3 !== undefined) setM3(String(saved.answers.m3));
+        if (saved.answers?.v3 !== undefined) setV3(String(saved.answers.v3));
+        if (saved.answers?.q3 !== undefined) setQ3(String(saved.answers.q3));
+        if (saved.answers?.conclusion !== undefined) setConclusion(String(saved.answers.conclusion));
+        setStatus('success');
+        setPointsAwarded(saved.points || 2);
+        setMessage(`Kitöltve és elmentve a könyvbe! (+${saved.points || 1} pont)`);
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [user]);
+
   // Sync with simulation data if provided
   useEffect(() => {
-    if (simulationData) {
+    if (simulationData && status !== 'success') {
       setM1(String(simulationData.m1));
       setV1(String(simulationData.v1));
       setQ1(String(simulationData.q1));
@@ -87,7 +111,7 @@ export const TaskHanyados: React.FC<Props> = ({
 
       soundFx.playWoodTap();
     }
-  }, [simulationData]);
+  }, [simulationData, status]);
 
   const parseVal = (str: string): number | null => {
     const clean = str.trim().replace(',', '.');
@@ -97,6 +121,7 @@ export const TaskHanyados: React.FC<Props> = ({
 
   // Helper to auto-calculate quotient for row 1
   const calcRowQuotient = (mStr: string, vStr: string, setQ: (val: string) => void) => {
+    if (status === 'success') return;
     const mNum = parseVal(mStr);
     const vNum = parseVal(vStr);
     if (mNum !== null && vNum !== null && vNum > 0) {
@@ -168,6 +193,7 @@ export const TaskHanyados: React.FC<Props> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === 'success') return;
 
     const mathCheck = checkQuotients();
     if (!mathCheck.allFieldsFilled) {
@@ -197,6 +223,7 @@ export const TaskHanyados: React.FC<Props> = ({
       points: points,
       note: `A révész hordói — 2. óra: Hányados próba (${points}/2 pont)`,
       mode: 'once',
+      answers: { m1, v1, q1, m2, v2, q2, m3, v3, q3, conclusion: conclusion.trim() },
     });
 
     if (res.success) {
@@ -209,10 +236,12 @@ export const TaskHanyados: React.FC<Props> = ({
       setStatus('success');
       setPointsAwarded(points);
 
-      if (points === 2) {
+      if (res.alreadyCompleted) {
+        setMessage(res.message);
+      } else if (points === 2) {
         setMessage('Fantasztikus! Mindhárom hányados helyes, és a következtetésed is pontos. Megkaptad a maximális 2 pontot!');
       } else {
-        setMessage('A számításaid helyesek (+1 pont)! Ha kiegészíted a szöveges következtetést azzal, hogy a hányados azonos anyagnál állandó, megszerezheted a 2. pontot is.');
+        setMessage('A számításaid helyesek (+1 pont)! A válaszod bekerült a könyvbe.');
       }
 
       if (res.totalPoints && onPointsUpdated) {
@@ -227,7 +256,7 @@ export const TaskHanyados: React.FC<Props> = ({
     }
   };
 
-  const isDone = status === 'success' && pointsAwarded === 2;
+  const isDone = status === 'success';
 
   return (
     <div

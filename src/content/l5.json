@@ -1,0 +1,55 @@
+{
+  "lesson_id": "l5",
+  "title": "Tűz és jég között",
+  "subtitle": "A hőmérséklet mérése: °C, K és °F",
+  "topic": "Mérés",
+  "order": 5,
+  "scenes": [
+    {
+      "n": 1,
+      "title": "Az útelágazás",
+      "text": "A fiú a manótól kapott nehezebb rögöt a zsebében hordta, és egész úton a gyógyító lányra gondolt. Arra, ahogy a vásárban, a zöld ponyvás sátor alatt rámosolygott, amikor átadta neki a korsót, és azt mondta: „Az apám jól választott.” A fiú még akkor is mosolygott, amikor a hegyi ösvény kettévált. Ahol az út kettéágazott, egy mohos kőkapu állt, előtte egy különös öregasszony ült egy tuskón. Arcának egyik fele pirosan izzott, mint a parázs, a másik fele deres volt, mint a téli ablak. – Tűz és jég között jársz, vándor – szólalt meg. – Jobbra forró gőz, balra jeges szél, és a királyi vár csak a kettő között érhető el. Hogy melyiken mehetsz át épségben, azt csak az tudhatja, aki megméri, mennyire forró az egyik és mennyire hideg a másik. Két bátyád is erre járt nemrég. Ők nem mértek. Ők tapogattak.",
+      "quote": null,
+      "image": "01_az_utelagazas.png"
+    },
+    {
+      "n": 2,
+      "title": "A hazug kezek",
+      "text": "Az öregasszony három fadézsát tolt a fiú elé. Az egyikben a forrásból merített meleg víz gőzölgött, a másikban jeges patakvíz csillogott, a harmadik, középső dézsában pedig közönséges kútvíz állt. – Bal kezedet a melegbe, jobb kezedet a hidegbe! Számolj hatvanig! – parancsolta. – Most pedig mindkettőt a középsőbe! A fiú elámult: a bal keze hidegnek érezte a vizet, a jobb keze melegnek – pedig ugyanabban a dézsában voltak! – Látod? A kéz hazudik – mondta a kapuőr. – A nagyobbik bátyád a hómezőről érkezett, és langyosnak mondta a gőzt. A középső a meleg forrásból jött, és enyhének a jeget. Össze is vesztek rajta, aztán megijedtek, és a kerülő úton siettek a király vára felé, hogy ott dicsekedjenek a próbáikkal.",
+      "quote": null,
+      "image": "02_a_hazug_kezek.png"
+    },
+    {
+      "n": 3,
+      "title": "A varázsüveg",
+      "text": "Az öregasszony elővett egy vékony üvegcsövet, aminek az alján kis gömbben piros nedű csillogott. – Ez nem hazudik – mondta. – Ha meleg éri, a piros nedű felkúszik a csőben, ha hideg, lehúzódik. Csakhogy nincs rajta egyetlen rovás sem. Adj neki beosztást, és megtudod vele, mennyire hideg vagy meleg bármi a világon! A fiú elgondolkodott. „Kell két biztos pont, ami mindig ugyanott van” – mondta magában. A csövet az olvadó jég közé tette, és ahol a nedű megállt, oda rovást vésett: ez lett a nulla. Aztán a forrásban lévő vízbe mártotta, és ott is vésett egyet: ez lett a száz. A kettő közét pedig száz egyenlő részre osztotta. – Így tett egy messzi északi tudós is – bólintott elégedetten a kapuőr. – De most mérj, ne csak beszélj! Három kérdésem van a varázsüvegedhez.",
+      "quote": null,
+      "image": "03_a_varazsuveg.png",
+      "task": "l5_a_kulonbseg"
+    },
+    {
+      "n": 4,
+      "title": "A furcsa feliratok",
+      "text": "A fiú a beosztott varázsüveggel a kapuhoz lépett. A forró ösvény fölé valaki ezt véste a kőbe: „122 °F”. A jeges ösvény fölé ezt: „253 K”. – Ez lehetetlen! – kiáltott fel a fiú. – A jeges út nem lehet melegebb a forró gőznél! – Lassan, vándor – mosolygott a kapuőr. – A forró ösvény feliratát nyugati kalmárok vésték: az ő fokuk kisebb a tiédnél, és náluk a víz nem nullánál fagy meg. A jeges ösvény feliratát csillagvizsgálók vésték: ők a leghidegebb hidegtől kezdik a számolást, ami csak létezhet. Az ő fokuk éppen akkora, mint a tiéd, csak máshonnan indul. Ha átszámolod mindkettőt a te skáládra, megtudod, mi vár rád. Kezdd a csillagvizsgálókkal!",
+      "quote": null,
+      "image": "04_a_furcsa_feliratok.png",
+      "task": "l5_b_kelvin"
+    },
+    {
+      "n": 5,
+      "title": "A gázló",
+      "text": "A fiú a homokba írta a számításait, és amit kapott, attól megállt benne a lélegzet: a forró ösvény leforrázná, aki rálép, a jeges ösvény pedig csontig megfagyasztaná. Ekkor vette észre, hogy a kapu mögött, ahol a forró forrás vize összefolyik a jeges patakkal, egy sekély gázló csillog, a gázló kövére pedig ezt vésték: „293 K”. – Csillagvizsgáló-fok – mondta a fiú –, megint át kell számolnom! Beledugta a varázsüveget a vízbe, és az pontosan annyit mutatott, amennyit kiszámolt. Tűz és jég között átkelt a gázlón. – Te nem tapogattál, hanem mértél – mondta a kapuőr. – De mielőtt továbbmész, mutasd meg, hogy a kalmárok nyelvén is értesz. Három újabb kérdésem van.",
+      "quote": null,
+      "image": "05_a_gazlo.png",
+      "task": "l5_c_fahrenheit"
+    },
+    {
+      "n": 6,
+      "title": "A királylány",
+      "text": "A túlparton véget ért az erdő, és a fiú szeme elé tárult a királyi vár. A kapu előtt harsonások sorfala állt, a kapu alatt pedig ott várta valaki, akit a fiú azonnal megismert: a zöld ponyvás sátor gyógyító lánya. Most azonban nem kötényt viselt, hanem aranyszegélyes köpenyt, és a harsonások mélyen meghajoltak előtte. – Üdvözlünk, királylány! – kiáltotta a hírnök. A fiú lába földbe gyökerezett. – Te… te vagy a király lánya? – kérdezte alig hallhatóan. – Én vagyok – mosolygott a lány, és a fiú szíve gyorsabban kezdett verni, mint valaha. – Az apám, a király, szereti álruhában próbára tenni az utazókat. Ő volt a révész is, aki a korsót rád bízta, és az ő embere a vásárbíró. Rengeteg vándor jött már, de te voltál az egyetlen, aki nem a szeme után ment, hanem mért. Én azért gyógyítok a vásárban, hogy megtanuljam, mi fáj az embereknek. – A lány elpirult, aztán elkomolyodott. – Holnap apám udvari megmérettetést hirdet: aki a legpontosabban mér, azé a kezem és a fél királyság. A bátyáid is itt vannak, és hangosan dicsekednek, de holnap kiderül az igazság. Csakhogy apám tegnap este óta rosszul van, és a nyugati orvos lázmérőjén ez áll: 101,3 °F. Segíts nekem, kérlek: mondd meg, lázas-e, és mennyire!",
+      "quote": null,
+      "image": "06_a_kiralylany.png",
+      "task": "l5_d_lazas"
+    }
+  ]
+}

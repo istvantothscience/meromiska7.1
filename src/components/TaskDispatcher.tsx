@@ -13,6 +13,8 @@ import { TaskHarderL3 } from './tasks/TaskHarderL3';
 import { TaskPdfPracticeL3 } from './tasks/TaskPdfPracticeL3';
 import { TaskItalmeroL3 } from './tasks/TaskItalmeroL3';
 import { TaskCsaladvanyL3 } from './tasks/TaskCsaladvanyL3';
+import { TaskToronyoraL6 } from './tasks/TaskToronyoraL6';
+import { TaskHomersekletL5 } from './tasks/TaskHomersekletL5';
 import { submitTaskScore } from '../lib/supabase';
 import { Sparkles, CheckCircle2, AlertCircle, Send } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -287,6 +289,48 @@ export const TaskDispatcher: React.FC<TaskDispatcherProps> = ({
               submittedAt: new Date().toISOString(),
             });
           }}
+        />
+      </div>
+    );
+  }
+
+  // Built-in handlers for Lesson 4: A toronyóra-készítő
+  if (
+    taskCode === 'l6_a_szamolj' ||
+    taskCode === 'l6_b_valts_at' ||
+    taskCode === 'l6_c_igazhamis' ||
+    taskCode === 'l6_d_gondolkodj' ||
+    taskCode === 'l4_a_szamolj' ||
+    taskCode === 'l4_b_valts_at' ||
+    taskCode === 'l4_c_igazhamis' ||
+    taskCode === 'l4_d_gondolkodj'
+  ) {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskToronyoraL6
+          taskCode={taskCode}
+          submissionState={submissionState}
+          onSubmitted={onSubmitted}
+          isProjectorMode={isProjectorMode}
+        />
+      </div>
+    );
+  }
+
+  // Built-in handlers for Lesson 5: Tűz és jég között
+  if (
+    taskCode === 'l5_a_kulonbseg' ||
+    taskCode === 'l5_b_kelvin' ||
+    taskCode === 'l5_c_fahrenheit' ||
+    taskCode === 'l5_d_lazas'
+  ) {
+    return (
+      <div className="p-2 sm:p-4 rounded-2xl bg-white/90 border border-[#B85042]/30">
+        <TaskHomersekletL5
+          taskCode={taskCode}
+          submissionState={submissionState}
+          onSubmitted={onSubmitted}
+          isProjectorMode={isProjectorMode}
         />
       </div>
     );

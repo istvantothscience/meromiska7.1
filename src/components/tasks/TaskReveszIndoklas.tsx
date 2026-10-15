@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CheckCircle2, AlertCircle, Sparkles, Send, Info, FileText } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import confetti from 'canvas-confetti';
 import type { UserProfile } from '../../types';
@@ -22,6 +22,22 @@ export const TaskReveszIndoklas: React.FC<Props> = ({ user, onPointsUpdated, onC
   const [message, setMessage] = useState<string | null>(null);
   const [pointsAwarded, setPointsAwarded] = useState<number | null>(null);
   const [showFormula, setShowFormula] = useState(false);
+
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l2_c_indoklas');
+      if (saved?.completed) {
+        if (saved.answers?.conversionVal !== undefined) setConversionVal(String(saved.answers.conversionVal));
+        if (saved.answers?.reasoning !== undefined) setReasoning(String(saved.answers.reasoning));
+        setStatus('success');
+        setPointsAwarded(saved.points || 1);
+        setMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [user]);
 
   // Prevent flipbook from capturing clicks/touches on task inputs
   useEffect(() => {
@@ -68,6 +84,7 @@ export const TaskReveszIndoklas: React.FC<Props> = ({ user, onPointsUpdated, onC
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === 'success') return;
 
     const num = parseVal(conversionVal);
     if (num === null) {
@@ -106,6 +123,7 @@ export const TaskReveszIndoklas: React.FC<Props> = ({ user, onPointsUpdated, onC
       points: 1,
       note: 'A révész hordói — 2. óra: Vegyes mértékegység és indoklás',
       mode: 'once',
+      answers: { conversionVal, reasoning: trimmedReasoning },
     });
 
     if (res.success) {

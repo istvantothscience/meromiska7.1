@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CheckCircle2, XCircle, AlertCircle, Sparkles, Send } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import type { UserProfile } from '../../types';
 
@@ -17,6 +17,23 @@ export const TaskItalmeroL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
   const [hasAttempted, setHasAttempted] = useState(false);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'partial' | 'error'>('idle');
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l3_b_ketlepes');
+      if (saved?.completed) {
+        if (saved.answers?.litersGiven !== undefined) setLitersGiven(String(saved.answers.litersGiven));
+        if (saved.answers?.isCheating !== undefined) setIsCheating(String(saved.answers.isCheating));
+        if (saved.answers?.missingMl !== undefined) setMissingMl(String(saved.answers.missingMl));
+        setHasAttempted(true);
+        setStatus('success');
+        setMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [user]);
 
   // Helper to parse comma or period decimals
   const parseVal = (str: string): number | null => {
@@ -44,6 +61,7 @@ export const TaskItalmeroL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === 'success') return;
     setHasAttempted(true);
 
     if (!litersGiven.trim() || !isCheating || !missingMl.trim()) {
@@ -67,13 +85,16 @@ export const TaskItalmeroL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
       points: 1,
       note: 'A vásár csalói — 3. óra',
       mode: 'once',
+      answers: { litersGiven, isCheating, missingMl },
     });
 
     if (res.success) {
       soundFx.playSuccess();
       setStatus('success');
       setMessage(
-        res.isMockDemo
+        res.alreadyCompleted
+          ? res.message
+          : res.isMockDemo
           ? 'Kiváló nyomozás! Leleplezted az italmérő trükkjét. (Bejelentkezve a pont is jóváíródik!)'
           : 'Sikeres leleplezés! Mindhárom válasz pontos, +1 pont jóváírva a Pontkövetőben!'
       );

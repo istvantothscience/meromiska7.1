@@ -9,7 +9,7 @@ import {
   Calculator,
   RotateCcw,
 } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import confetti from 'canvas-confetti';
 import type { UserProfile } from '../../types';
@@ -38,6 +38,24 @@ export const TaskKiszoritas: React.FC<Props> = ({
   const [pointsAwarded, setPointsAwarded] = useState<number | null>(null);
   const [showFormula, setShowFormula] = useState(false);
 
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l2_a_kiszoritas');
+      if (saved?.completed) {
+        if (saved.answers?.vInitial !== undefined) setVInitial(String(saved.answers.vInitial));
+        if (saved.answers?.vFinal !== undefined) setVFinal(String(saved.answers.vFinal));
+        if (saved.answers?.vCalculated !== undefined) setVCalculated(String(saved.answers.vCalculated));
+        if (saved.answers?.unit === 'ml' || saved.answers?.unit === 'cm3') setUnit(saved.answers.unit);
+        setStatus('success');
+        setPointsAwarded(saved.points || 1);
+        setMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [user]);
+
   // Prevent flipbook from capturing clicks/touches on task inputs
   useEffect(() => {
     const el = containerRef.current;
@@ -59,7 +77,7 @@ export const TaskKiszoritas: React.FC<Props> = ({
 
   // Sync simulation data when received from opposite page
   useEffect(() => {
-    if (simulationData) {
+    if (simulationData && status !== 'success') {
       setVInitial(String(simulationData.vInitial));
       setVFinal(String(simulationData.vFinal));
       setVCalculated(String(simulationData.vDiff));
@@ -69,7 +87,7 @@ export const TaskKiszoritas: React.FC<Props> = ({
       setStatus('idle');
       setMessage(`Átvéve a laborból: ${simulationData.objectName} adatai betöltve! Kattints az ellenőrzésre.`);
     }
-  }, [simulationData]);
+  }, [simulationData, status]);
 
   const parseVal = (str: string): number | null => {
     const clean = str.trim().replace(',', '.');
@@ -82,6 +100,7 @@ export const TaskKiszoritas: React.FC<Props> = ({
       e.stopPropagation();
       e.preventDefault();
     }
+    if (status === 'success') return;
     const v1 = parseVal(vInitial);
     const v2 = parseVal(vFinal);
     if (v1 !== null && v2 !== null && v2 > v1) {
@@ -92,6 +111,7 @@ export const TaskKiszoritas: React.FC<Props> = ({
   };
 
   const handleApplyPreset = (v1: number, v2: number) => {
+    if (status === 'success') return;
     soundFx.playWoodTap?.();
     setVInitial(String(v1));
     setVFinal(String(v2));
@@ -102,6 +122,7 @@ export const TaskKiszoritas: React.FC<Props> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === 'success') return;
 
     const v1 = parseVal(vInitial);
     const v2 = parseVal(vFinal);
@@ -142,6 +163,7 @@ export const TaskKiszoritas: React.FC<Props> = ({
       points: 1,
       note: 'A révész hordói — 2. óra: Kiszorításos térfogatmérés',
       mode: 'once',
+      answers: { vInitial, vFinal, vCalculated, unit },
     });
 
     if (res.success) {

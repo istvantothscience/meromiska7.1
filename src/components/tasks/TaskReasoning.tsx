@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle2, AlertCircle, Sparkles, Send, Lightbulb, PenTool } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import type { UserProfile } from '../../types';
 
@@ -23,6 +23,22 @@ export const TaskReasoning: React.FC<Props> = ({ user, onPointsUpdated, onComple
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'partial' | 'error'>('idle');
   const [message, setMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l1_c_indoklas');
+      if (saved?.completed) {
+        if (typeof saved.answers?.reasoning === 'string') {
+          setReasoning(saved.answers.reasoning);
+        }
+        setStatus('success');
+        setMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [user]);
+
   const charCount = reasoning.trim().length;
   const lowerText = reasoning.toLowerCase();
   const matchedKeywords = REQUIRED_KEYWORDS.filter((kw) => lowerText.includes(kw));
@@ -31,6 +47,7 @@ export const TaskReasoning: React.FC<Props> = ({ user, onPointsUpdated, onComple
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === 'success') return;
 
     if (!hasMinChars) {
       setStatus('partial');
@@ -55,13 +72,16 @@ export const TaskReasoning: React.FC<Props> = ({ user, onPointsUpdated, onComple
       points: 1,
       note: `A híd próbája — Indoklás (${matchedKeywords.join(', ')})`,
       mode: 'once',
+      answers: { reasoning: reasoning.trim() },
     });
 
     if (res.success) {
       soundFx.playSuccess();
       setStatus('success');
       setMessage(
-        res.isMockDemo
+        res.alreadyCompleted
+          ? res.message
+          : res.isMockDemo
           ? 'Remek fizikai érvelés! (Bejelentkezve a Pontkövető fiókodban is jóváíródik az 1 pont!)'
           : `Remek fizikai érvelés! Pont beírva a Pontkövetőbe! Összpontod: ${res.totalPoints ?? 'mentve'}`
       );

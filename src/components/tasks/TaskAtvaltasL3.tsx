@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle2, XCircle, AlertCircle, Sparkles, Send, ArrowRight, Flame, Layers } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import type { UserProfile } from '../../types';
 
@@ -32,6 +32,34 @@ export const TaskAtvaltasL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
   const [hHasAttempted, setHHasAttempted] = useState(false);
   const [hStatus, setHStatus] = useState<'idle' | 'submitting' | 'success' | 'partial' | 'error'>('idle');
   const [hMessage, setHMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const savedBasic = getSavedTaskState('l3_a_atvaltas');
+      if (savedBasic?.completed) {
+        if (savedBasic.answers?.ans1 !== undefined) setAns1(String(savedBasic.answers.ans1));
+        if (savedBasic.answers?.ans2 !== undefined) setAns2(String(savedBasic.answers.ans2));
+        if (savedBasic.answers?.ans3 !== undefined) setAns3(String(savedBasic.answers.ans3));
+        if (savedBasic.answers?.ans4 !== undefined) setAns4(String(savedBasic.answers.ans4));
+        setHasAttempted(true);
+        setStatus('success');
+        setMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+      const savedHarder = getSavedTaskState('l3_mester_atvaltas');
+      if (savedHarder?.completed) {
+        if (savedHarder.answers?.ans1 !== undefined) setHAns1(String(savedHarder.answers.ans1));
+        if (savedHarder.answers?.ans2 !== undefined) setHAns2(String(savedHarder.answers.ans2));
+        if (savedHarder.answers?.ans3 !== undefined) setHAns3(String(savedHarder.answers.ans3));
+        if (savedHarder.answers?.ans4 !== undefined) setHAns4(String(savedHarder.answers.ans4));
+        setHHasAttempted(true);
+        setHStatus('success');
+        setHMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [user]);
 
   // Helper to parse comma or period decimals
   const parseVal = (str: string): number | null => {
@@ -80,6 +108,7 @@ export const TaskAtvaltasL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
 
   const handleBasicSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === 'success') return;
     setHasAttempted(true);
 
     if (!ans1.trim() || !ans2.trim() || !ans3.trim() || !ans4.trim()) {
@@ -103,13 +132,16 @@ export const TaskAtvaltasL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
       points: 1,
       note: 'A vásár csalói — 3. óra',
       mode: 'once',
+      answers: { ans1, ans2, ans3, ans4 },
     });
 
     if (res.success) {
       soundFx.playSuccess();
       setStatus('success');
       setMessage(
-        res.isMockDemo
+        res.alreadyCompleted
+          ? res.message
+          : res.isMockDemo
           ? 'Kiváló munka! Mind a 4 átváltás pontos. (Bejelentkezve a Pontkövetőbe is jóváíródik!)'
           : 'Remek! Mind a 4 átváltás tökéletes! +1 pont jóváírva a Pontkövetőben.'
       );
@@ -127,6 +159,7 @@ export const TaskAtvaltasL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
 
   const handleHarderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (hStatus === 'success') return;
     setHHasAttempted(true);
 
     if (!hAns1.trim() || !hAns2.trim() || !hAns3.trim() || !hAns4.trim()) {
@@ -150,12 +183,17 @@ export const TaskAtvaltasL3: React.FC<Props> = ({ user, onPointsUpdated, onCompl
       points: 1,
       note: 'Vásári Mesterpróba — Nehezebb átváltások',
       mode: 'once',
+      answers: { ans1: hAns1, ans2: hAns2, ans3: hAns3, ans4: hAns4 },
     });
 
     if (res.success) {
       soundFx.playSuccess();
       setHStatus('success');
-      setHMessage('Káprázatos mestermunka! Mind a 4 nehéz feladatot hibátlanul megoldottad! +1 bónusz pont jóváírva.');
+      setHMessage(
+        res.alreadyCompleted
+          ? res.message
+          : 'Káprázatos mestermunka! Mind a 4 nehéz feladatot hibátlanul megoldottad! +1 bónusz pont jóváírva.'
+      );
       if (res.totalPoints && onPointsUpdated) {
         onPointsUpdated(res.totalPoints);
       }

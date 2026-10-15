@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle2, AlertCircle, Sparkles, Send, Calculator, HelpCircle, RefreshCw } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import type { UserProfile } from '../../types';
 
@@ -19,6 +19,23 @@ export const TaskAveraging: React.FC<Props> = ({ user, onPointsUpdated, onComple
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l1_b_meres_atlagolas');
+      if (saved?.completed) {
+        if (saved.answers?.val1 !== undefined) setVal1(String(saved.answers.val1));
+        if (saved.answers?.val2 !== undefined) setVal2(String(saved.answers.val2));
+        if (saved.answers?.userAvg !== undefined) setUserAvg(String(saved.answers.userAvg));
+        if (saved.answers?.unit === 'm' || saved.answers?.unit === 'cm') setUnit(saved.answers.unit);
+        setStatus('success');
+        setMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [user]);
+
   const parseNum = (str: string) => {
     const cleaned = str.trim().replace(',', '.');
     return parseFloat(cleaned);
@@ -26,6 +43,7 @@ export const TaskAveraging: React.FC<Props> = ({ user, onPointsUpdated, onComple
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === 'success') return;
 
     const x1 = parseNum(val1);
     const x2 = parseNum(val2);
@@ -70,13 +88,16 @@ export const TaskAveraging: React.FC<Props> = ({ user, onPointsUpdated, onComple
       points: 1,
       note: `Kétszeri mérés és átlagolás (${x1} és ${x2} ${unit} -> átlag: ${avg} ${unit})`,
       mode: 'once',
+      answers: { val1, val2, userAvg, unit },
     });
 
     if (res.success) {
       soundFx.playSuccess();
       setStatus('success');
       setMessage(
-        res.isMockDemo
+        res.alreadyCompleted
+          ? res.message
+          : res.isMockDemo
           ? `Kiváló mérési pontosság! Átlag: ${avg} ${unit}. (Bejelentkezve 1 pont a Pontkövetőben!)`
           : `Kiváló mérési pontosság! Pont beírva a Pontkövetőbe! Összpontod: ${res.totalPoints ?? 'mentve'}`
       );

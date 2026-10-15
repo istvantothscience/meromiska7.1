@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle2, XCircle, AlertCircle, Sparkles, Send, Flame, ArrowRight, HelpCircle } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import type { UserProfile } from '../../types';
 
@@ -20,6 +20,24 @@ export const TaskHarderL3: React.FC<Props> = ({ user, onPointsUpdated, onComplet
   const [hasAttempted, setHasAttempted] = useState(false);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'partial' | 'error'>('idle');
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l3_mester_atvaltas');
+      if (saved?.completed) {
+        if (saved.answers?.ans1 !== undefined) setAns1(String(saved.answers.ans1));
+        if (saved.answers?.ans2 !== undefined) setAns2(String(saved.answers.ans2));
+        if (saved.answers?.ans3 !== undefined) setAns3(String(saved.answers.ans3));
+        if (saved.answers?.ans4 !== undefined) setAns4(String(saved.answers.ans4));
+        setHasAttempted(true);
+        setStatus('success');
+        setMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [user]);
 
   // Helper to parse comma or period decimals
   const parseVal = (str: string): number | null => {
@@ -49,6 +67,7 @@ export const TaskHarderL3: React.FC<Props> = ({ user, onPointsUpdated, onComplet
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === 'success') return;
     setHasAttempted(true);
 
     if (!ans1.trim() || !ans2.trim() || !ans3.trim() || !ans4.trim()) {
@@ -72,13 +91,16 @@ export const TaskHarderL3: React.FC<Props> = ({ user, onPointsUpdated, onComplet
       points: 1,
       note: 'Vásári Mesterpróba — Nehezebb átváltások',
       mode: 'once',
+      answers: { ans1, ans2, ans3, ans4 },
     });
 
     if (res.success) {
       soundFx.playSuccess();
       setStatus('success');
       setMessage(
-        res.isMockDemo
+        res.alreadyCompleted
+          ? res.message
+          : res.isMockDemo
           ? 'Káprázatos mestermunka! Mind a 4 nehéz átváltást hibátlanul megoldottad!'
           : 'Kiváló mestermunka! Mind a 4 nehéz átváltás tökéletes! +1 bónusz pont jóváírva.'
       );

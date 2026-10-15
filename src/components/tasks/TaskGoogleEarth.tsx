@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Globe, ExternalLink, CheckCircle2, AlertCircle, Sparkles, Send, MapPin } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import type { UserProfile } from '../../types';
 
@@ -17,6 +17,22 @@ export const TaskGoogleEarth: React.FC<Props> = ({ user, onPointsUpdated, onComp
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l1_d_google_earth');
+      if (saved?.completed) {
+        if (saved.answers?.bridgeName !== undefined) setBridgeName(String(saved.answers.bridgeName));
+        if (saved.answers?.measuredLength !== undefined) setMeasuredLength(String(saved.answers.measuredLength));
+        if (saved.answers?.note !== undefined) setNote(String(saved.answers.note));
+        setStatus('success');
+        setMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [user]);
+
   const parseNum = (str: string) => {
     const cleaned = str.trim().replace(',', '.').replace(/[^\d.]/g, '');
     return parseFloat(cleaned);
@@ -24,6 +40,7 @@ export const TaskGoogleEarth: React.FC<Props> = ({ user, onPointsUpdated, onComp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === 'success') return;
 
     if (!bridgeName.trim() || bridgeName.trim().length < 3) {
       setStatus('error');
@@ -52,13 +69,16 @@ export const TaskGoogleEarth: React.FC<Props> = ({ user, onPointsUpdated, onComp
       points: 1,
       note: `Google Earth hídmérés: ${bridgeName.trim()} (${lengthVal} m) — ${note.trim()}`,
       mode: 'once',
+      answers: { bridgeName: bridgeName.trim(), measuredLength, note: note.trim() },
     });
 
     if (res.success) {
       soundFx.playSuccess();
       setStatus('success');
       setMessage(
-        res.isMockDemo
+        res.alreadyCompleted
+          ? res.message
+          : res.isMockDemo
           ? `Nagyszerű műholdas mérés! ${bridgeName}: ${lengthVal} m. (Bejelentkezve 1 pont a Pontkövetőben!)`
           : `Műholdas mérés sikeresen mentve! Pont beírva a Pontkövetőbe! Összpontod: ${res.totalPoints ?? 'mentve'}`
       );

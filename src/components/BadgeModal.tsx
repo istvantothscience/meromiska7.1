@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Award, CheckCircle2, Lock, Sparkles, ExternalLink } from 'lucide-react';
-import { badgeHidvero, badgeReveszBaratja, badgeVasariElesSzem } from '../content/lessons';
+import { badgeHidvero, badgeReveszBaratja, badgeVasariElesSzem, badgeIdoUra } from '../content/lessons';
 
 interface BadgeModalProps {
   isOpen: boolean;
@@ -19,14 +19,28 @@ export const BadgeModal: React.FC<BadgeModalProps> = ({
   totalPointsAvailable,
   completedTasksCount,
   studentName,
-  currentLessonId = 'l3',
+  currentLessonId = 'l6',
 }) => {
   if (!isOpen) return null;
 
+  const isL6 = currentLessonId === 'l6';
   const isL3 = currentLessonId === 'l3';
   const isL2 = currentLessonId === 'l2';
 
-  const badgeInfo = isL3
+  const badgeInfo = isL6
+    ? {
+        name: 'AZ IDŐ URA',
+        subtitle: '6. Fejezet Hőse — Fizikai Jelvény (Tanári jóváhagyással)',
+        quote: '„Aki az inga lengését pontosan beméri, annak a harangszó sem csal!”',
+        image: badgeIdoUra,
+        tasks: [
+          '1. Napóra igaz/hamis állítás (l6_c_igazhamis)',
+          '2. Miért mér a fiú 10 lengést? — indoklás (l6_d_gondolkodj)',
+          '3. Lengésidő (T) és féllengésidő számítása (l6_a_szamolj)',
+          '4. Időegységek átváltása: 2 óra másodpercben (l6_b_valts_at)',
+        ],
+      }
+    : isL3
     ? {
         name: 'VÁSÁRI ÉLES SZEM',
         subtitle: '3. Óra Hőse — Fizikai Jelvény',

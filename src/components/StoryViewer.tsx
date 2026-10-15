@@ -326,6 +326,18 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
                     l3_gyak_terulet: 'Terület gyakorló (24 db)',
                     l3_gyak_terfogat: 'Térfogat gyakorló (24 db)',
                     l3_mester_atvaltas: 'Vásári Mesterpróba',
+                    l6_a_szamolj: 'Lengésidő-számítás',
+                    l6_b_valts_at: 'Időegység-átváltás',
+                    l6_c_igazhamis: 'Igaz vagy hamis?',
+                    l6_d_gondolkodj: 'Gondolkodj!',
+                    l4_a_szamolj: 'Lengésidő-számítás',
+                    l4_b_valts_at: 'Időegység-átváltás',
+                    l4_c_igazhamis: 'Igaz vagy hamis?',
+                    l4_d_gondolkodj: 'Gondolkodj!',
+                    l5_a_kulonbseg: 'Hőmérséklet-különbség (°C)',
+                    l5_b_kelvin: 'Kelvin átszámítás (K)',
+                    l5_c_fahrenheit: 'Fahrenheit átszámítás (°F)',
+                    l5_d_lazas: 'A királylány kérdése',
                   };
                   const label = friendlyNames[code] || `${idx + 1}. Próba (${code})`;
                   return (

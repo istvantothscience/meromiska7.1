@@ -1,0 +1,55 @@
+{
+  "lesson_id": "l4",
+  "title": "A toronyóra-készítő",
+  "subtitle": "Az idő mérése és az inga próbája",
+  "topic": "Mérés",
+  "order": 4,
+  "scenes": [
+    {
+      "n": 1,
+      "title": "A toronyóra-készítő",
+      "text": "– Segíts rajtam, vándor! – szólalt meg az öreg mester, ahogy meglátta a közeledő fiút. – Harminc esztendeje építem és javítom ennek a toronynak az óráját, de tegnap éjjel elállt a szerkezet, s ma reggel, mikor a napóra felé fordultam volna, felhő ült az égen. Nem tudom megmondani, mennyi az idő, pedig estére meg kell kondítanom a harangot, hogy a völgy népe tudja, mikor gyújtson tüzet a vacsorához.",
+      "quote": null,
+      "image": "01_toronyora_keszito.png"
+    },
+    {
+      "n": 2,
+      "title": "A feladat",
+      "text": "– A napóra csak akkor jó, ha süt a nap – folytatta a mester –, a toronyóra rugója pedig eltört, új nem terem a hegyekben. De hallottam, hogy messzi földön az emberek egy egyszerű fonálra kötött kővel is mérik az idő múlását. Ha igaz, amit hallottam, segíts nekem ilyen szerkezetet építeni, s mérd is be pontosan, hogy a harangszó ne csaljon!",
+      "quote": null,
+      "image": "02_a_feladat.png",
+      "task": "l6_c_igazhamis"
+    },
+    {
+      "n": 3,
+      "title": "Munkához látnak",
+      "text": "A fiú fonalat, zsineget és egy maroknyi apró kavicsot kért a mestertől. Emlékezett rá, hogy a vásárban és a manónál is csak az segített, aki nem egyetlen méréssel, hanem többszöri, gondos méréssel bizonyított – nekilátott hát, hogy az ingáját is így, ismételve mérje be.",
+      "quote": null,
+      "image": "03_munkahoz_latnak.png",
+      "task": "l6_d_gondolkodj"
+    },
+    {
+      "n": 4,
+      "title": "A lengő inga",
+      "text": "A fiú fonalára egy kis nehezéket kötött, kimérte pontosan egy méter hosszúságát, majd kitérítette, és számolni kezdte a lengéseket. Tízszer lengett oda-vissza az inga, mire a fiú megállította a számolást, s a mért időt elosztotta tízzel. – Ennyi idő alatt leng egyszer oda-vissza – mondta –, s ha ezt megismétlem, mindig ugyanezt az eredményt kell kapnom, különben hibázom valahol. Újra és újra megmérte, s az eredmények szinte pontosan egyeztek.",
+      "quote": null,
+      "image": "04_a_lengo_inga.png",
+      "task": "l6_a_szamolj"
+    },
+    {
+      "n": 5,
+      "title": "Az óra újraindul",
+      "text": "A mester a fiú ingájának ütemére állította be a toronyóra új szerkezetét, s amikor a nap ismét kisütött, a napórával is összevetették az eredményt – pontosan egyezett. – Áldott legyen a kezed, fiam – mondta a mester könnybe lábadt szemmel. – Ma este időben szól majd a harang. Vidd magaddal ezt az ingát emlékül, s tudd meg: az utad már csak egy próbát tartogat előtted, a hegy túloldalán, ahol tűz és jég között kell majd választanod.",
+      "quote": null,
+      "image": "05_az_ora_ujraindul.png",
+      "task": "l6_b_valts_at"
+    },
+    {
+      "n": 6,
+      "title": "A fordulat",
+      "text": "A fiú megköszönte a mester szavait, és az inga zsinórját a tarisznyájába süllyesztve elindult lefelé a hegy túlsó oldalán. Ahogy egyre lejjebb ereszkedett, az ösvény két ágra vált: az egyiken forró, párás gőz szállt fel a mélyből, a másikon jeges szél söpört végig a sziklákon.",
+      "quote": null,
+      "image": "06_a_fordulat.png"
+    }
+  ]
+}

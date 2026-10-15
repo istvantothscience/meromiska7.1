@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CheckCircle2,
   XCircle,
@@ -10,7 +10,7 @@ import {
   HelpCircle,
   RotateCcw,
 } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState, saveTaskStateToBook } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import type { UserProfile } from '../../types';
 
@@ -244,10 +244,33 @@ export const TaskPdfPracticeL3: React.FC<Props> = ({
   const [message, setMessage] = useState<string | null>(null);
   const [scoreSubmittedOnce, setScoreSubmittedOnce] = useState<boolean>(false);
 
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState(config.itemCode);
+      if (saved?.completed) {
+        if (saved.answers?.answers && typeof saved.answers.answers === 'object') {
+          setAnswers(saved.answers.answers);
+        }
+        if (saved.answers?.solvedBatches && typeof saved.answers.solvedBatches === 'object') {
+          setSolvedBatches(saved.answers.solvedBatches);
+        }
+        if (saved.answers?.attemptedBatches && typeof saved.answers.attemptedBatches === 'object') {
+          setAttemptedBatches(saved.answers.attemptedBatches);
+        }
+        setScoreSubmittedOnce(true);
+        setStatus('success');
+        setMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [config.itemCode]);
+
   const pool = difficulty === 'easy' ? config.easy : config.hard;
   const currentBatchKey = `${difficulty}_${batchIndex}`;
   const currentItems = pool.slice(batchIndex * 4, batchIndex * 4 + 4);
-  const hasAttemptedCurrent = !!attemptedBatches[currentBatchKey];
+  const hasAttemptedCurrent = !!attemptedBatches[currentBatchKey] || !!solvedBatches[currentBatchKey];
 
   const parseVal = (str: string | undefined): number | null => {
     if (!str) return null;
@@ -279,6 +302,7 @@ export const TaskPdfPracticeL3: React.FC<Props> = ({
 
   const handleCheckAndSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (solvedBatches[currentBatchKey]) return;
 
     const allFilled = currentItems.every((item) => (answers[item.id] || '').trim().length > 0);
     if (!allFilled) {
@@ -287,7 +311,8 @@ export const TaskPdfPracticeL3: React.FC<Props> = ({
       return;
     }
 
-    setAttemptedBatches((prev) => ({ ...prev, [currentBatchKey]: true }));
+    const nextAttempted = { ...attemptedBatches, [currentBatchKey]: true };
+    setAttemptedBatches(nextAttempted);
 
     const correctCount = currentItems.filter((item) => isAnswerCorrect(item)).length;
 
@@ -301,7 +326,8 @@ export const TaskPdfPracticeL3: React.FC<Props> = ({
 
     // All 4 in current batch are correct!
     soundFx.playSuccess();
-    setSolvedBatches((prev) => ({ ...prev, [currentBatchKey]: true }));
+    const nextSolved = { ...solvedBatches, [currentBatchKey]: true };
+    setSolvedBatches(nextSolved);
 
     if (!scoreSubmittedOnce) {
       setStatus('submitting');
@@ -312,6 +338,11 @@ export const TaskPdfPracticeL3: React.FC<Props> = ({
         points: 1,
         note: `${config.title} (${difficulty === 'easy' ? 'Könnyebb' : 'Nehezebb'}) — 3. óra`,
         mode: 'once',
+        answers: {
+          answers,
+          solvedBatches: nextSolved,
+          attemptedBatches: nextAttempted,
+        },
       });
 
       setScoreSubmittedOnce(true);
@@ -319,7 +350,9 @@ export const TaskPdfPracticeL3: React.FC<Props> = ({
       if (res.success) {
         setStatus('success');
         setMessage(
-          res.isMockDemo
+          res.alreadyCompleted
+            ? res.message
+            : res.isMockDemo
             ? 'Hibátlan 4/4 átváltás! Válts a következő 4-es csomagra vagy a Nehezebb szintre további gyakorlásért!'
             : 'Hibátlan 4/4 átváltás! +1 gyakorló pont jóváírva a Pontkövetőben! Próbáld ki a többi csomagot is!'
         );
@@ -334,12 +367,23 @@ export const TaskPdfPracticeL3: React.FC<Props> = ({
         setMessage(res.message || 'Hiba történt a pont beküldésekor.');
       }
     } else {
+      await saveTaskStateToBook(
+        config.itemCode,
+        {
+          answers,
+          solvedBatches: nextSolved,
+          attemptedBatches: nextAttempted,
+        },
+        1,
+        `${config.title} — 3. óra`
+      );
       setStatus('success');
-      setMessage('Kiváló! Ez a 4-es csomag is 4/4 hibátlan! Válassz újabb csomagot vagy nehezebb szintet!');
+      setMessage('Kiváló! Ez a 4-es csomag is 4/4 hibátlan és elmentődött a könyvbe! Válassz újabb csomagot vagy nehezebb szintet!');
     }
   };
 
   const handleResetBatch = () => {
+    if (solvedBatches[currentBatchKey]) return;
     const nextAns = { ...answers };
     currentItems.forEach((it) => {
       delete nextAns[it.id];
@@ -481,6 +525,7 @@ export const TaskPdfPracticeL3: React.FC<Props> = ({
                       type="text"
                       inputMode="decimal"
                       value={val}
+                      disabled={!!solvedBatches[currentBatchKey]}
                       onChange={(e) =>
                         setAnswers((prev) => ({
                           ...prev,
@@ -557,15 +602,21 @@ export const TaskPdfPracticeL3: React.FC<Props> = ({
           <div className="flex items-center gap-2 pt-0.5">
             <button
               type="submit"
-              disabled={status === 'submitting'}
-              className="flex-1 py-2 px-3 rounded-lg font-serif font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm bg-[#B85042] hover:bg-[#A34335] text-white"
+              disabled={status === 'submitting' || !!solvedBatches[currentBatchKey]}
+              className={`flex-1 py-2 px-3 rounded-lg font-serif font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-sm ${
+                solvedBatches[currentBatchKey]
+                  ? 'bg-emerald-700 text-white cursor-default'
+                  : 'bg-[#B85042] hover:bg-[#A34335] text-white cursor-pointer'
+              }`}
             >
               <Send className="w-3.5 h-3.5" />
               <span>
                 {status === 'submitting'
                   ? 'Ellenőrzés...'
                   : solvedBatches[currentBatchKey]
-                  ? 'Újraellenőrzés'
+                  ? 'Kitöltve és elmentve a könyvbe'
+                  : scoreSubmittedOnce
+                  ? 'Csomag ellenőrzése és mentése'
                   : 'Csomag ellenőrzése (+1 pont)'}
               </span>
             </button>

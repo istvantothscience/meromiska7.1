@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CheckCircle2, AlertCircle, Sparkles, Send } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import type { UserProfile } from '../../types';
 
@@ -18,6 +18,23 @@ export const TaskConversion: React.FC<Props> = ({ user, onPointsUpdated, onCompl
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'partial' | 'error'>('idle');
   const [message, setMessage] = useState<string | null>(null);
   const [pointsAwarded, setPointsAwarded] = useState<number | null>(null);
+
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l1_a_atvaltas');
+      if (saved?.completed) {
+        if (saved.answers?.ans1 !== undefined) setAns1(String(saved.answers.ans1));
+        if (saved.answers?.ans2 !== undefined) setAns2(String(saved.answers.ans2));
+        if (saved.answers?.ans3 !== undefined) setAns3(String(saved.answers.ans3));
+        setStatus('success');
+        setPointsAwarded(saved.points || 1);
+        setMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [user]);
 
   // Prevent flipbook from capturing clicks/touches on task inputs
   useEffect(() => {
@@ -63,6 +80,7 @@ export const TaskConversion: React.FC<Props> = ({ user, onPointsUpdated, onCompl
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === 'success') return;
     if (!ans1 || !ans2 || !ans3) {
       setMessage('Kérlek töltsd ki mindhárom beviteli mezőt!');
       return;
@@ -84,6 +102,7 @@ export const TaskConversion: React.FC<Props> = ({ user, onPointsUpdated, onCompl
       points: 1,
       note: `A híd próbája — Átváltás feladat (${count}/3 helyes)`,
       mode: 'once',
+      answers: { ans1, ans2, ans3 },
     });
 
     if (res.success) {
@@ -91,7 +110,9 @@ export const TaskConversion: React.FC<Props> = ({ user, onPointsUpdated, onCompl
       setStatus('success');
       setPointsAwarded(res.totalPoints ?? 1);
       setMessage(
-        res.isMockDemo
+        res.alreadyCompleted
+          ? res.message
+          : res.isMockDemo
           ? 'Kiváló! Legalább 2 átváltás helyes. (Bejelentkezve a közös Fizika Pontkövetőbe is jóváíródik!)'
           : `Kiváló munka! Pont beírva a Pontkövetőbe! Összpontod: ${res.totalPoints ?? 'mentve'}`
       );

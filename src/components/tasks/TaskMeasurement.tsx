@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CheckCircle2, AlertCircle, Sparkles, Ruler, Footprints, Send } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import type { UserProfile } from '../../types';
 
@@ -18,6 +18,23 @@ export const TaskMeasurement: React.FC<Props> = ({ user, onPointsUpdated, onComp
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [discrepancy, setDiscrepancy] = useState<number | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l1_b_meres');
+      if (saved?.completed) {
+        if (saved.answers?.tapeMeasure !== undefined) setTapeMeasure(String(saved.answers.tapeMeasure));
+        if (saved.answers?.stepEstimate !== undefined) setStepEstimate(String(saved.answers.stepEstimate));
+        if (saved.answers?.objectName !== undefined) setObjectName(String(saved.answers.objectName));
+        if (saved.answers?.discrepancy !== undefined) setDiscrepancy(Number(saved.answers.discrepancy));
+        setStatus('success');
+        setMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [user]);
 
   // Prevent flipbook from capturing clicks/touches on task inputs
   useEffect(() => {
@@ -46,6 +63,7 @@ export const TaskMeasurement: React.FC<Props> = ({ user, onPointsUpdated, onComp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === 'success') return;
     const tape = parseVal(tapeMeasure);
     const estimate = parseVal(stepEstimate);
 
@@ -66,13 +84,16 @@ export const TaskMeasurement: React.FC<Props> = ({ user, onPointsUpdated, onComp
       points: 1,
       note: `A híd próbája — Pármérés (${objectName}: szalag=${tape}cm, lépés=${estimate}cm, eltérés=${diffPct}%)`,
       mode: 'once',
+      answers: { tapeMeasure, stepEstimate, objectName, discrepancy: diffPct },
     });
 
     if (res.success) {
       soundFx.playSuccess();
       setStatus('success');
       setMessage(
-        res.isMockDemo
+        res.alreadyCompleted
+          ? res.message
+          : res.isMockDemo
           ? `Mérés sikeresen elmentve! Az eltérés: ${diffPct}%. (Bejelentkezve a pont is elmentődik a Pontkövetőben!)`
           : `Kiváló pármunka! Pont beírva a Pontkövetőbe! Összpontod: ${res.totalPoints ?? 'mentve'}`
       );

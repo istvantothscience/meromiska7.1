@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CheckCircle2, XCircle, AlertCircle, Sparkles, Send, HelpCircle, Lightbulb } from 'lucide-react';
-import { submitTaskScore } from '../../lib/supabase';
+import { submitTaskScore, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import type { UserProfile } from '../../types';
 
@@ -38,6 +38,27 @@ export const TaskCsaladvanyL3: React.FC<Props> = ({ user, onPointsUpdated, onCom
   const [hasAttempted, setHasAttempted] = useState(false);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'partial' | 'error'>('idle');
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l3_c_feladvany');
+      if (saved?.completed) {
+        if (saved.answers?.selectedUnitKey) setSelectedUnitKey(String(saved.answers.selectedUnitKey));
+        if (saved.answers?.claimedQty !== undefined) setClaimedQty(String(saved.answers.claimedQty));
+        if (saved.answers?.measuredQty !== undefined) setMeasuredQty(String(saved.answers.measuredQty));
+        if (saved.answers?.scaleResolution !== undefined) setScaleResolution(String(saved.answers.scaleResolution));
+        if (saved.answers?.studentConverted !== undefined) setStudentConverted(String(saved.answers.studentConverted));
+        if (saved.answers?.studentDiff !== undefined) setStudentDiff(String(saved.answers.studentDiff));
+        if (saved.answers?.studentVerdict !== undefined) setStudentVerdict(String(saved.answers.studentVerdict));
+        setHasAttempted(true);
+        setStatus('success');
+        setMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, [user]);
 
   const selectedUnit = ANCIENT_UNITS[selectedUnitKey] || ANCIENT_UNITS.lab;
 
@@ -97,6 +118,7 @@ export const TaskCsaladvanyL3: React.FC<Props> = ({ user, onPointsUpdated, onCom
   };
 
   const loadExample = (type: 'posztos' | 'gyogyfu' | 'ital') => {
+    if (status === 'success') return;
     if (type === 'posztos') {
       setSelectedUnitKey('lab');
       setClaimedQty('3');
@@ -128,6 +150,7 @@ export const TaskCsaladvanyL3: React.FC<Props> = ({ user, onPointsUpdated, onCom
 
   const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
+    if (status === 'success') return;
     setHasAttempted(true);
 
     const evalResult = evaluateData();
@@ -167,13 +190,24 @@ export const TaskCsaladvanyL3: React.FC<Props> = ({ user, onPointsUpdated, onCom
       points: 1,
       note: 'A vásár csalói — 3. óra',
       mode: 'once',
+      answers: {
+        selectedUnitKey,
+        claimedQty,
+        measuredQty,
+        scaleResolution,
+        studentConverted,
+        studentDiff,
+        studentVerdict,
+      },
     });
 
     if (res.success) {
       soundFx.playSuccess();
       setStatus('success');
       setMessage(
-        res.isMockDemo
+        res.alreadyCompleted
+          ? res.message
+          : res.isMockDemo
           ? 'Kiváló logika! A beadott feladvány és megoldókulcs belsőleg ellentmondás-mentes és helyes!'
           : 'Bravó! A csalás-feladvány logikailag hibátlan, +1 pont jóváírva a Pontkövetőben!'
       );

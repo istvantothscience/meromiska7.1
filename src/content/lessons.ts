@@ -29,7 +29,34 @@ import l3Img05 from '../assets/images/l3_05_gyozelem_1790662442362.jpg';
 import l3Img06 from '../assets/images/l3_06_a_fordulat_1790662471448.jpg';
 import badgeVasariElesSzem from '../assets/images/badge_vasari_eles_szem_1790662485796.jpg';
 
-export { badgeHidvero, badgeReveszBaratja, badgeVasariElesSzem, miskaCoverImg };
+const badgeIdoUra = `data:image/svg+xml;utf8,${encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#FFF6D6"/>
+      <stop offset="65%" stop-color="#E5B842"/>
+      <stop offset="100%" stop-color="#8B261D"/>
+    </radialGradient>
+  </defs>
+  <circle cx="80" cy="80" r="74" fill="url(#bg)" stroke="#5A2318" stroke-width="5"/>
+  <circle cx="80" cy="80" r="64" fill="none" stroke="#FAF7EE" stroke-width="2" stroke-dasharray="4 4"/>
+  <!-- Clock dial ticks -->
+  <g stroke="#2E1B14" stroke-width="3" stroke-linecap="round">
+    <line x1="80" y1="22" x2="80" y2="30"/>
+    <line x1="80" y1="130" x2="80" y2="138"/>
+    <line x1="22" y1="80" x2="30" y2="80"/>
+    <line x1="130" y1="80" x2="138" y2="80"/>
+  </g>
+  <!-- Swinging Pendulum & Hourglass motif -->
+  <line x1="80" y1="32" x2="96" y2="106" stroke="#2E1B14" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="80" cy="32" r="5" fill="#B85042" stroke="#2E1B14" stroke-width="2"/>
+  <circle cx="96" cy="110" r="13" fill="#B85042" stroke="#2E1B14" stroke-width="3"/>
+  <circle cx="92" cy="106" r="4" fill="#FFF2B2" opacity="0.7"/>
+  <path d="M56 112 Q80 124 104 112" fill="none" stroke="#8B261D" stroke-width="2.5" stroke-dasharray="3 3"/>
+</svg>
+`)}`;
+
+export { badgeHidvero, badgeReveszBaratja, badgeVasariElesSzem, badgeIdoUra, miskaCoverImg };
 
 // Known image alias map for l1, l2 & l3
 const KNOWN_IMAGES: Record<string, string> = {
