@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Award, CheckCircle2, Lock, Sparkles, ExternalLink } from 'lucide-react';
-import { badgeHidvero, badgeReveszBaratja, badgeVasariElesSzem, badgeIdoUra } from '../content/lessons';
+import { badgeHidvero, badgeReveszBaratja, badgeVasariElesSzem, badgeIdoUra, badgeTuzEsJeg } from '../content/lessons';
 
 interface BadgeModalProps {
   isOpen: boolean;
@@ -19,18 +19,32 @@ export const BadgeModal: React.FC<BadgeModalProps> = ({
   totalPointsAvailable,
   completedTasksCount,
   studentName,
-  currentLessonId = 'l6',
+  currentLessonId = 'l1',
 }) => {
   if (!isOpen) return null;
 
-  const isL6 = currentLessonId === 'l6';
+  const isL5 = currentLessonId === 'l5';
+  const isL4 = currentLessonId === 'l4' || currentLessonId === 'l6';
   const isL3 = currentLessonId === 'l3';
   const isL2 = currentLessonId === 'l2';
 
-  const badgeInfo = isL6
+  const badgeInfo = isL5
+    ? {
+        name: 'TŰZ ÉS JÉG MESTERE',
+        subtitle: '5. Fejezet Hőse — Fizikai Jelvény',
+        quote: '„Aki a hőmérsékletet pontosan méri, azt sem a forróság, sem a fagy nem rettenti vissza!”',
+        image: badgeTuzEsJeg,
+        tasks: [
+          '1. Varázsüveg skálázása és hőmérséklet-különbség (l5_a_kulonbseg)',
+          '2. Csillagvizsgálók foka: Kelvin-skála átszámítás (l5_b_kelvin)',
+          '3. Kalmárok mértéke: Fahrenheit átszámítás (l5_c_fahrenheit)',
+          '4. A királylány segélykérése és a lázmérés (l5_d_lazas)',
+        ],
+      }
+    : isL4
     ? {
         name: 'AZ IDŐ URA',
-        subtitle: '6. Fejezet Hőse — Fizikai Jelvény (Tanári jóváhagyással)',
+        subtitle: '4. Fejezet Hőse — Fizikai Jelvény',
         quote: '„Aki az inga lengését pontosan beméri, annak a harangszó sem csal!”',
         image: badgeIdoUra,
         tasks: [

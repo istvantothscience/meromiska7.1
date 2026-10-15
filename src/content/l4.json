@@ -4,51 +4,53 @@
   "subtitle": "Az idő mérése és az inga próbája",
   "topic": "Mérés",
   "order": 4,
+  "badgeName": "Az Idő Ura",
+  "badgeDescription": "Megmérted az inga lengésidejét és újraindítottad a toronyórát!",
   "scenes": [
     {
       "n": 1,
       "title": "A toronyóra-készítő",
-      "text": "– Segíts rajtam, vándor! – szólalt meg az öreg mester, ahogy meglátta a közeledő fiút. – Harminc esztendeje építem és javítom ennek a toronynak az óráját, de tegnap éjjel elállt a szerkezet, s ma reggel, mikor a napóra felé fordultam volna, felhő ült az égen. Nem tudom megmondani, mennyi az idő, pedig estére meg kell kondítanom a harangot, hogy a völgy népe tudja, mikor gyújtson tüzet a vacsorához.",
-      "quote": null,
+      "text": "Miska maga mögött hagyta a városi vásártér tarka forgatagát, ahol a kalmárok, kikiáltók és vásározók még mindig izgatottan beszélték, hogyan leplezte le az egyszerű mérőzsinóros parasztlegény a csaló posztóst és italmérőt. A zsúfolt városkapun átlépve vándorok, öszvérhajcsárok és piacról hazatérő népek tolongtak az úton, ám Miska gondolatai minduntalan a zöld ponyvás sátorhoz szálltak vissza. Nem tudta elfeledni a gyógyító lány kedves tekintetét és hálás mosolyát, amikor átadta neki a révész lezárt korsóját. A szíve meleg lüktetéssel vert, valahányszor eszébe jutottak a lány szavai: „Az apám jól választott.”\nAhogy a kanyargós hegyi úton felfelé kaptatott, a sziklák lábánál magasodó ódon kőtorony tövében hirtelen nagy zűrzavarra és kétségbeesett kiáltozásra lett figyelmes. A torony körül pásztorok és úton lévők álltak tanácstalanul, a porban pedig egy hófehér hajú, idős mesterember térdelt. Réz fogaskerekek, rugók és mutatók hevertek körülötte szerteszét, s az öreg két kézzel kapott a fejéhez:\n– Segíts rajtam, vándor! – kiáltott fel a mester, amint meglátta a tarisznyás fiút. – Harminc esztendeje építem és vigyázom ennek a toronynak az óráját, de az éjjel kettétört a nagy rugó, s a szerkezet elnémult! Reggel a napórához fordultam volna, de sűrű felhő ül az égen. Nem tudom megmondani, mennyi az idő, pedig az egész völgy népe és a királyi átkelők mind erre a harangszóra várnak!",
+      "quote": "„Harminc esztendeje építem a toronyórát... de most a rugó eltört, és a felhők eltakarták a napot!”",
       "image": "01_toronyora_keszito.png"
     },
     {
       "n": 2,
       "title": "A feladat",
-      "text": "– A napóra csak akkor jó, ha süt a nap – folytatta a mester –, a toronyóra rugója pedig eltört, új nem terem a hegyekben. De hallottam, hogy messzi földön az emberek egy egyszerű fonálra kötött kővel is mérik az idő múlását. Ha igaz, amit hallottam, segíts nekem ilyen szerkezetet építeni, s mérd is be pontosan, hogy a harangszó ne csaljon!",
-      "quote": null,
+      "text": "– A napóra csak akkor jó, ha süt a nap – folytatta a mester kétségbeesetten a köréjük gyűlt sokaságnak –, a toronyóra rugója pedig eltört, s ilyet három napi járóföldön belül egy kovács sem készít. Ám hallottam én régi tudósoktól, hogy egy egyszerű, fonálra kötött nehezékkel – egy lengő ingával – is meg lehet mérni az idő múlását, mert az inga egyenletes ütemben jár, akár a szívverés! Ha valóban olyan éles szemed és biztos kezed van a méréshez, amilyennek látszol, segíts nekem ezt a szerkezetet megépíteni és behangolni, hogy a harangszó ne csaljon!",
+      "quote": "„Egy egyszerű fonálra kötött nehezék – a lengő inga – egyenletesen veri az ütemet!”",
       "image": "02_a_feladat.png",
       "task": "l6_c_igazhamis"
     },
     {
       "n": 3,
       "title": "Munkához látnak",
-      "text": "A fiú fonalat, zsineget és egy maroknyi apró kavicsot kért a mestertől. Emlékezett rá, hogy a vásárban és a manónál is csak az segített, aki nem egyetlen méréssel, hanem többszöri, gondos méréssel bizonyított – nekilátott hát, hogy az ingáját is így, ismételve mérje be.",
-      "quote": null,
+      "text": "Miska habozás nélkül segítő kezet nyújtott. Az öreg műhelyéből erős kenderfonalat és formás réznehezékeket hozott elő. A torony körül bámészkodó utazók kíváncsian gyűrűztek köréjük. A fiú nem kapkodott: a híd próbájából és a vásári vizsgálatból pontosan tudta, hogy a tudomány és a valóság nem a sietségben, hanem a türelmes, többszöri ellenőrzésben rejlik.\n– Először ki kell tapasztalnunk, mitől függ az inga járása – magyarázta Miska a mellette figyelő mesternek és az összegyűlt tömegnek. – Nem elég csak elindítani: tisztán kell látnunk, mi szabja meg a lengés idejét!",
+      "quote": "„Nem a sietség, hanem a pontos megfigyelés és a többszöri mérés vezet a valósághoz.”",
       "image": "03_munkahoz_latnak.png",
       "task": "l6_d_gondolkodj"
     },
     {
       "n": 4,
       "title": "A lengő inga",
-      "text": "A fiú fonalára egy kis nehezéket kötött, kimérte pontosan egy méter hosszúságát, majd kitérítette, és számolni kezdte a lengéseket. Tízszer lengett oda-vissza az inga, mire a fiú megállította a számolást, s a mért időt elosztotta tízzel. – Ennyi idő alatt leng egyszer oda-vissza – mondta –, s ha ezt megismétlem, mindig ugyanezt az eredményt kell kapnom, különben hibázom valahol. Újra és újra megmérte, s az eredmények szinte pontosan egyeztek.",
-      "quote": null,
+      "text": "A fiú fonalára felfűzte a réznehezéket, és a tarisznyájából előhúzott mérőzsinórral kimérte a pontosan egy méteres fonalhosszt. Egy stabil fagerendára függesztette fel, óvatosan kitérítette, és számlálni kezdte a lengéseket, miközben a mester feszülten leste minden mozdulatát. Tíz teljes oda-vissza lengést mért meg, majd az eltelt teljes időt elosztotta tízzel.\n– Így kapjuk meg egyetlen lengés megbízható idejét – felelte Miska mosolyogva a bámészkodók elismerő morajára. – Ha egy mérésnél kicsit meg is rezdülne a kezünk, a tíz lengés átlaga elsimítja a hibát! Újra és újra próbamérést végeztek, s az egy méteres inga mindig hajszálpontosan két másodperc alatt tett meg egy teljes lengést. Az ütem hibátlan volt.",
+      "quote": "„Tíz lengés idejét mérjük meg, majd elosztjuk tízzel – így kapunk hibátlan átlagot.”",
       "image": "04_a_lengo_inga.png",
       "task": "l6_a_szamolj"
     },
     {
       "n": 5,
-      "title": "Az óra újraindul",
-      "text": "A mester a fiú ingájának ütemére állította be a toronyóra új szerkezetét, s amikor a nap ismét kisütött, a napórával is összevetették az eredményt – pontosan egyezett. – Áldott legyen a kezed, fiam – mondta a mester könnybe lábadt szemmel. – Ma este időben szól majd a harang. Vidd magaddal ezt az ingát emlékül, s tudd meg: az utad már csak egy próbát tartogat előtted, a hegy túloldalán, ahol tűz és jég között kell majd választanod.",
-      "quote": null,
+      "title": "Az óra újraindul és a rejtélyes titok",
+      "text": "A mester Miska ingájának pontos ütemére kötötte rá a toronyóra nehéz gátszerkezetét. A hatalmas fogaskerekek egyszerre méltóságteljes kattanással meglódultak: tik-tak, tik-tak. S amint a déli felhők mögül kibukkant a nap, a napóra árnyéka pontosan a tizenkettes jelre vetült – a torony érc harangja pedig büszkén, zengve ütötte el a delet! A völgy népe ujjongva tapsolt.\nA mester könnyes szemmel szorította meg Miska kérges kezét, ám ekkor pillantása a fiú vállán függő vászontarisznyára tévedt. Megérezte a ritka hegyi gyógyfű illatát, és meglátta a finom hímzett szalagot, amit a gyógyító leány kötött Miska kenyerére útravalóul.\nAz öreg arca hirtelen megdermedt a döbbenettől:\n– Szent ég... fiam! Honnan van nálad ez a szalag és ez az illat?! Te a városi vásár zöld sátoránál jártál, a gyógyító lánynál?!\n– Ott – bólintott a fiú elpirulva. – A révész bízta rám a korsót, hogy juttassam el a lányához... és azóta sem tudom őt kiverni a fejemből.\nAz öreg mester ekkor közelebb lépett, és remegő hangon fedte fel a leplezhetetlen titkot:\n– Hát nem látod a sors kezét, fiam?! Az a révész nem egyszerű csónakos volt: maga a király járja az országot álruhában! A zöld sátor leánya pedig nem más, mint a királylány, aki az udvarból elszökve a nép között gyógyít, hogy megtalálja azt az igaz, tiszta szívű legényt, aki nem rangért vagy aranyért küzd! És ez a toronyóra... ez hirdeti ki a vár kapuinak megnyitását a nagy leánykérő próbára! Te épp most ütötted el a saját szerelmed óráját!",
+      "quote": "„A zöld sátras gyógyító leány nem más, mint az álruhás királylány! Te most ütötted el a leánykérés kezdetét!”",
       "image": "05_az_ora_ujraindul.png",
       "task": "l6_b_valts_at"
     },
     {
       "n": 6,
-      "title": "A fordulat",
-      "text": "A fiú megköszönte a mester szavait, és az inga zsinórját a tarisznyájába süllyesztve elindult lefelé a hegy túlsó oldalán. Ahogy egyre lejjebb ereszkedett, az ösvény két ágra vált: az egyiken forró, párás gőz szállt fel a mélyből, a másikon jeges szél söpört végig a sziklákon.",
-      "quote": null,
+      "title": "A fordulat és a remény",
+      "text": "Miska szíve akkorát lódult, hogy a lélegzete is elállt. A leány, akibe a vásártér kavargásában menthetetlenül beleszeretett, akinek a mosolya után epedett a lelke – maga a király leánya!\n– Siess a hegyen át a királyi vár felé, fiam! – sürgette a mester, s a kezébe nyomta a gondosan elkészített ingát. – A szíved tiszta, a kezed mérni tud, s a királylány tekintetéből tudom, hogy epedve vár téged. Ám a hegyi hágónál még állnod kell egy utolsó, veszedelmes próbát: a tűz és a jég kapuját, ahol a gőgös bátyáid már kudarcot vallottak. Győzd le a fagyot és a forróságot, s a király áldásával a királylány a tiéd lesz, s örök hűségben egybekeltek!\nMiska boldog izgalommal a mellkasában indult lefelé a hegy túlsó oldalán. Már semmilyen próbatétel nem rémítette: tudta, hogy a hegy túloldalán élete szerelme várja, akivel hamarosan egy pár lesznek.",
+      "quote": "„Győzd le a fagyot és a forróságot, s a király áldásával a királylány a tiéd lesz, s boldogan egybekeltek!”",
       "image": "06_a_fordulat.png"
     }
   ]

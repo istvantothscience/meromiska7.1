@@ -22,6 +22,8 @@ import {
   badgeHidvero,
   badgeReveszBaratja,
   badgeVasariElesSzem,
+  badgeIdoUra,
+  badgeTuzEsJeg,
   miskaCoverImg,
 } from '../content/lessons';
 import { WatercolorIllustration } from './illustrations/WatercolorIllustration';
@@ -911,8 +913,8 @@ export const StoryBookFlip: React.FC<Props> = ({
             <BookPage pageNumber={24}>
               <div className="w-full h-full flex flex-col items-center justify-between p-6 sm:p-8 text-[#2E1B14] text-center">
                 <div>
-                  <div className="w-20 h-20 mx-auto mb-2 rounded-full border-2 border-[#C6923C] p-1 shadow-lg bg-gradient-to-br from-[#FAF4E5] to-[#EAE0CD] flex items-center justify-center">
-                    <Sparkles className="w-10 h-10 text-[#B85042]" />
+                  <div className="w-20 h-20 mx-auto mb-2 rounded-full border-2 border-[#C6923C] p-1 shadow-lg bg-gradient-to-br from-[#FAF4E5] to-[#EAE0CD] flex items-center justify-center overflow-hidden">
+                    <img src={badgeTuzEsJeg} alt="Tűz és jég jelvény" className="w-full h-full object-contain" />
                   </div>
 
                   <span className="text-xs font-serif uppercase tracking-widest text-[#8C6D58] block mb-1 font-bold">
@@ -922,7 +924,7 @@ export const StoryBookFlip: React.FC<Props> = ({
                     Tűz és jég között
                   </h3>
                   <p className="font-serif italic text-xs text-[#5A4232] max-w-[280px] mx-auto mb-3">
-                    „Kiderült az igazság: a gyógyító lány a királylány! A hőmérséklet próbáit sikeresen kiálltad, s készen állsz a nagy királyi megmérettetésre.”
+                    „Kiderült az igazság: a gyógyító lány a királylány! A hőmérséklet próbáit sikeresen kiálltad: a király áldását adta, Miska és a királylány örök hűséget fogadtak, és boldog szerelemben egybekeltek!”
                   </p>
                 </div>
 
@@ -1331,8 +1333,8 @@ export const StoryBookFlip: React.FC<Props> = ({
             <BookPage pageNumber={22}>
               <div className="w-full h-full flex flex-col items-center justify-between p-6 sm:p-8 text-[#2E1B14] text-center">
                 <div>
-                  <div className="w-20 h-20 mx-auto mb-2 rounded-full border-2 border-[#C6923C] p-1 shadow-lg bg-gradient-to-br from-[#FAF4E5] to-[#EAE0CD] flex items-center justify-center">
-                    <Sparkles className="w-10 h-10 text-[#B85042]" />
+                  <div className="w-20 h-20 mx-auto mb-2 rounded-full border-2 border-[#C6923C] p-1 shadow-lg bg-gradient-to-br from-[#FAF4E5] to-[#EAE0CD] flex items-center justify-center overflow-hidden">
+                    <img src={badgeIdoUra} alt="Az idő ura jelvény" className="w-full h-full object-contain" />
                   </div>
 
                   <span className="text-xs font-serif uppercase tracking-widest text-[#8C6D58] block mb-1 font-bold">

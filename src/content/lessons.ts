@@ -29,6 +29,22 @@ import l3Img05 from '../assets/images/l3_05_gyozelem_1790662442362.jpg';
 import l3Img06 from '../assets/images/l3_06_a_fordulat_1790662471448.jpg';
 import badgeVasariElesSzem from '../assets/images/badge_vasari_eles_szem_1790662485796.jpg';
 
+// Lesson 4 images (A toronyóra-készítő)
+import l4Img01 from '../assets/images/l4_scene1_clockmaker_1792051610202.jpg';
+import l4Img02 from '../assets/images/l4_scene2_pendulum_task_1792051611290.jpg';
+import l4Img03 from '../assets/images/l4_scene3_workshop_measuring_1792051613366.jpg';
+import l4Img04 from '../assets/images/l4_scene4_swinging_pendulum_1792051612461.jpg';
+import l4Img05 from '../assets/images/l4_scene5_clock_restarted_1792051613839.jpg';
+import l4Img06 from '../assets/images/l4_scene6_crossroads_mountain_1792051613830.jpg';
+
+// Lesson 5 images (Tűz és jég között)
+import l5Img01 from '../assets/images/l5_scene1_split_gatekeeper_1792051615328.jpg';
+import l5Img02 from '../assets/images/l5_scene2_three_tubs_1792051616344.jpg';
+import l5Img03 from '../assets/images/l5_scene3_glass_thermometer_1792051617014.jpg';
+import l5Img04 from '../assets/images/l5_scene4_strange_markings_1792051618381.jpg';
+import l5Img05 from '../assets/images/l5_scene5_crossing_ford_1792051618633.jpg';
+import l5Img06 from '../assets/images/l5_scene6_princess_revealed_1792051619595.jpg';
+
 const badgeIdoUra = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
   <defs>
@@ -56,9 +72,36 @@ const badgeIdoUra = `data:image/svg+xml;utf8,${encodeURIComponent(`
 </svg>
 `)}`;
 
-export { badgeHidvero, badgeReveszBaratja, badgeVasariElesSzem, badgeIdoUra, miskaCoverImg };
+const badgeTuzEsJeg = `data:image/svg+xml;utf8,${encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+  <defs>
+    <radialGradient id="bg5" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#FFF8E7"/>
+      <stop offset="65%" stop-color="#E5A842"/>
+      <stop offset="100%" stop-color="#8B261D"/>
+    </radialGradient>
+  </defs>
+  <circle cx="80" cy="80" r="74" fill="url(#bg5)" stroke="#5A2318" stroke-width="5"/>
+  <circle cx="80" cy="80" r="64" fill="none" stroke="#FAF7EE" stroke-width="2" stroke-dasharray="4 4"/>
+  <!-- Thermometer motif in the center -->
+  <rect x="74" y="30" width="12" height="60" rx="6" fill="#FAF5E8" stroke="#2E1B14" stroke-width="2.5"/>
+  <circle cx="80" cy="98" r="14" fill="#B85042" stroke="#2E1B14" stroke-width="3"/>
+  <rect x="77" y="48" width="6" height="46" rx="3" fill="#B85042"/>
+  <!-- Flame accent on left -->
+  <path d="M50 78 Q42 62 54 48 Q60 60 55 72 Z" fill="#D9534F" opacity="0.9"/>
+  <!-- Snowflake crystal on right -->
+  <g stroke="#3A6B88" stroke-width="2.5" stroke-linecap="round">
+    <line x1="108" y1="46" x2="108" y2="72"/>
+    <line x1="95" y1="59" x2="121" y2="59"/>
+    <line x1="99" y1="50" x2="117" y2="68"/>
+    <line x1="99" y1="68" x2="117" y2="50"/>
+  </g>
+</svg>
+`)}`;
 
-// Known image alias map for l1, l2 & l3
+export { badgeHidvero, badgeReveszBaratja, badgeVasariElesSzem, badgeIdoUra, badgeTuzEsJeg, miskaCoverImg };
+
+// Known image alias map for all lessons
 const KNOWN_IMAGES: Record<string, string> = {
   // Lesson 1: A híd próbája
   'l1:01_hirdetmeny.png': img01,
@@ -99,6 +142,35 @@ const KNOWN_IMAGES: Record<string, string> = {
   '03_a_harom_sator.png': l3Img03,
   '04_a_leleplezes.png': l3Img04,
   'badge_vasari_eles_szem.png': badgeVasariElesSzem,
+
+  // Lesson 4: A toronyóra-készítő
+  'l4:01_toronyora_keszito.png': l4Img01,
+  'l4:02_a_feladat.png': l4Img02,
+  'l4:03_munkahoz_latnak.png': l4Img03,
+  'l4:04_a_lengo_inga.png': l4Img04,
+  'l4:05_az_ora_ujraindul.png': l4Img05,
+  'l4:06_a_fordulat.png': l4Img06,
+  '01_toronyora_keszito.png': l4Img01,
+  '02_a_feladat.png': l4Img02,
+  '03_munkahoz_latnak.png': l4Img03,
+  '04_a_lengo_inga.png': l4Img04,
+  '05_az_ora_ujraindul.png': l4Img05,
+  '06_a_fordulat.png': l4Img06,
+
+  // Lesson 5: Tűz és jég között
+  'l5:01_az_utelagazas.png': l5Img01,
+  'l5:02_a_hazug_kezek.png': l5Img02,
+  'l5:03_a_varazsuveg.png': l5Img03,
+  'l5:04_a_furcsa_feliratok.png': l5Img04,
+  'l5:05_a_gazlo.png': l5Img05,
+  'l5:06_a_kiralylany.png': l5Img06,
+  '01_az_utelagazas.png': l5Img01,
+  '02_a_hazug_kezek.png': l5Img02,
+  '03_a_varazsuveg.png': l5Img03,
+  '04_a_furcsa_feliratok.png': l5Img04,
+  '05_a_gazlo.png': l5Img05,
+  '06_a_kiralylany.png': l5Img06,
+  'badge_tuz_es_jeg.png': badgeTuzEsJeg,
 };
 
 // Dynamic image glob to auto-detect any future assets placed in assets/images/
