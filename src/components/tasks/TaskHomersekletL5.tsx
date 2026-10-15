@@ -29,18 +29,14 @@ const usePreventFlipbookDrag = () => {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const stopCapture = (e: Event) => {
+    const stopBubble = (e: Event) => {
       e.stopPropagation();
     };
-    el.addEventListener('pointerdown', stopCapture, { capture: true });
-    el.addEventListener('mousedown', stopCapture, { capture: true });
-    el.addEventListener('touchstart', stopCapture, { capture: true });
-    el.addEventListener('click', stopCapture, { capture: true });
+    el.addEventListener('mousedown', stopBubble);
+    el.addEventListener('touchstart', stopBubble, { passive: true });
     return () => {
-      el.removeEventListener('pointerdown', stopCapture, { capture: true });
-      el.removeEventListener('mousedown', stopCapture, { capture: true });
-      el.removeEventListener('touchstart', stopCapture, { capture: true });
-      el.removeEventListener('click', stopCapture, { capture: true });
+      el.removeEventListener('mousedown', stopBubble);
+      el.removeEventListener('touchstart', stopBubble);
     };
   }, []);
   return containerRef;

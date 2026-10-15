@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { CheckCircle2, AlertCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
-import { checkAndSubmitTask } from '../../lib/supabase';
+import { CheckCircle2, AlertCircle, Sparkles, Send, Sun, CloudRain, RotateCcw } from 'lucide-react';
+import { checkAndSubmitTask, getSavedTaskState } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import confetti from 'canvas-confetti';
 import type { TaskSubmissionState, UserProfile } from '../../types';
 
-interface BaseTaskProps {
+export interface BaseTaskProps {
   user?: UserProfile | null;
   submissionState?: TaskSubmissionState;
   onSubmitted?: (state: TaskSubmissionState) => void;
@@ -22,24 +22,23 @@ const parseDecimal = (val: string): number | null => {
   return isNaN(num) ? null : num;
 };
 
-// Hook to prevent flipbook page turns when clicking inside task inputs
+// Hook to prevent flipbook page turns when clicking/dragging inside task inputs.
+// Uses BUBBLE phase so child elements (buttons, inputs) receive events first.
+// NEVER captures or stops click events!
 const usePreventFlipbookDrag = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const stopCapture = (e: Event) => {
+    const stopBubble = (e: Event) => {
+      // Prevent stPageFlip from starting page drag gesture on input interaction
       e.stopPropagation();
     };
-    el.addEventListener('pointerdown', stopCapture, { capture: true });
-    el.addEventListener('mousedown', stopCapture, { capture: true });
-    el.addEventListener('touchstart', stopCapture, { capture: true });
-    el.addEventListener('click', stopCapture, { capture: true });
+    el.addEventListener('mousedown', stopBubble);
+    el.addEventListener('touchstart', stopBubble, { passive: true });
     return () => {
-      el.removeEventListener('pointerdown', stopCapture, { capture: true });
-      el.removeEventListener('mousedown', stopCapture, { capture: true });
-      el.removeEventListener('touchstart', stopCapture, { capture: true });
-      el.removeEventListener('click', stopCapture, { capture: true });
+      el.removeEventListener('mousedown', stopBubble);
+      el.removeEventListener('touchstart', stopBubble);
     };
   }, []);
   return containerRef;
@@ -65,11 +64,30 @@ export const TaskSzamoljL6: React.FC<BaseTaskProps> = ({
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState(false);
 
+  // Restore saved state
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l6_a_szamolj');
+      if (saved?.completed) {
+        if (saved.answers?.t !== undefined) {
+          setTVal(String(saved.answers.t).replace('.', ','));
+        }
+        if (saved.answers?.fel_t !== undefined) {
+          setFelTVal(String(saved.answers.fel_t).replace('.', ','));
+        }
+        setIsCorrect(true);
+        setFeedbackMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, []);
+
   const isCompleted = isCorrect || submissionState?.isCompleted;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isCompleted && !isProjectorMode) return;
 
     const tNum = parseDecimal(tVal);
     const felTNum = parseDecimal(felTVal);
@@ -174,8 +192,8 @@ export const TaskSzamoljL6: React.FC<BaseTaskProps> = ({
         </span>
       </div>
 
-      {isCompleted ? (
-        <div className="p-3.5 bg-white/80 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] space-y-1">
+      {isCompleted && (
+        <div className="p-3 bg-white/90 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] mb-3 space-y-1">
           <p className="font-bold text-emerald-800 flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             {feedbackMessage || 'Sikeres próbatétel! 1 pont jóváírva.'}
@@ -184,59 +202,77 @@ export const TaskSzamoljL6: React.FC<BaseTaskProps> = ({
             <p className="italic text-[#2E1B14]/80">Megadott értékek: {submissionState.responseSummary}</p>
           )}
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-[#5A4232] mb-1">
-                Lengésidő (T):
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={tVal}
-                  onChange={(e) => setTVal(e.target.value)}
-                  placeholder="pl. 2,04"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">másodperc</span>
-              </div>
-            </div>
+      )}
 
-            <div>
-              <label className="block text-xs font-semibold text-[#5A4232] mb-1">
-                Féllengésidő:
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={felTVal}
-                  onChange={(e) => setFelTVal(e.target.value)}
-                  placeholder="pl. 1,02"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">másodperc</span>
-              </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-semibold text-[#5A4232] mb-1">
+              Lengésidő (T):
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={tVal}
+                onChange={(e) => setTVal(e.target.value)}
+                placeholder="pl. 2,04"
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">másodperc</span>
             </div>
           </div>
 
-          {errorMessage && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              <span>{errorMessage}</span>
+          <div>
+            <label className="block text-xs font-semibold text-[#5A4232] mb-1">
+              Féllengésidő:
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={felTVal}
+                onChange={(e) => setFelTVal(e.target.value)}
+                placeholder="pl. 1,02"
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">másodperc</span>
             </div>
-          )}
+          </div>
+        </div>
 
+        {errorMessage && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center gap-2 shadow cursor-pointer"
+            className="flex-1 px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow cursor-pointer active:scale-95"
           >
             <Send className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? 'Ellenőrzés folyamatban...' : 'Ellenőrzöm'}</span>
+            <span>{isSubmitting ? 'Ellenőrzés folyamatban...' : isCompleted ? 'Újraküldés / Mentés (+1 pont)' : 'Ellenőrzöm'}</span>
           </button>
-        </form>
-      )}
+          {isCompleted && (
+            <button
+              type="button"
+              onClick={() => {
+                setTVal('');
+                setFelTVal('');
+                setIsCorrect(false);
+                setFeedbackMessage(null);
+              }}
+              className="px-3 py-2.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Válasz törlése és újrakezdés"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Újrakezdés</span>
+            </button>
+          )}
+        </div>
+      </form>
     </div>
   );
 };
@@ -260,11 +296,27 @@ export const TaskValtsAtL6: React.FC<BaseTaskProps> = ({
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState(false);
 
+  // Restore saved state
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l6_b_valts_at');
+      if (saved?.completed) {
+        if (saved.answers?.ertek !== undefined) {
+          setVal(String(saved.answers.ertek));
+        }
+        setIsCorrect(true);
+        setFeedbackMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, []);
+
   const isCompleted = isCorrect || submissionState?.isCompleted;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isCompleted && !isProjectorMode) return;
 
     const num = parseDecimal(val);
     if (num === null) {
@@ -363,8 +415,8 @@ export const TaskValtsAtL6: React.FC<BaseTaskProps> = ({
         </p>
       </div>
 
-      {isCompleted ? (
-        <div className="p-3.5 bg-white/80 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] space-y-1">
+      {isCompleted && (
+        <div className="p-3 bg-white/90 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] mb-3 space-y-1">
           <p className="font-bold text-emerald-800 flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             {feedbackMessage || 'Sikeres próbatétel! 1 pont jóváírva.'}
@@ -373,41 +425,58 @@ export const TaskValtsAtL6: React.FC<BaseTaskProps> = ({
             <p className="italic text-[#2E1B14]/80">Megadott érték: {submissionState.responseSummary}</p>
           )}
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-[#5A4232] mb-1">
-              Időtartam másodpercben:
-            </label>
-            <div className="flex items-center gap-2 max-w-xs">
-              <input
-                type="text"
-                value={val}
-                onChange={(e) => setVal(e.target.value)}
-                placeholder="másodperc"
-                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-              />
-              <span className="text-xs font-bold text-[#5A4232] shrink-0">másodperc (s)</span>
-            </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-semibold text-[#5A4232] mb-1">
+            Időtartam másodpercben:
+          </label>
+          <div className="flex items-center gap-2 max-w-xs">
+            <input
+              type="text"
+              value={val}
+              onChange={(e) => setVal(e.target.value)}
+              placeholder="másodperc"
+              className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
+            />
+            <span className="text-xs font-bold text-[#5A4232] shrink-0">másodperc (s)</span>
           </div>
+        </div>
 
-          {errorMessage && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              <span>{errorMessage}</span>
-            </div>
-          )}
+        {errorMessage && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
 
+        <div className="flex items-center gap-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center gap-2 shadow cursor-pointer"
+            className="flex-1 px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow cursor-pointer active:scale-95"
           >
             <Send className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? 'Ellenőrzés folyamatban...' : 'Ellenőrzöm'}</span>
+            <span>{isSubmitting ? 'Ellenőrzés folyamatban...' : isCompleted ? 'Újraküldés / Mentés (+1 pont)' : 'Ellenőrzöm'}</span>
           </button>
-        </form>
-      )}
+          {isCompleted && (
+            <button
+              type="button"
+              onClick={() => {
+                setVal('');
+                setIsCorrect(false);
+                setFeedbackMessage(null);
+              }}
+              className="px-3 py-2.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Válasz törlése és újrakezdés"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Újrakezdés</span>
+            </button>
+          )}
+        </div>
+      </form>
     </div>
   );
 };
@@ -432,11 +501,30 @@ export const TaskIgazHamisL6: React.FC<BaseTaskProps> = ({
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState(false);
 
+  // Restore saved book state
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l6_c_igazhamis');
+      if (saved?.completed) {
+        if (typeof saved.answers?.valasz === 'boolean') {
+          setChoice(saved.answers.valasz);
+        }
+        if (typeof saved.answers?.indoklas === 'string') {
+          setIndoklas(saved.answers.indoklas);
+        }
+        setIsCorrect(true);
+        setFeedbackMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, []);
+
   const isCompleted = isCorrect || submissionState?.isCompleted;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isCompleted && !isProjectorMode) return;
 
     if (choice === null) {
       setErrorMessage('Kérlek, válaszd ki, hogy Igaz vagy Hamis!');
@@ -537,8 +625,8 @@ export const TaskIgazHamisL6: React.FC<BaseTaskProps> = ({
         </p>
       </div>
 
-      {isCompleted ? (
-        <div className="p-3.5 bg-white/80 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] space-y-1">
+      {isCompleted && (
+        <div className="p-3 bg-white/90 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] mb-3 space-y-1">
           <p className="font-bold text-emerald-800 flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             {feedbackMessage || 'Sikeres próbatétel! 1 pont jóváírva.'}
@@ -547,68 +635,106 @@ export const TaskIgazHamisL6: React.FC<BaseTaskProps> = ({
             <p className="italic text-[#2E1B14]/80">{submissionState.responseSummary}</p>
           )}
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-[#5A4232] mb-2">
-              Válaszd ki az állítás igazságtartalmát:
-            </label>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setChoice(true)}
-                className={`flex-1 py-2.5 px-4 rounded-xl font-serif font-bold text-xs sm:text-sm border transition-all cursor-pointer ${
-                  choice === true
-                    ? 'bg-[#B85042] text-white border-[#B85042] shadow-sm'
-                    : 'bg-white text-[#2E1B14] border-[#2E1B14]/20 hover:border-[#B85042]/50 hover:bg-[#B85042]/5'
-                }`}
-              >
-                Igaz
-              </button>
-              <button
-                type="button"
-                onClick={() => setChoice(false)}
-                className={`flex-1 py-2.5 px-4 rounded-xl font-serif font-bold text-xs sm:text-sm border transition-all cursor-pointer ${
-                  choice === false
-                    ? 'bg-[#B85042] text-white border-[#B85042] shadow-sm'
-                    : 'bg-white text-[#2E1B14] border-[#2E1B14]/20 hover:border-[#B85042]/50 hover:bg-[#B85042]/5'
-                }`}
-              >
-                Hamis
-              </button>
-            </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-semibold text-[#5A4232] mb-2">
+            Válaszd ki az állítás igazságtartalmát:
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setChoice(true);
+                soundFx.playWoodTap?.();
+              }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+              }}
+              className={`py-3 px-4 rounded-xl font-serif font-bold text-sm sm:text-base border-2 transition-all cursor-pointer flex items-center justify-center gap-2 select-none shadow-sm active:scale-95 ${
+                choice === true
+                  ? 'bg-[#B85042] text-white border-[#8B261D] shadow-md ring-2 ring-[#B85042]/30 scale-[1.01]'
+                  : 'bg-white text-[#2E1B14] border-[#2E1B14]/20 hover:border-[#B85042] hover:bg-[#B85042]/5'
+              }`}
+            >
+              <Sun className="w-4 h-4 pointer-events-none" />
+              <span className="pointer-events-none">Igaz</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setChoice(false);
+                soundFx.playWoodTap?.();
+              }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+              }}
+              className={`py-3 px-4 rounded-xl font-serif font-bold text-sm sm:text-base border-2 transition-all cursor-pointer flex items-center justify-center gap-2 select-none shadow-sm active:scale-95 ${
+                choice === false
+                  ? 'bg-[#B85042] text-white border-[#8B261D] shadow-md ring-2 ring-[#B85042]/30 scale-[1.01]'
+                  : 'bg-white text-[#2E1B14] border-[#2E1B14]/20 hover:border-[#B85042] hover:bg-[#B85042]/5'
+              }`}
+            >
+              <CloudRain className="w-4 h-4 pointer-events-none" />
+              <span className="pointer-events-none">Hamis</span>
+            </button>
           </div>
+        </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-[#5A4232] mb-1">
-              Rövid indoklás <span className="text-[11px] font-normal text-[#8C6D58]">(nem kötelező)</span>:
-            </label>
-            <textarea
-              value={indoklas}
-              onChange={(e) => setIndoklas(e.target.value)}
-              placeholder="Miért gondolod így? (nem kötelező leírni)"
-              rows={2}
-              className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-            />
+        <div>
+          <label className="block text-xs font-semibold text-[#5A4232] mb-1">
+            Rövid indoklás <span className="text-[11px] font-normal text-[#8C6D58]">(nem kötelező)</span>:
+          </label>
+          <textarea
+            value={indoklas}
+            onChange={(e) => setIndoklas(e.target.value)}
+            placeholder="Miért gondolod így? (nem kötelező leírni)"
+            rows={2}
+            className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
+          />
+        </div>
+
+        {errorMessage && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{errorMessage}</span>
           </div>
+        )}
 
-          {errorMessage && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              <span>{errorMessage}</span>
-            </div>
-          )}
-
+        <div className="flex items-center gap-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center gap-2 shadow cursor-pointer"
+            className="flex-1 px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow cursor-pointer active:scale-95"
           >
             <Send className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? 'Ellenőrzés folyamatban...' : 'Ellenőrzöm'}</span>
+            <span>
+              {isSubmitting
+                ? 'Ellenőrzés folyamatban...'
+                : isCompleted
+                ? 'Újraküldés / Mentés (+1 pont)'
+                : 'Ellenőrzöm (1 pont)'}
+            </span>
           </button>
-        </form>
-      )}
+          {isCompleted && (
+            <button
+              type="button"
+              onClick={() => {
+                setChoice(null);
+                setIndoklas('');
+                setIsCorrect(false);
+                setFeedbackMessage(null);
+              }}
+              className="px-3 py-2.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Válasz törlése és újrakezdés"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Újrakezdés</span>
+            </button>
+          )}
+        </div>
+      </form>
     </div>
   );
 };
@@ -632,12 +758,28 @@ export const TaskGondolkodjL6: React.FC<BaseTaskProps> = ({
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState(false);
 
+  // Restore saved book state
+  useEffect(() => {
+    const syncFromSaved = () => {
+      const saved = getSavedTaskState('l6_d_gondolkodj');
+      if (saved?.completed) {
+        if (typeof saved.answers?.szoveg === 'string') {
+          setText(saved.answers.szoveg);
+        }
+        setIsCorrect(true);
+        setFeedbackMessage('Kitöltve és elmentve a könyvbe! (+1 pont)');
+      }
+    };
+    syncFromSaved();
+    window.addEventListener('mero-miska-book-updated', syncFromSaved);
+    return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
+  }, []);
+
   const isCompleted = isCorrect || submissionState?.isCompleted;
   const charCount = text.trim().length;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isCompleted && !isProjectorMode) return;
 
     if (charCount < 15) {
       setErrorMessage(`Kérlek, fejtsd ki bővebben a válaszodat saját szavaiddal! Legalább 15 karakter szükséges (jelenleg: ${charCount} karakter).`);
@@ -735,8 +877,8 @@ export const TaskGondolkodjL6: React.FC<BaseTaskProps> = ({
         </p>
       </div>
 
-      {isCompleted ? (
-        <div className="p-3.5 bg-white/80 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] space-y-1">
+      {isCompleted && (
+        <div className="p-3 bg-white/90 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] mb-3 space-y-1">
           <p className="font-bold text-emerald-800 flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             {feedbackMessage || 'Sikeres próbatétel! 1 pont jóváírva.'}
@@ -745,41 +887,58 @@ export const TaskGondolkodjL6: React.FC<BaseTaskProps> = ({
             <p className="italic text-[#2E1B14]/80">„{submissionState.responseSummary}”</p>
           )}
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Írd ide a magyarázatodat saját szavaiddal..."
-              rows={isProjectorMode ? 3 : 4}
-              className="w-full p-3 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-            />
-            <div className="flex justify-between items-center text-[10px] text-[#8C6D58] mt-1 px-1">
-              <span>Legalább kb. 15–20 karakter szükséges</span>
-              <span className={charCount >= 15 ? 'text-emerald-700 font-bold' : ''}>
-                {charCount} karakter
-              </span>
-            </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <div>
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Írd ide a magyarázatodat saját szavaiddal..."
+            rows={isProjectorMode ? 3 : 4}
+            className="w-full p-3 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
+          />
+          <div className="flex justify-between items-center text-[10px] text-[#8C6D58] mt-1 px-1">
+            <span>Legalább kb. 15–20 karakter szükséges</span>
+            <span className={charCount >= 15 ? 'text-emerald-700 font-bold' : ''}>
+              {charCount} karakter
+            </span>
           </div>
+        </div>
 
-          {errorMessage && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              <span>{errorMessage}</span>
-            </div>
-          )}
+        {errorMessage && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
 
+        <div className="flex items-center gap-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center gap-2 shadow cursor-pointer"
+            className="flex-1 px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow cursor-pointer active:scale-95"
           >
             <Send className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? 'Ellenőrzés folyamatban...' : 'Ellenőrzöm'}</span>
+            <span>{isSubmitting ? 'Ellenőrzés folyamatban...' : isCompleted ? 'Újraküldés / Mentés (+1 pont)' : 'Ellenőrzöm'}</span>
           </button>
-        </form>
-      )}
+          {isCompleted && (
+            <button
+              type="button"
+              onClick={() => {
+                setText('');
+                setIsCorrect(false);
+                setFeedbackMessage(null);
+              }}
+              className="px-3 py-2.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Válasz törlése és újrakezdés"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Újrakezdés</span>
+            </button>
+          )}
+        </div>
+      </form>
     </div>
   );
 };

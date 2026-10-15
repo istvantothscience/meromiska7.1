@@ -41,18 +41,14 @@ export const TaskSzamoljL6: React.FC<Props> = ({ user, onPointsUpdated, onComple
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const stopCapturing = (e: Event) => {
+    const stopBubble = (e: Event) => {
       e.stopPropagation();
     };
-    el.addEventListener('pointerdown', stopCapturing, { capture: true });
-    el.addEventListener('mousedown', stopCapturing, { capture: true });
-    el.addEventListener('touchstart', stopCapturing, { capture: true });
-    el.addEventListener('click', stopCapturing, { capture: true });
+    el.addEventListener('mousedown', stopBubble);
+    el.addEventListener('touchstart', stopBubble, { passive: true });
     return () => {
-      el.removeEventListener('pointerdown', stopCapturing, { capture: true });
-      el.removeEventListener('mousedown', stopCapturing, { capture: true });
-      el.removeEventListener('touchstart', stopCapturing, { capture: true });
-      el.removeEventListener('click', stopCapturing, { capture: true });
+      el.removeEventListener('mousedown', stopBubble);
+      el.removeEventListener('touchstart', stopBubble);
     };
   }, []);
 

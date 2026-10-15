@@ -39,22 +39,18 @@ export const TaskIgazHamisL6: React.FC<Props> = ({ user, onPointsUpdated, onComp
     return () => window.removeEventListener('mero-miska-book-updated', syncFromSaved);
   }, [user]);
 
-  // Prevent flipbook from capturing clicks/touches on task inputs
+  // Prevent flipbook from dragging on task inputs (bubble phase, never block click)
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const stopCapturing = (e: Event) => {
+    const stopBubble = (e: Event) => {
       e.stopPropagation();
     };
-    el.addEventListener('pointerdown', stopCapturing, { capture: true });
-    el.addEventListener('mousedown', stopCapturing, { capture: true });
-    el.addEventListener('touchstart', stopCapturing, { capture: true });
-    el.addEventListener('click', stopCapturing, { capture: true });
+    el.addEventListener('mousedown', stopBubble);
+    el.addEventListener('touchstart', stopBubble, { passive: true });
     return () => {
-      el.removeEventListener('pointerdown', stopCapturing, { capture: true });
-      el.removeEventListener('mousedown', stopCapturing, { capture: true });
-      el.removeEventListener('touchstart', stopCapturing, { capture: true });
-      el.removeEventListener('click', stopCapturing, { capture: true });
+      el.removeEventListener('mousedown', stopBubble);
+      el.removeEventListener('touchstart', stopBubble);
     };
   }, []);
 
@@ -148,36 +144,36 @@ export const TaskIgazHamisL6: React.FC<Props> = ({ user, onPointsUpdated, onComp
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              disabled={isDone || status === 'submitting'}
+              disabled={status === 'submitting'}
               onClick={() => {
                 setValasz(true);
                 soundFx.playWoodTap();
               }}
-              className={`py-3 px-4 rounded-xl border-2 font-serif font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`py-3 px-4 rounded-xl border-2 font-serif font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer select-none active:scale-95 ${
                 valasz === true
                   ? 'bg-[#B85042] text-white border-[#8B261D] shadow-md scale-[1.01]'
                   : 'bg-white/90 text-[#2E1B14] border-[#A7BEAE] hover:border-[#B85042]'
-              } ${isDone ? 'opacity-90 cursor-default' : ''}`}
+              }`}
             >
-              <Sun className="w-4 h-4" />
-              <span>Igaz</span>
+              <Sun className="w-4 h-4 pointer-events-none" />
+              <span className="pointer-events-none">Igaz</span>
             </button>
 
             <button
               type="button"
-              disabled={isDone || status === 'submitting'}
+              disabled={status === 'submitting'}
               onClick={() => {
                 setValasz(false);
                 soundFx.playWoodTap();
               }}
-              className={`py-3 px-4 rounded-xl border-2 font-serif font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`py-3 px-4 rounded-xl border-2 font-serif font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer select-none active:scale-95 ${
                 valasz === false
                   ? 'bg-[#B85042] text-white border-[#8B261D] shadow-md scale-[1.01]'
                   : 'bg-white/90 text-[#2E1B14] border-[#A7BEAE] hover:border-[#B85042]'
-              } ${isDone ? 'opacity-90 cursor-default' : ''}`}
+              }`}
             >
-              <CloudRain className="w-4 h-4" />
-              <span>Hamis</span>
+              <CloudRain className="w-4 h-4 pointer-events-none" />
+              <span className="pointer-events-none">Hamis</span>
             </button>
           </div>
 
