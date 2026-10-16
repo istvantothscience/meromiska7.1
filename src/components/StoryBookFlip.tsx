@@ -840,7 +840,7 @@ export const StoryBookFlip: React.FC<Props> = ({
                       <strong>T(°C) = (T(°F) - 32) / 1,8</strong>
                     </p>
                     <p>
-                      Példa: 122 °F → (122 - 32) = 90 → 90 / 1,8 = 50 °C.
+                      Példa: 68 °F → (68 - 32) = 36 → 36 / 1,8 = 20 °C.
                     </p>
                   </div>
                 </div>

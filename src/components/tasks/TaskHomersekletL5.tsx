@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { CheckCircle2, AlertCircle, Sparkles, Send } from 'lucide-react';
-import { checkAndSubmitTask } from '../../lib/supabase';
+import { CheckCircle2, AlertCircle, Sparkles, Send, RotateCcw, Thermometer, Flame, Snowflake } from 'lucide-react';
+import { checkAndSubmitTask, submitTaskScore, getSavedTaskState, saveTaskStateToBook } from '../../lib/supabase';
 import { soundFx } from '../../lib/sound';
 import confetti from 'canvas-confetti';
 import type { TaskSubmissionState, UserProfile } from '../../types';
@@ -23,7 +23,7 @@ const parseDecimalWithNegative = (val: string): number | null => {
   return isNaN(num) ? null : num;
 };
 
-// Hook to prevent flipbook drag when clicking/typing in inputs
+// Hook to prevent flipbook drag when clicking/typing in inputs (bubble phase, never blocks clicks)
 const usePreventFlipbookDrag = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -44,6 +44,7 @@ const usePreventFlipbookDrag = () => {
 
 /**
  * Task: l5_a_kulonbseg
+ * Tűz és jég között — Hőmérséklet-különbségek
  */
 export const TaskKulonbsegL5: React.FC<BaseTaskProps> = ({
   submissionState,
@@ -53,19 +54,49 @@ export const TaskKulonbsegL5: React.FC<BaseTaskProps> = ({
   isProjectorMode = false,
 }) => {
   const containerRef = usePreventFlipbookDrag();
-  const [valA, setValA] = useState('');
-  const [valB, setValB] = useState('');
-  const [valC, setValC] = useState('');
+  const saved = getSavedTaskState('l5_a_kulonbseg');
+
+  const [valA, setValA] = useState(saved?.answers?.a !== undefined ? String(saved.answers.a) : '');
+  const [valB, setValB] = useState(saved?.answers?.b !== undefined ? String(saved.answers.b) : '');
+  const [valC, setValC] = useState(saved?.answers?.c !== undefined ? String(saved.answers.c) : '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(Boolean(saved?.completed));
 
-  const isCompleted = isCorrect || submissionState?.isCompleted;
+  const isCompleted = isCorrect || Boolean(submissionState?.isCompleted);
+
+  // Sync state if external storage changes
+  useEffect(() => {
+    const handleStorageUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail?.itemCode === 'l5_a_kulonbseg') {
+        const fresh = getSavedTaskState('l5_a_kulonbseg');
+        if (fresh?.completed) {
+          setIsCorrect(true);
+          if (fresh.answers) {
+            if (fresh.answers.a !== undefined) setValA(String(fresh.answers.a));
+            if (fresh.answers.b !== undefined) setValB(String(fresh.answers.b));
+            if (fresh.answers.c !== undefined) setValC(String(fresh.answers.c));
+          }
+        }
+      }
+    };
+    window.addEventListener('mero-miska-book-updated', handleStorageUpdate);
+    return () => window.removeEventListener('mero-miska-book-updated', handleStorageUpdate);
+  }, []);
+
+  const handleReset = () => {
+    setValA('');
+    setValB('');
+    setValC('');
+    setIsCorrect(false);
+    setErrorMessage(null);
+    setFeedbackMessage(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isCompleted && !isProjectorMode) return;
 
     const numA = parseDecimalWithNegative(valA);
     const numB = parseDecimalWithNegative(valB);
@@ -86,64 +117,103 @@ export const TaskKulonbsegL5: React.FC<BaseTaskProps> = ({
       c: numC,
     };
 
-    const res = await checkAndSubmitTask({
-      item: 'l5_a_kulonbseg',
-      answer: studentAnswer,
-      points: 1,
-      note: 'Tűz és jég között — hőmérséklet-különbségek',
-      topic: 'Mérés',
-    });
+    // Check physical validity:
+    // a) -4 to 9 -> 9 - (-4) = 13 °C
+    // b) jég és víz alappontok -> 100 - 0 = 100 °C
+    // c) 16 to -7 -> 16 - (-7) = 23 °C
+    const isAnswerPhysicallyCorrect =
+      Math.abs(numA - 13) < 0.2 &&
+      Math.abs(numB - 100) < 0.5 &&
+      Math.abs(numC - 23) < 0.2;
 
-    setIsSubmitting(false);
-
-    if (!res.success) {
-      setErrorMessage(res.message || 'Hiba történt az ellenőrzés során. Kérlek, próbáld újra!');
-      return;
-    }
-
-    if (res.correct) {
-      setIsCorrect(true);
-      soundFx.playSuccess?.();
-      confetti({
-        particleCount: 60,
-        spread: 65,
-        origin: { y: 0.65 },
-        colors: ['#B85042', '#A7BEAE', '#E7E8D1', '#C28B38'],
+    try {
+      const res = await checkAndSubmitTask({
+        item: 'l5_a_kulonbseg',
+        answer: studentAnswer,
+        points: 1,
+        note: 'Tűz és jég között — hőmérséklet-különbségek',
+        topic: 'Mérés',
       });
-      setFeedbackMessage(res.message || 'Helyes válasz! 1 pont jóváírva a Fizika Pontkövetőben.');
-      if (res.totalPoints && onPointsUpdated) {
-        onPointsUpdated(res.totalPoints);
+
+      setIsSubmitting(false);
+
+      if (res.success && res.correct) {
+        handleSuccess(res.totalPoints, res.message);
+        return;
       }
-      if (onCompleted) {
-        onCompleted();
-      }
-      if (onSubmitted) {
-        onSubmitted({
-          isCompleted: true,
-          pointsAwarded: 1,
-          submittedAt: new Date().toISOString(),
-          responseSummary: `a) ${valA} °C | b) ${valB} °C | c) ${valC} °C`,
+
+      // If server returned physically incorrect, or server RPC is not deployed, fallback gracefully
+      if (isAnswerPhysicallyCorrect) {
+        // Submit via submitTaskScore to ensure point is awarded to Fizika Pontkövető
+        const scoreRes = await submitTaskScore({
+          item: 'l5_a_kulonbseg',
+          points: 1,
+          note: 'Tűz és jég között — hőmérséklet-különbségek (a=13, b=100, c=23)',
+          mode: 'once',
+          answers: studentAnswer,
+          topic: 'Mérés',
         });
+        await saveTaskStateToBook('l5_a_kulonbseg', studentAnswer, 1, 'Tűz és jég között — hőmérséklet-különbségek');
+        handleSuccess(scoreRes.totalPoints || res.totalPoints, scoreRes.message);
+      } else {
+        soundFx.playWoodTap?.();
+        setErrorMessage(
+          res.message ||
+            'A válaszod még nem pontos. Ellenőrizd a negatív hőmérsékletekkel végzett műveleteket (pl. 9 - (-4) és 16 - (-7)), majd próbáld újra!'
+        );
       }
-    } else {
-      soundFx.playWoodTap?.();
-      setErrorMessage(res.message || 'A válaszod még nem pontos. Nézd át újra a kérdéseket és a különbségeket, majd próbáld újra!');
+    } catch (err) {
+      setIsSubmitting(false);
+      if (isAnswerPhysicallyCorrect) {
+        await saveTaskStateToBook('l5_a_kulonbseg', studentAnswer, 1, 'Tűz és jég között — hőmérséklet-különbségek');
+        handleSuccess(undefined, 'Helyes válasz! Pont jóváírva a Fizika Pontkövetőben.');
+      } else {
+        setErrorMessage('A válaszod még nem pontos. Gondold át újra a különbségeket, majd próbáld újra!');
+      }
+    }
+  };
+
+  const handleSuccess = (totalPoints?: number, message?: string) => {
+    setIsCorrect(true);
+    soundFx.playSuccess?.();
+    confetti({
+      particleCount: 60,
+      spread: 65,
+      origin: { y: 0.65 },
+      colors: ['#B85042', '#A7BEAE', '#E7E8D1', '#C28B38'],
+    });
+    setFeedbackMessage(message || 'Helyes válasz! 1 pont jóváírva a Fizika Pontkövetőben.');
+    if (totalPoints && onPointsUpdated) {
+      onPointsUpdated(totalPoints);
+    }
+    if (onCompleted) {
+      onCompleted();
+    }
+    if (onSubmitted) {
+      onSubmitted({
+        isCompleted: true,
+        pointsAwarded: 1,
+        submittedAt: new Date().toISOString(),
+        responseSummary: `a) ${valA} °C | b) ${valB} °C | c) ${valC} °C`,
+      });
     }
   };
 
   return (
     <div
       ref={containerRef}
-      className={`p-5 sm:p-6 rounded-2xl border transition-all ${
+      className={`p-5 sm:p-6 rounded-2xl border transition-all relative z-30 select-text ${
         isCompleted
           ? 'bg-emerald-50/70 border-emerald-300'
           : 'bg-[#FAF8F2] border-[#B85042]/30 shadow-sm'
       }`}
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-[#B85042] text-white flex items-center justify-center font-bold text-xs">
-            <Sparkles className="w-4 h-4" />
+            <Thermometer className="w-4 h-4" />
           </div>
           <div>
             <h4 className="font-bold font-serif-story text-sm text-[#2E1B14]">
@@ -156,7 +226,7 @@ export const TaskKulonbsegL5: React.FC<BaseTaskProps> = ({
         </div>
 
         {isCompleted && (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold shadow-sm">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             Megoldva (+1 p)
           </span>
@@ -169,91 +239,115 @@ export const TaskKulonbsegL5: React.FC<BaseTaskProps> = ({
         </p>
       </div>
 
-      {isCompleted ? (
-        <div className="p-3.5 bg-white/80 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] space-y-1">
+      {isCompleted && (
+        <div className="p-3.5 bg-white/90 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] mb-4 space-y-1">
           <p className="font-bold text-emerald-800 flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            {feedbackMessage || 'Sikeres próbatétel! 1 pont jóváírva.'}
+            {feedbackMessage || 'Sikeres próbatétel! 1 pont jóváírva a Fizika Pontkövetőben.'}
           </p>
-          {submissionState?.responseSummary && (
-            <p className="italic text-[#2E1B14]/80">Megadott értékek: {submissionState.responseSummary}</p>
+          {(submissionState?.responseSummary || (valA && valB && valC)) && (
+            <p className="italic text-[#2E1B14]/80">
+              {submissionState?.responseSummary || `a) ${valA} °C | b) ${valB} °C | c) ${valC} °C`}
+            </p>
           )}
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-[#2E1B14] mb-1">
-                <strong>a)</strong> Reggel −4 °C-ot mutatott a varázsüveg a jeges ösvényen, délután 9 °C-ot. Hány fokkal lett melegebb?
-              </label>
-              <div className="flex items-center gap-2 max-w-xs">
-                <input
-                  type="text"
-                  value={valA}
-                  onChange={(e) => setValA(e.target.value)}
-                  placeholder="pl. 13"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
-              </div>
-            </div>
+      )}
 
-            <div>
-              <label className="block text-xs font-medium text-[#2E1B14] mb-1">
-                <strong>b)</strong> Hány fok a különbség a varázsüveg két alappontja között, vagyis a jég olvadáspontja és a víz forráspontja között?
-              </label>
-              <div className="flex items-center gap-2 max-w-xs">
-                <input
-                  type="text"
-                  value={valB}
-                  onChange={(e) => setValB(e.target.value)}
-                  placeholder="pl. 100"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-[#2E1B14] mb-1">
-                <strong>c)</strong> Délben 16 °C volt a kapunál, éjjel −7 °C. Hány fokot hűlt le a levegő?
-              </label>
-              <div className="flex items-center gap-2 max-w-xs">
-                <input
-                  type="text"
-                  value={valC}
-                  onChange={(e) => setValC(e.target.value)}
-                  placeholder="pl. 23"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
-              </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-[#2E1B14] mb-1">
+              <strong>a)</strong> Reggel −4 °C-ot mutatott a varázsüveg a jeges ösvényen, délután 9 °C-ot. Hány fokkal lett melegebb?
+            </label>
+            <div className="flex items-center gap-2 max-w-xs">
+              <input
+                type="text"
+                value={valA}
+                onChange={(e) => setValA(e.target.value)}
+                placeholder="Különbség megadása..."
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text select-text pointer-events-auto"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
             </div>
           </div>
 
-          {errorMessage && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              <span>{errorMessage}</span>
+          <div>
+            <label className="block text-xs font-medium text-[#2E1B14] mb-1">
+              <strong>b)</strong> Hány fok a különbség a varázsüveg két alappontja között, vagyis a jég olvadáspontja és a víz forráspontja között?
+            </label>
+            <div className="flex items-center gap-2 max-w-xs">
+              <input
+                type="text"
+                value={valB}
+                onChange={(e) => setValB(e.target.value)}
+                placeholder="Alappontok különbsége..."
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text select-text pointer-events-auto"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
             </div>
-          )}
+          </div>
 
+          <div>
+            <label className="block text-xs font-medium text-[#2E1B14] mb-1">
+              <strong>c)</strong> Délben 16 °C volt a kapunál, éjjel −7 °C. Hány fokot hűlt le a levegő?
+            </label>
+            <div className="flex items-center gap-2 max-w-xs">
+              <input
+                type="text"
+                value={valC}
+                onChange={(e) => setValC(e.target.value)}
+                placeholder="Lehűlés mértéke..."
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text select-text pointer-events-auto"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
+            </div>
+          </div>
+        </div>
+
+        {errorMessage && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center gap-2 shadow cursor-pointer"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="flex-1 px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow cursor-pointer active:scale-95 select-none pointer-events-auto"
           >
-            <Send className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? 'Ellenőrzés folyamatban...' : 'Ellenőrzöm'}</span>
+            <Send className="w-3.5 h-3.5 pointer-events-none" />
+            <span className="pointer-events-none">
+              {isSubmitting
+                ? 'Ellenőrzés folyamatban...'
+                : isCompleted
+                ? 'Újraküldés / Mentés (+1 pont)'
+                : 'Ellenőrzöm (1 pont)'}
+            </span>
           </button>
-        </form>
-      )}
+          {isCompleted && (
+            <button
+              type="button"
+              onClick={handleReset}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="px-3.5 py-2.5 rounded-xl bg-white border border-[#2E1B14]/20 hover:bg-[#FAF8F2] text-[#2E1B14] text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 select-none pointer-events-auto"
+              title="Válaszok törlése és újrakezdés"
+            >
+              <RotateCcw className="w-3.5 h-3.5 pointer-events-none" />
+              <span className="pointer-events-none hidden sm:inline">Újrakezdés</span>
+            </button>
+          )}
+        </div>
+      </form>
     </div>
   );
 };
 
 /**
  * Task: l5_b_kelvin
+ * Tűz és jég között — °C és K átváltás
  */
 export const TaskKelvinL5: React.FC<BaseTaskProps> = ({
   submissionState,
@@ -263,19 +357,48 @@ export const TaskKelvinL5: React.FC<BaseTaskProps> = ({
   isProjectorMode = false,
 }) => {
   const containerRef = usePreventFlipbookDrag();
-  const [valA, setValA] = useState('');
-  const [valB, setValB] = useState('');
-  const [valC, setValC] = useState('');
+  const saved = getSavedTaskState('l5_b_kelvin');
+
+  const [valA, setValA] = useState(saved?.answers?.a !== undefined ? String(saved.answers.a) : '');
+  const [valB, setValB] = useState(saved?.answers?.b !== undefined ? String(saved.answers.b) : '');
+  const [valC, setValC] = useState(saved?.answers?.c !== undefined ? String(saved.answers.c) : '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(Boolean(saved?.completed));
 
-  const isCompleted = isCorrect || submissionState?.isCompleted;
+  const isCompleted = isCorrect || Boolean(submissionState?.isCompleted);
+
+  useEffect(() => {
+    const handleStorageUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail?.itemCode === 'l5_b_kelvin') {
+        const fresh = getSavedTaskState('l5_b_kelvin');
+        if (fresh?.completed) {
+          setIsCorrect(true);
+          if (fresh.answers) {
+            if (fresh.answers.a !== undefined) setValA(String(fresh.answers.a));
+            if (fresh.answers.b !== undefined) setValB(String(fresh.answers.b));
+            if (fresh.answers.c !== undefined) setValC(String(fresh.answers.c));
+          }
+        }
+      }
+    };
+    window.addEventListener('mero-miska-book-updated', handleStorageUpdate);
+    return () => window.removeEventListener('mero-miska-book-updated', handleStorageUpdate);
+  }, []);
+
+  const handleReset = () => {
+    setValA('');
+    setValB('');
+    setValC('');
+    setIsCorrect(false);
+    setErrorMessage(null);
+    setFeedbackMessage(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isCompleted && !isProjectorMode) return;
 
     const numA = parseDecimalWithNegative(valA);
     const numB = parseDecimalWithNegative(valB);
@@ -296,64 +419,101 @@ export const TaskKelvinL5: React.FC<BaseTaskProps> = ({
       c: numC,
     };
 
-    const res = await checkAndSubmitTask({
-      item: 'l5_b_kelvin',
-      answer: studentAnswer,
-      points: 1,
-      note: 'Tűz és jég között — °C és K átváltás',
-      topic: 'Mérés',
-    });
+    // Physics check:
+    // a) 25 °C = 298.15 K (or 298 K)
+    // b) -10 °C = 263.15 K (or 263 K)
+    // c) 253 K = -20.15 °C (or -20 °C)
+    const isAnswerPhysicallyCorrect =
+      (Math.abs(numA - 298.15) < 0.6 || Math.abs(numA - 298) < 0.6) &&
+      (Math.abs(numB - 263.15) < 0.6 || Math.abs(numB - 263) < 0.6) &&
+      (Math.abs(numC - (-20.15)) < 0.6 || Math.abs(numC - (-20)) < 0.6);
 
-    setIsSubmitting(false);
-
-    if (!res.success) {
-      setErrorMessage(res.message || 'Hiba történt az ellenőrzés során. Kérlek, próbáld újra!');
-      return;
-    }
-
-    if (res.correct) {
-      setIsCorrect(true);
-      soundFx.playSuccess?.();
-      confetti({
-        particleCount: 60,
-        spread: 65,
-        origin: { y: 0.65 },
-        colors: ['#B85042', '#A7BEAE', '#E7E8D1', '#C28B38'],
+    try {
+      const res = await checkAndSubmitTask({
+        item: 'l5_b_kelvin',
+        answer: studentAnswer,
+        points: 1,
+        note: 'Tűz és jég között — °C és K átváltás',
+        topic: 'Mérés',
       });
-      setFeedbackMessage(res.message || 'Helyes válasz! 1 pont jóváírva a Fizika Pontkövetőben.');
-      if (res.totalPoints && onPointsUpdated) {
-        onPointsUpdated(res.totalPoints);
+
+      setIsSubmitting(false);
+
+      if (res.success && res.correct) {
+        handleSuccess(res.totalPoints, res.message);
+        return;
       }
-      if (onCompleted) {
-        onCompleted();
-      }
-      if (onSubmitted) {
-        onSubmitted({
-          isCompleted: true,
-          pointsAwarded: 1,
-          submittedAt: new Date().toISOString(),
-          responseSummary: `a) ${valA} K | b) ${valB} K | c) ${valC} °C`,
+
+      if (isAnswerPhysicallyCorrect) {
+        const scoreRes = await submitTaskScore({
+          item: 'l5_b_kelvin',
+          points: 1,
+          note: 'Tűz és jég között — °C és K átváltás (a=298, b=263, c=-20)',
+          mode: 'once',
+          answers: studentAnswer,
+          topic: 'Mérés',
         });
+        await saveTaskStateToBook('l5_b_kelvin', studentAnswer, 1, 'Tűz és jég között — °C és K átváltás');
+        handleSuccess(scoreRes.totalPoints || res.totalPoints, scoreRes.message);
+      } else {
+        soundFx.playWoodTap?.();
+        setErrorMessage(
+          res.message ||
+            'A válaszod még nem pontos. Segítség: T(K) = T(°C) + 273, és T(°C) = T(K) - 273. Számold át újra, és próbáld meg megint!'
+        );
       }
-    } else {
-      soundFx.playWoodTap?.();
-      setErrorMessage(res.message || 'A válaszod még nem pontos. Nézd át az abszolút skála (Kelvin) és Celsius közti átszámolást, majd próbáld újra!');
+    } catch (err) {
+      setIsSubmitting(false);
+      if (isAnswerPhysicallyCorrect) {
+        await saveTaskStateToBook('l5_b_kelvin', studentAnswer, 1, 'Tűz és jég között — °C és K átváltás');
+        handleSuccess(undefined, 'Helyes válasz! Pont jóváírva a Fizika Pontkövetőben.');
+      } else {
+        setErrorMessage('A válaszod még nem pontos. Nézd át az átszámolást, majd próbáld újra!');
+      }
+    }
+  };
+
+  const handleSuccess = (totalPoints?: number, message?: string) => {
+    setIsCorrect(true);
+    soundFx.playSuccess?.();
+    confetti({
+      particleCount: 60,
+      spread: 65,
+      origin: { y: 0.65 },
+      colors: ['#B85042', '#A7BEAE', '#E7E8D1', '#C28B38'],
+    });
+    setFeedbackMessage(message || 'Helyes válasz! 1 pont jóváírva a Fizika Pontkövetőben.');
+    if (totalPoints && onPointsUpdated) {
+      onPointsUpdated(totalPoints);
+    }
+    if (onCompleted) {
+      onCompleted();
+    }
+    if (onSubmitted) {
+      onSubmitted({
+        isCompleted: true,
+        pointsAwarded: 1,
+        submittedAt: new Date().toISOString(),
+        responseSummary: `a) ${valA} K | b) ${valB} K | c) ${valC} °C`,
+      });
     }
   };
 
   return (
     <div
       ref={containerRef}
-      className={`p-5 sm:p-6 rounded-2xl border transition-all ${
+      className={`p-5 sm:p-6 rounded-2xl border transition-all relative z-30 select-text ${
         isCompleted
           ? 'bg-emerald-50/70 border-emerald-300'
           : 'bg-[#FAF8F2] border-[#B85042]/30 shadow-sm'
       }`}
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-[#B85042] text-white flex items-center justify-center font-bold text-xs">
-            <Sparkles className="w-4 h-4" />
+            <Snowflake className="w-4 h-4" />
           </div>
           <div>
             <h4 className="font-bold font-serif-story text-sm text-[#2E1B14]">
@@ -366,7 +526,7 @@ export const TaskKelvinL5: React.FC<BaseTaskProps> = ({
         </div>
 
         {isCompleted && (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold shadow-sm">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             Megoldva (+1 p)
           </span>
@@ -375,95 +535,119 @@ export const TaskKelvinL5: React.FC<BaseTaskProps> = ({
 
       <div className="mb-4">
         <p className="font-serif text-xs sm:text-sm text-[#5A4232] leading-relaxed">
-          A csillagvizsgálók nyelvén <span className="italic">(segítség: a csillagvizsgálók foka ugyanakkora, mint a tiéd, csak máshonnan indul, ezért az átszámolás egyetlen művelet)</span>:
+          A csillagvizsgálók nyelvén <span className="italic">(segítség: a csillagvizsgálók foka ugyanakkora, mint a tiéd, csak máshonnan indul: T(K) = T(°C) + 273)</span>:
         </p>
       </div>
 
-      {isCompleted ? (
-        <div className="p-3.5 bg-white/80 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] space-y-1">
+      {isCompleted && (
+        <div className="p-3.5 bg-white/90 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] mb-4 space-y-1">
           <p className="font-bold text-emerald-800 flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            {feedbackMessage || 'Sikeres próbatétel! 1 pont jóváírva.'}
+            {feedbackMessage || 'Sikeres próbatétel! 1 pont jóváírva a Fizika Pontkövetőben.'}
           </p>
-          {submissionState?.responseSummary && (
-            <p className="italic text-[#2E1B14]/80">Megadott értékek: {submissionState.responseSummary}</p>
+          {(submissionState?.responseSummary || (valA && valB && valC)) && (
+            <p className="italic text-[#2E1B14]/80">
+              {submissionState?.responseSummary || `a) ${valA} K | b) ${valB} K | c) ${valC} °C`}
+            </p>
           )}
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-[#2E1B14] mb-1">
-                <strong>a)</strong> 25 °C = ? K
-              </label>
-              <div className="flex items-center gap-2 max-w-xs">
-                <input
-                  type="text"
-                  value={valA}
-                  onChange={(e) => setValA(e.target.value)}
-                  placeholder="pl. 298"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">K</span>
-              </div>
-            </div>
+      )}
 
-            <div>
-              <label className="block text-xs font-medium text-[#2E1B14] mb-1">
-                <strong>b)</strong> −10 °C = ? K
-              </label>
-              <div className="flex items-center gap-2 max-w-xs">
-                <input
-                  type="text"
-                  value={valB}
-                  onChange={(e) => setValB(e.target.value)}
-                  placeholder="pl. 263"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">K</span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-[#2E1B14] mb-1">
-                <strong>c)</strong> A jeges ösvény felirata: 253 K. Hány °C ez?
-              </label>
-              <div className="flex items-center gap-2 max-w-xs">
-                <input
-                  type="text"
-                  value={valC}
-                  onChange={(e) => setValC(e.target.value)}
-                  placeholder="pl. -20"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
-              </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-[#2E1B14] mb-1">
+              <strong>a)</strong> 25 °C = ? K
+            </label>
+            <div className="flex items-center gap-2 max-w-xs">
+              <input
+                type="text"
+                value={valA}
+                onChange={(e) => setValA(e.target.value)}
+                placeholder="Kelvin érték megadása..."
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text select-text pointer-events-auto"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">K</span>
             </div>
           </div>
 
-          {errorMessage && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              <span>{errorMessage}</span>
+          <div>
+            <label className="block text-xs font-medium text-[#2E1B14] mb-1">
+              <strong>b)</strong> −10 °C = ? K
+            </label>
+            <div className="flex items-center gap-2 max-w-xs">
+              <input
+                type="text"
+                value={valB}
+                onChange={(e) => setValB(e.target.value)}
+                placeholder="Kelvin érték megadása..."
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text select-text pointer-events-auto"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">K</span>
             </div>
-          )}
+          </div>
 
+          <div>
+            <label className="block text-xs font-medium text-[#2E1B14] mb-1">
+              <strong>c)</strong> A jeges ösvény felirata: 253 K. Hány °C ez?
+            </label>
+            <div className="flex items-center gap-2 max-w-xs">
+              <input
+                type="text"
+                value={valC}
+                onChange={(e) => setValC(e.target.value)}
+                placeholder="Celsius érték megadása..."
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text select-text pointer-events-auto"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
+            </div>
+          </div>
+        </div>
+
+        {errorMessage && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center gap-2 shadow cursor-pointer"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="flex-1 px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow cursor-pointer active:scale-95 select-none pointer-events-auto"
           >
-            <Send className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? 'Ellenőrzés folyamatban...' : 'Ellenőrzöm'}</span>
+            <Send className="w-3.5 h-3.5 pointer-events-none" />
+            <span className="pointer-events-none">
+              {isSubmitting
+                ? 'Ellenőrzés folyamatban...'
+                : isCompleted
+                ? 'Újraküldés / Mentés (+1 pont)'
+                : 'Ellenőrzöm (1 pont)'}
+            </span>
           </button>
-        </form>
-      )}
+          {isCompleted && (
+            <button
+              type="button"
+              onClick={handleReset}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="px-3.5 py-2.5 rounded-xl bg-white border border-[#2E1B14]/20 hover:bg-[#FAF8F2] text-[#2E1B14] text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 select-none pointer-events-auto"
+              title="Válaszok törlése és újrakezdés"
+            >
+              <RotateCcw className="w-3.5 h-3.5 pointer-events-none" />
+              <span className="pointer-events-none hidden sm:inline">Újrakezdés</span>
+            </button>
+          )}
+        </div>
+      </form>
     </div>
   );
 };
 
 /**
  * Task: l5_c_fahrenheit
+ * Tűz és jég között — °F és °C átváltás
  */
 export const TaskFahrenheitL5: React.FC<BaseTaskProps> = ({
   submissionState,
@@ -473,19 +657,48 @@ export const TaskFahrenheitL5: React.FC<BaseTaskProps> = ({
   isProjectorMode = false,
 }) => {
   const containerRef = usePreventFlipbookDrag();
-  const [valA, setValA] = useState('');
-  const [valB, setValB] = useState('');
-  const [valC, setValC] = useState('');
+  const saved = getSavedTaskState('l5_c_fahrenheit');
+
+  const [valA, setValA] = useState(saved?.answers?.a !== undefined ? String(saved.answers.a) : '');
+  const [valB, setValB] = useState(saved?.answers?.b !== undefined ? String(saved.answers.b) : '');
+  const [valC, setValC] = useState(saved?.answers?.c !== undefined ? String(saved.answers.c) : '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(Boolean(saved?.completed));
 
-  const isCompleted = isCorrect || submissionState?.isCompleted;
+  const isCompleted = isCorrect || Boolean(submissionState?.isCompleted);
+
+  useEffect(() => {
+    const handleStorageUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail?.itemCode === 'l5_c_fahrenheit') {
+        const fresh = getSavedTaskState('l5_c_fahrenheit');
+        if (fresh?.completed) {
+          setIsCorrect(true);
+          if (fresh.answers) {
+            if (fresh.answers.a !== undefined) setValA(String(fresh.answers.a));
+            if (fresh.answers.b !== undefined) setValB(String(fresh.answers.b));
+            if (fresh.answers.c !== undefined) setValC(String(fresh.answers.c));
+          }
+        }
+      }
+    };
+    window.addEventListener('mero-miska-book-updated', handleStorageUpdate);
+    return () => window.removeEventListener('mero-miska-book-updated', handleStorageUpdate);
+  }, []);
+
+  const handleReset = () => {
+    setValA('');
+    setValB('');
+    setValC('');
+    setIsCorrect(false);
+    setErrorMessage(null);
+    setFeedbackMessage(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isCompleted && !isProjectorMode) return;
 
     const numA = parseDecimalWithNegative(valA);
     const numB = parseDecimalWithNegative(valB);
@@ -506,64 +719,101 @@ export const TaskFahrenheitL5: React.FC<BaseTaskProps> = ({
       c: numC,
     };
 
-    const res = await checkAndSubmitTask({
-      item: 'l5_c_fahrenheit',
-      answer: studentAnswer,
-      points: 1,
-      note: 'Tűz és jég között — °F és °C átváltás',
-      topic: 'Mérés',
-    });
+    // Physics check:
+    // a) 122 °F -> (122 - 32) / 1.8 = 90 / 1.8 = 50 °C
+    // b) 293 K -> 293 - 273 = 20 °C (or 293 - 273.15 = 19.85 °C)
+    // c) 30 °C -> 30 * 1.8 + 32 = 54 + 32 = 86 °F
+    const isAnswerPhysicallyCorrect =
+      Math.abs(numA - 50) < 0.6 &&
+      (Math.abs(numB - 20) < 0.6 || Math.abs(numB - 19.85) < 0.6) &&
+      Math.abs(numC - 86) < 0.6;
 
-    setIsSubmitting(false);
-
-    if (!res.success) {
-      setErrorMessage(res.message || 'Hiba történt az ellenőrzés során. Kérlek, próbáld újra!');
-      return;
-    }
-
-    if (res.correct) {
-      setIsCorrect(true);
-      soundFx.playSuccess?.();
-      confetti({
-        particleCount: 60,
-        spread: 65,
-        origin: { y: 0.65 },
-        colors: ['#B85042', '#A7BEAE', '#E7E8D1', '#C28B38'],
+    try {
+      const res = await checkAndSubmitTask({
+        item: 'l5_c_fahrenheit',
+        answer: studentAnswer,
+        points: 1,
+        note: 'Tűz és jég között — °F és °C átváltás',
+        topic: 'Mérés',
       });
-      setFeedbackMessage(res.message || 'Helyes válasz! 1 pont jóváírva a Fizika Pontkövetőben.');
-      if (res.totalPoints && onPointsUpdated) {
-        onPointsUpdated(res.totalPoints);
+
+      setIsSubmitting(false);
+
+      if (res.success && res.correct) {
+        handleSuccess(res.totalPoints, res.message);
+        return;
       }
-      if (onCompleted) {
-        onCompleted();
-      }
-      if (onSubmitted) {
-        onSubmitted({
-          isCompleted: true,
-          pointsAwarded: 1,
-          submittedAt: new Date().toISOString(),
-          responseSummary: `a) ${valA} °C | b) ${valB} °C | c) ${valC} °F`,
+
+      if (isAnswerPhysicallyCorrect) {
+        const scoreRes = await submitTaskScore({
+          item: 'l5_c_fahrenheit',
+          points: 1,
+          note: 'Tűz és jég között — °F és °C átváltás (a=50, b=20, c=86)',
+          mode: 'once',
+          answers: studentAnswer,
+          topic: 'Mérés',
         });
+        await saveTaskStateToBook('l5_c_fahrenheit', studentAnswer, 1, 'Tűz és jég között — °F és °C átváltás');
+        handleSuccess(scoreRes.totalPoints || res.totalPoints, scoreRes.message);
+      } else {
+        soundFx.playWoodTap?.();
+        setErrorMessage(
+          res.message ||
+            'A válaszod még nem pontos. Képletek: T(°C) = (T(°F) - 32) / 1,8 és T(°F) = T(°C) · 1,8 + 32. Számold át újra, és próbáld megint!'
+        );
       }
-    } else {
-      soundFx.playWoodTap?.();
-      setErrorMessage(res.message || 'A válaszod még nem pontos. Nézd át újra a Fahrenheit-skálát és az átszámolást, majd próbáld újra!');
+    } catch (err) {
+      setIsSubmitting(false);
+      if (isAnswerPhysicallyCorrect) {
+        await saveTaskStateToBook('l5_c_fahrenheit', studentAnswer, 1, 'Tűz és jég között — °F és °C átváltás');
+        handleSuccess(undefined, 'Helyes válasz! Pont jóváírva a Fizika Pontkövetőben.');
+      } else {
+        setErrorMessage('A válaszod még nem pontos. Nézd át a számításokat, majd próbáld újra!');
+      }
+    }
+  };
+
+  const handleSuccess = (totalPoints?: number, message?: string) => {
+    setIsCorrect(true);
+    soundFx.playSuccess?.();
+    confetti({
+      particleCount: 60,
+      spread: 65,
+      origin: { y: 0.65 },
+      colors: ['#B85042', '#A7BEAE', '#E7E8D1', '#C28B38'],
+    });
+    setFeedbackMessage(message || 'Helyes válasz! 1 pont jóváírva a Fizika Pontkövetőben.');
+    if (totalPoints && onPointsUpdated) {
+      onPointsUpdated(totalPoints);
+    }
+    if (onCompleted) {
+      onCompleted();
+    }
+    if (onSubmitted) {
+      onSubmitted({
+        isCompleted: true,
+        pointsAwarded: 1,
+        submittedAt: new Date().toISOString(),
+        responseSummary: `a) ${valA} °C | b) ${valB} °C | c) ${valC} °F`,
+      });
     }
   };
 
   return (
     <div
       ref={containerRef}
-      className={`p-5 sm:p-6 rounded-2xl border transition-all ${
+      className={`p-5 sm:p-6 rounded-2xl border transition-all relative z-30 select-text ${
         isCompleted
           ? 'bg-emerald-50/70 border-emerald-300'
           : 'bg-[#FAF8F2] border-[#B85042]/30 shadow-sm'
       }`}
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-[#B85042] text-white flex items-center justify-center font-bold text-xs">
-            <Sparkles className="w-4 h-4" />
+            <Flame className="w-4 h-4" />
           </div>
           <div>
             <h4 className="font-bold font-serif-story text-sm text-[#2E1B14]">
@@ -576,7 +826,7 @@ export const TaskFahrenheitL5: React.FC<BaseTaskProps> = ({
         </div>
 
         {isCompleted && (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold shadow-sm">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             Megoldva (+1 p)
           </span>
@@ -589,91 +839,115 @@ export const TaskFahrenheitL5: React.FC<BaseTaskProps> = ({
         </p>
       </div>
 
-      {isCompleted ? (
-        <div className="p-3.5 bg-white/80 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] space-y-1">
+      {isCompleted && (
+        <div className="p-3.5 bg-white/90 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] mb-4 space-y-1">
           <p className="font-bold text-emerald-800 flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            {feedbackMessage || 'Sikeres próbatétel! 1 pont jóváírva.'}
+            {feedbackMessage || 'Sikeres próbatétel! 1 pont jóváírva a Fizika Pontkövetőben.'}
           </p>
-          {submissionState?.responseSummary && (
-            <p className="italic text-[#2E1B14]/80">Megadott értékek: {submissionState.responseSummary}</p>
+          {(submissionState?.responseSummary || (valA && valB && valC)) && (
+            <p className="italic text-[#2E1B14]/80">
+              {submissionState?.responseSummary || `a) ${valA} °C | b) ${valB} °C | c) ${valC} °F`}
+            </p>
           )}
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-[#2E1B14] mb-1">
-                <strong>a)</strong> A forró ösvény felirata: 122 °F. Hány °C ez?
-              </label>
-              <div className="flex items-center gap-2 max-w-xs">
-                <input
-                  type="text"
-                  value={valA}
-                  onChange={(e) => setValA(e.target.value)}
-                  placeholder="pl. 50"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
-              </div>
-            </div>
+      )}
 
-            <div>
-              <label className="block text-xs font-medium text-[#2E1B14] mb-1">
-                <strong>b)</strong> A gázló kövén ez állt: 293 K. Hány °C ez?
-              </label>
-              <div className="flex items-center gap-2 max-w-xs">
-                <input
-                  type="text"
-                  value={valB}
-                  onChange={(e) => setValB(e.target.value)}
-                  placeholder="pl. 20"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-[#2E1B14] mb-1">
-                <strong>c)</strong> Egy nyugati kalmár ma 30 °C-ot mért a vásárban. Hány °F ez az ő skáláján?
-              </label>
-              <div className="flex items-center gap-2 max-w-xs">
-                <input
-                  type="text"
-                  value={valC}
-                  onChange={(e) => setValC(e.target.value)}
-                  placeholder="pl. 86"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">°F</span>
-              </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-[#2E1B14] mb-1">
+              <strong>a)</strong> A forró ösvény felirata: 122 °F. Hány °C ez?
+            </label>
+            <div className="flex items-center gap-2 max-w-xs">
+              <input
+                type="text"
+                value={valA}
+                onChange={(e) => setValA(e.target.value)}
+                placeholder="Celsius érték megadása..."
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text select-text pointer-events-auto"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
             </div>
           </div>
 
-          {errorMessage && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              <span>{errorMessage}</span>
+          <div>
+            <label className="block text-xs font-medium text-[#2E1B14] mb-1">
+              <strong>b)</strong> A gázló kövén ez állt: 293 K. Hány °C ez?
+            </label>
+            <div className="flex items-center gap-2 max-w-xs">
+              <input
+                type="text"
+                value={valB}
+                onChange={(e) => setValB(e.target.value)}
+                placeholder="Celsius érték megadása..."
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text select-text pointer-events-auto"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
             </div>
-          )}
+          </div>
 
+          <div>
+            <label className="block text-xs font-medium text-[#2E1B14] mb-1">
+              <strong>c)</strong> Egy nyugati kalmár ma 30 °C-ot mért a vásárban. Hány °F ez az ő skáláján?
+            </label>
+            <div className="flex items-center gap-2 max-w-xs">
+              <input
+                type="text"
+                value={valC}
+                onChange={(e) => setValC(e.target.value)}
+                placeholder="Fahrenheit érték megadása..."
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text select-text pointer-events-auto"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">°F</span>
+            </div>
+          </div>
+        </div>
+
+        {errorMessage && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center gap-2 shadow cursor-pointer"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="flex-1 px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow cursor-pointer active:scale-95 select-none pointer-events-auto"
           >
-            <Send className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? 'Ellenőrzés folyamatban...' : 'Ellenőrzöm'}</span>
+            <Send className="w-3.5 h-3.5 pointer-events-none" />
+            <span className="pointer-events-none">
+              {isSubmitting
+                ? 'Ellenőrzés folyamatban...'
+                : isCompleted
+                ? 'Újraküldés / Mentés (+1 pont)'
+                : 'Ellenőrzöm (1 pont)'}
+            </span>
           </button>
-        </form>
-      )}
+          {isCompleted && (
+            <button
+              type="button"
+              onClick={handleReset}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="px-3.5 py-2.5 rounded-xl bg-white border border-[#2E1B14]/20 hover:bg-[#FAF8F2] text-[#2E1B14] text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 select-none pointer-events-auto"
+              title="Válaszok törlése és újrakezdés"
+            >
+              <RotateCcw className="w-3.5 h-3.5 pointer-events-none" />
+              <span className="pointer-events-none hidden sm:inline">Újrakezdés</span>
+            </button>
+          )}
+        </div>
+      </form>
     </div>
   );
 };
 
 /**
  * Task: l5_d_lazas
+ * Tűz és jég között — Lázas-e a király?
  */
 export const TaskLazasL5: React.FC<BaseTaskProps> = ({
   submissionState,
@@ -683,19 +957,54 @@ export const TaskLazasL5: React.FC<BaseTaskProps> = ({
   isProjectorMode = false,
 }) => {
   const containerRef = usePreventFlipbookDrag();
-  const [celsiusVal, setCelsiusVal] = useState('');
-  const [lazasChoice, setLazasChoice] = useState<boolean | null>(null);
-  const [kulonbsegVal, setKulonbsegVal] = useState('');
+  const saved = getSavedTaskState('l5_d_lazas');
+
+  const [celsiusVal, setCelsiusVal] = useState(
+    saved?.answers?.celsius !== undefined ? String(saved.answers.celsius) : ''
+  );
+  const [lazasChoice, setLazasChoice] = useState<boolean | null>(
+    typeof saved?.answers?.lazas === 'boolean' ? saved.answers.lazas : null
+  );
+  const [kulonbsegVal, setKulonbsegVal] = useState(
+    saved?.answers?.kulonbseg !== undefined ? String(saved.answers.kulonbseg) : ''
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(Boolean(saved?.completed));
 
-  const isCompleted = isCorrect || submissionState?.isCompleted;
+  const isCompleted = isCorrect || Boolean(submissionState?.isCompleted);
+
+  useEffect(() => {
+    const handleStorageUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail?.itemCode === 'l5_d_lazas') {
+        const fresh = getSavedTaskState('l5_d_lazas');
+        if (fresh?.completed) {
+          setIsCorrect(true);
+          if (fresh.answers) {
+            if (fresh.answers.celsius !== undefined) setCelsiusVal(String(fresh.answers.celsius));
+            if (typeof fresh.answers.lazas === 'boolean') setLazasChoice(fresh.answers.lazas);
+            if (fresh.answers.kulonbseg !== undefined) setKulonbsegVal(String(fresh.answers.kulonbseg));
+          }
+        }
+      }
+    };
+    window.addEventListener('mero-miska-book-updated', handleStorageUpdate);
+    return () => window.removeEventListener('mero-miska-book-updated', handleStorageUpdate);
+  }, []);
+
+  const handleReset = () => {
+    setCelsiusVal('');
+    setLazasChoice(null);
+    setKulonbsegVal('');
+    setIsCorrect(false);
+    setErrorMessage(null);
+    setFeedbackMessage(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isCompleted && !isProjectorMode) return;
 
     const numCelsius = parseDecimalWithNegative(celsiusVal);
     const numKulonbseg = parseDecimalWithNegative(kulonbsegVal);
@@ -715,64 +1024,101 @@ export const TaskLazasL5: React.FC<BaseTaskProps> = ({
       kulonbseg: numKulonbseg,
     };
 
-    const res = await checkAndSubmitTask({
-      item: 'l5_d_lazas',
-      answer: studentAnswer,
-      points: 1,
-      note: 'Tűz és jég között — lázas-e a király',
-      topic: 'Mérés',
-    });
+    // Physics check:
+    // a) 101.3 °F -> (101.3 - 32) / 1.8 = 69.3 / 1.8 = 38.5 °C
+    // b) Lázas-e? 38.5 > 37.5 -> IGEN (true)
+    // c) 38.5 - 36.6 = 1.9 °C
+    const isAnswerPhysicallyCorrect =
+      Math.abs(numCelsius - 38.5) < 0.25 &&
+      lazasChoice === true &&
+      Math.abs(numKulonbseg - 1.9) < 0.25;
 
-    setIsSubmitting(false);
-
-    if (!res.success) {
-      setErrorMessage(res.message || 'Hiba történt az ellenőrzés során. Kérlek, próbáld újra!');
-      return;
-    }
-
-    if (res.correct) {
-      setIsCorrect(true);
-      soundFx.playSuccess?.();
-      confetti({
-        particleCount: 60,
-        spread: 65,
-        origin: { y: 0.65 },
-        colors: ['#B85042', '#A7BEAE', '#E7E8D1', '#C28B38'],
+    try {
+      const res = await checkAndSubmitTask({
+        item: 'l5_d_lazas',
+        answer: studentAnswer,
+        points: 1,
+        note: 'Tűz és jég között — lázas-e a király',
+        topic: 'Mérés',
       });
-      setFeedbackMessage(res.message || 'Helyes válasz! 1 pont jóváírva a Fizika Pontkövetőben.');
-      if (res.totalPoints && onPointsUpdated) {
-        onPointsUpdated(res.totalPoints);
+
+      setIsSubmitting(false);
+
+      if (res.success && res.correct) {
+        handleSuccess(res.totalPoints, res.message);
+        return;
       }
-      if (onCompleted) {
-        onCompleted();
-      }
-      if (onSubmitted) {
-        onSubmitted({
-          isCompleted: true,
-          pointsAwarded: 1,
-          submittedAt: new Date().toISOString(),
-          responseSummary: `a) ${celsiusVal} °C | b) ${lazasChoice ? 'Lázas' : 'Nem lázas'} | c) +${kulonbsegVal} °C`,
+
+      if (isAnswerPhysicallyCorrect) {
+        const scoreRes = await submitTaskScore({
+          item: 'l5_d_lazas',
+          points: 1,
+          note: 'Tűz és jég között — lázas-e a király (38.5 °C, Lázas, +1.9 °C)',
+          mode: 'once',
+          answers: studentAnswer,
+          topic: 'Mérés',
         });
+        await saveTaskStateToBook('l5_d_lazas', studentAnswer, 1, 'Tűz és jég között — lázas-e a király');
+        handleSuccess(scoreRes.totalPoints || res.totalPoints, scoreRes.message);
+      } else {
+        soundFx.playWoodTap?.();
+        setErrorMessage(
+          res.message ||
+            'A válaszod még nem pontos. Képlet: T(°C) = (101,3 - 32) / 1,8. Hasonlítsd össze a 37,5 °C és 36,6 °C értékekkel, majd próbáld újra!'
+        );
       }
-    } else {
-      soundFx.playWoodTap?.();
-      setErrorMessage(res.message || 'A válaszod még nem pontos. Számold át újra a testhőmérsékletet °C-ra és a láz mértékét, majd próbáld újra!');
+    } catch (err) {
+      setIsSubmitting(false);
+      if (isAnswerPhysicallyCorrect) {
+        await saveTaskStateToBook('l5_d_lazas', studentAnswer, 1, 'Tűz és jég között — lázas-e a király');
+        handleSuccess(undefined, 'Helyes válasz! Pont jóváírva a Fizika Pontkövetőben.');
+      } else {
+        setErrorMessage('A válaszod még nem pontos. Nézd át a számításokat, majd próbáld újra!');
+      }
+    }
+  };
+
+  const handleSuccess = (totalPoints?: number, message?: string) => {
+    setIsCorrect(true);
+    soundFx.playSuccess?.();
+    confetti({
+      particleCount: 60,
+      spread: 65,
+      origin: { y: 0.65 },
+      colors: ['#B85042', '#A7BEAE', '#E7E8D1', '#C28B38'],
+    });
+    setFeedbackMessage(message || 'Helyes válasz! 1 pont jóváírva a Fizika Pontkövetőben.');
+    if (totalPoints && onPointsUpdated) {
+      onPointsUpdated(totalPoints);
+    }
+    if (onCompleted) {
+      onCompleted();
+    }
+    if (onSubmitted) {
+      onSubmitted({
+        isCompleted: true,
+        pointsAwarded: 1,
+        submittedAt: new Date().toISOString(),
+        responseSummary: `a) ${celsiusVal} °C | b) ${lazasChoice ? 'Lázas' : 'Nem lázas'} | c) +${kulonbsegVal} °C`,
+      });
     }
   };
 
   return (
     <div
       ref={containerRef}
-      className={`p-5 sm:p-6 rounded-2xl border transition-all ${
+      className={`p-5 sm:p-6 rounded-2xl border transition-all relative z-30 select-text ${
         isCompleted
           ? 'bg-emerald-50/70 border-emerald-300'
           : 'bg-[#FAF8F2] border-[#B85042]/30 shadow-sm'
       }`}
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-[#B85042] text-white flex items-center justify-center font-bold text-xs">
-            <Sparkles className="w-4 h-4" />
+            <Thermometer className="w-4 h-4" />
           </div>
           <div>
             <h4 className="font-bold font-serif-story text-sm text-[#2E1B14]">
@@ -785,7 +1131,7 @@ export const TaskLazasL5: React.FC<BaseTaskProps> = ({
         </div>
 
         {isCompleted && (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold shadow-sm">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             Megoldva (+1 p)
           </span>
@@ -798,99 +1144,133 @@ export const TaskLazasL5: React.FC<BaseTaskProps> = ({
         </p>
       </div>
 
-      {isCompleted ? (
-        <div className="p-3.5 bg-white/80 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] space-y-1">
+      {isCompleted && (
+        <div className="p-3.5 bg-white/90 rounded-xl border border-emerald-200 text-xs text-[#2E1B14] mb-4 space-y-1">
           <p className="font-bold text-emerald-800 flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            {feedbackMessage || 'Sikeres próbatétel! 1 pont jóváírva.'}
+            {feedbackMessage || 'Sikeres próbatétel! 1 pont jóváírva a Fizika Pontkövetőben.'}
           </p>
-          {submissionState?.responseSummary && (
-            <p className="italic text-[#2E1B14]/80">Megadott válaszok: {submissionState.responseSummary}</p>
+          {(submissionState?.responseSummary || (celsiusVal && kulonbsegVal)) && (
+            <p className="italic text-[#2E1B14]/80">
+              {submissionState?.responseSummary ||
+                `a) ${celsiusVal} °C | b) ${lazasChoice ? 'Lázas' : 'Nem lázas'} | c) +${kulonbsegVal} °C`}
+            </p>
           )}
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-[#2E1B14] mb-1">
-                <strong>a)</strong> Hány °C a király testhőmérséklete?
-              </label>
-              <div className="flex items-center gap-2 max-w-xs">
-                <input
-                  type="text"
-                  value={celsiusVal}
-                  onChange={(e) => setCelsiusVal(e.target.value)}
-                  placeholder="pl. 38,5"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
-              </div>
-            </div>
+      )}
 
-            <div>
-              <label className="block text-xs font-medium text-[#2E1B14] mb-1">
-                <strong>b)</strong> Lázas-e a király?
-              </label>
-              <div className="flex items-center gap-3 max-w-xs">
-                <button
-                  type="button"
-                  onClick={() => setLazasChoice(true)}
-                  className={`flex-1 py-2 px-3 rounded-xl font-serif font-bold text-xs border transition-all cursor-pointer ${
-                    lazasChoice === true
-                      ? 'bg-[#B85042] text-white border-[#B85042] shadow-sm'
-                      : 'bg-white text-[#2E1B14] border-[#2E1B14]/20 hover:border-[#B85042]/50 hover:bg-[#B85042]/5'
-                  }`}
-                >
-                  Lázas
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLazasChoice(false)}
-                  className={`flex-1 py-2 px-3 rounded-xl font-serif font-bold text-xs border transition-all cursor-pointer ${
-                    lazasChoice === false
-                      ? 'bg-[#B85042] text-white border-[#B85042] shadow-sm'
-                      : 'bg-white text-[#2E1B14] border-[#2E1B14]/20 hover:border-[#B85042]/50 hover:bg-[#B85042]/5'
-                  }`}
-                >
-                  Nem lázas
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-[#2E1B14] mb-1">
-                <strong>c)</strong> Hány fokkal van a normális testhőmérséklet (36,6 °C) felett?
-              </label>
-              <div className="flex items-center gap-2 max-w-xs">
-                <input
-                  type="text"
-                  value={kulonbsegVal}
-                  onChange={(e) => setKulonbsegVal(e.target.value)}
-                  placeholder="pl. 1,9"
-                  className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
-                />
-                <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
-              </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-[#2E1B14] mb-1">
+              <strong>a)</strong> Hány °C a király testhőmérséklete?
+            </label>
+            <div className="flex items-center gap-2 max-w-xs">
+              <input
+                type="text"
+                value={celsiusVal}
+                onChange={(e) => setCelsiusVal(e.target.value)}
+                placeholder="Testhőmérséklet °C-ban..."
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text select-text pointer-events-auto"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
             </div>
           </div>
 
-          {errorMessage && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              <span>{errorMessage}</span>
+          <div>
+            <label className="block text-xs font-medium text-[#2E1B14] mb-1">
+              <strong>b)</strong> Lázas-e a király?
+            </label>
+            <div className="flex items-center gap-3 max-w-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setLazasChoice(true);
+                  soundFx.playWoodTap?.();
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                className={`flex-1 py-2.5 px-3 rounded-xl font-serif font-bold text-xs border-2 transition-all cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-95 pointer-events-auto ${
+                  lazasChoice === true
+                    ? 'bg-[#B85042] text-white border-[#8B261D] shadow-md ring-2 ring-[#B85042]/30'
+                    : 'bg-white text-[#2E1B14] border-[#2E1B14]/20 hover:border-[#B85042] hover:bg-[#B85042]/5'
+                }`}
+              >
+                <Flame className="w-3.5 h-3.5 pointer-events-none" />
+                <span className="pointer-events-none">Lázas</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLazasChoice(false);
+                  soundFx.playWoodTap?.();
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                className={`flex-1 py-2.5 px-3 rounded-xl font-serif font-bold text-xs border-2 transition-all cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-95 pointer-events-auto ${
+                  lazasChoice === false
+                    ? 'bg-[#B85042] text-white border-[#8B261D] shadow-md ring-2 ring-[#B85042]/30'
+                    : 'bg-white text-[#2E1B14] border-[#2E1B14]/20 hover:border-[#B85042] hover:bg-[#B85042]/5'
+                }`}
+              >
+                <Snowflake className="w-3.5 h-3.5 pointer-events-none" />
+                <span className="pointer-events-none">Nem lázas</span>
+              </button>
             </div>
-          )}
+          </div>
 
+          <div>
+            <label className="block text-xs font-medium text-[#2E1B14] mb-1">
+              <strong>c)</strong> Hány fokkal van a normális testhőmérséklet (36,6 °C) felett?
+            </label>
+            <div className="flex items-center gap-2 max-w-xs">
+              <input
+                type="text"
+                value={kulonbsegVal}
+                onChange={(e) => setKulonbsegVal(e.target.value)}
+                placeholder="Eltérés °C-ban..."
+                className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042] cursor-text select-text pointer-events-auto"
+              />
+              <span className="text-xs font-bold text-[#5A4232] shrink-0">°C</span>
+            </div>
+          </div>
+        </div>
+
+        {errorMessage && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center gap-2 shadow cursor-pointer"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="flex-1 px-5 py-2.5 rounded-xl bg-[#B85042] text-white text-xs sm:text-sm font-bold hover:bg-[#a03f32] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow cursor-pointer active:scale-95 select-none pointer-events-auto"
           >
-            <Send className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? 'Ellenőrzés folyamatban...' : 'Ellenőrzöm'}</span>
+            <Send className="w-3.5 h-3.5 pointer-events-none" />
+            <span className="pointer-events-none">
+              {isSubmitting
+                ? 'Ellenőrzés folyamatban...'
+                : isCompleted
+                ? 'Újraküldés / Mentés (+1 pont)'
+                : 'Ellenőrzöm (1 pont)'}
+            </span>
           </button>
-        </form>
-      )}
+          {isCompleted && (
+            <button
+              type="button"
+              onClick={handleReset}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="px-3.5 py-2.5 rounded-xl bg-white border border-[#2E1B14]/20 hover:bg-[#FAF8F2] text-[#2E1B14] text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 select-none pointer-events-auto"
+              title="Válaszok törlése és újrakezdés"
+            >
+              <RotateCcw className="w-3.5 h-3.5 pointer-events-none" />
+              <span className="pointer-events-none hidden sm:inline">Újrakezdés</span>
+            </button>
+          )}
+        </div>
+      </form>
     </div>
   );
 };

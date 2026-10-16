@@ -215,7 +215,7 @@ export const TaskSzamoljL6: React.FC<BaseTaskProps> = ({
                 type="text"
                 value={tVal}
                 onChange={(e) => setTVal(e.target.value)}
-                placeholder="pl. 2,04"
+                placeholder="Lengésidő megadása..."
                 className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
               />
               <span className="text-xs font-bold text-[#5A4232] shrink-0">másodperc</span>
@@ -231,7 +231,7 @@ export const TaskSzamoljL6: React.FC<BaseTaskProps> = ({
                 type="text"
                 value={felTVal}
                 onChange={(e) => setFelTVal(e.target.value)}
-                placeholder="pl. 1,02"
+                placeholder="Féllengésidő megadása..."
                 className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-[#2E1B14]/20 bg-white focus:outline-none focus:ring-2 focus:ring-[#B85042]"
               />
               <span className="text-xs font-bold text-[#5A4232] shrink-0">másodperc</span>
